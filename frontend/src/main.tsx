@@ -14,6 +14,7 @@ import './styles/tokens.css';
 import { Layout } from './components/Layout';
 import { Home } from './pages/Home';
 import { CourtDiscovery } from './pages/CourtDiscovery';
+import { AuthPage } from './pages/AuthPage';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -22,6 +23,8 @@ createRoot(document.getElementById('root')!).render(
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/tim-san" element={<CourtDiscovery />} />
+          <Route path="/dang-nhap" element={<AuthPage />} />
+          <Route path="/dang-ky" element={<AuthPage />} />
           <Route path="*" element={<Home />} />
         </Route>
       </Routes>

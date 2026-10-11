@@ -1,0 +1,461 @@
+/* ============================================================
+   AuthPage — form to chiếm full page, không có cột hero.
+   Tab Login/Register, animation trượt ngang khi đổi mode.
+   ============================================================ */
+
+.auth {
+  min-height: calc(100vh - 76px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-1);
+  padding: var(--s-8) var(--s-4);
+  /* Gradient nhẹ nền để card nổi bật */
+  background-image:
+    radial-gradient(circle at 0% 0%, rgba(5, 150, 105, 0.08), transparent 40%),
+    radial-gradient(circle at 100% 100%, rgba(6, 182, 212, 0.08), transparent 40%);
+}
+
+@media (max-width: 720px) {
+  .auth {
+    min-height: calc(100vh - 64px);
+    padding: var(--s-4) var(--s-3);
+  }
+}
+
+/* === Panel chứa card === */
+.auth__panel {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* === Card chính — to về cả ngang lẫn cao === */
+.auth__card {
+  width: 100%;
+  max-width: 640px;
+  background: var(--surface-2);
+  border: var(--line);
+  border-radius: var(--r-lg);
+  padding: var(--s-10) var(--s-12) var(--s-8);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.1);
+}
+
+@media (max-width: 720px) {
+  .auth__card {
+    padding: var(--s-6) var(--s-4);
+  }
+}
+
+/* === Tab switcher (Login | Register) === */
+.auth__tabs {
+  display: flex;
+  gap: var(--s-1);
+  background: var(--surface-3);
+  border-radius: var(--r-md);
+  padding: 4px;
+  margin-bottom: var(--s-8);
+}
+
+.auth__tab {
+  flex: 1 1 0;
+  padding: 12px var(--s-4);
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink-2);
+  border-radius: var(--r-sm);
+  text-align: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.auth__tab:hover {
+  color: var(--ink-0);
+}
+
+.auth__tab--active {
+  background: var(--surface-2);
+  color: var(--ink-0);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+}
+
+/* === Form header === */
+.auth__head {
+  margin-bottom: var(--s-6);
+  text-align: center;
+}
+
+.auth__title {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--ink-0);
+  margin: 0 0 var(--s-2);
+}
+
+.auth__sub {
+  font-size: 14px;
+  color: var(--ink-2);
+  margin: 0;
+}
+
+/* === Form fields — 2 cột khi card to === */
+.auth__form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-4);
+}
+
+@media (max-width: 520px) {
+  .auth__form {
+    grid-template-columns: 1fr;
+  }
+}
+
+.auth__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Các field span full width (email, password, confirm, row, submit) */
+.auth__field:has(> .auth__pwd-wrap),
+.auth__field:nth-of-type(1) { /* name (nếu là register thì field đầu = name) */ }
+
+/* Field email luôn full width (field thứ 1 ở login, thứ 2 ở register) */
+.auth__form > .auth__field:nth-child(1):has(input[type="email"]),
+.auth__form > .auth__field:nth-child(2):has(input[type="email"]),
+.auth__form > .auth__field:has(input[type="password"]) {
+  grid-column: 1 / -1;
+}
+
+.auth__form > .auth__field:has(input[id="auth-name"]) {
+  grid-column: 1 / -1;
+}
+
+.auth__form > .auth__field:has(input[id="auth-confirm"]) {
+  grid-column: 1 / -1;
+}
+
+.auth__form > .auth__row {
+  grid-column: 1 / -1;
+}
+
+.auth__form > .auth__check:has(.auth__terms) {
+  grid-column: 1 / -1;
+}
+
+.auth__form > .auth__submit {
+  grid-column: 1 / -1;
+}
+
+/* === Labels & inputs === */
+.auth__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-1);
+}
+
+.auth__input {
+  width: 100%;
+  padding: 12px 14px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--ink-0);
+  background: var(--surface-0);
+  border: 1px solid #e5e7eb;
+  border-radius: var(--r-md);
+  outline: none;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.auth__input::placeholder {
+  color: var(--ink-3);
+}
+
+.auth__input:focus {
+  border-color: var(--brand-2);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+}
+
+.auth__input--error {
+  border-color: #dc2626;
+}
+
+.auth__input--error:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+
+.auth__err {
+  font-size: 12px;
+  color: #dc2626;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* === SĐT + nút gửi OTP === */
+.auth__phone-wrap {
+  position: relative;
+  display: flex;
+  gap: var(--s-2);
+}
+
+.auth__phone-wrap .auth__input {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.auth__send-otp {
+  flex: 0 0 auto;
+  padding: 0 14px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--brand-2);
+  background: rgba(13, 148, 136, 0.08);
+  border: 1px solid rgba(13, 148, 136, 0.25);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+
+.auth__send-otp:hover:not(:disabled) {
+  background: var(--brand-2);
+  color: #fff;
+  border-color: var(--brand-2);
+}
+
+.auth__send-otp:disabled {
+  color: var(--ink-3);
+  background: var(--surface-3);
+  border-color: var(--surface-3);
+  cursor: not-allowed;
+}
+
+/* === Password field với nút show/hide === */
+.auth__pwd-wrap {
+  position: relative;
+}
+
+.auth__pwd-wrap .auth__input {
+  padding-right: 44px;
+}
+
+.auth__pwd-toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--ink-2);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+}
+
+.auth__pwd-toggle:hover {
+  color: var(--ink-0);
+  background: var(--surface-3);
+}
+
+/* === Row: remember + forgot === */
+.auth__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: 4px 0;
+}
+
+.auth__check {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-2);
+  font-size: 13px;
+  color: var(--ink-1);
+  cursor: pointer;
+  user-select: none;
+}
+
+.auth__check input {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  margin-top: 2px;
+  accent-color: var(--brand-2);
+  cursor: pointer;
+}
+
+.auth__link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--brand-2);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.auth__link:hover {
+  color: var(--brand-1);
+}
+
+/* === Terms text === */
+.auth__terms {
+  font-size: 12px;
+  color: var(--ink-2);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.auth__terms a {
+  color: var(--brand-2);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth__terms a:hover {
+  color: var(--brand-1);
+  text-decoration: underline;
+}
+
+/* === Submit button (CTA chính) === */
+.auth__submit {
+  width: 100%;
+  padding: 14px var(--s-6);
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--cta-ink);
+  background: var(--cta-0);
+  border: none;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  margin-top: var(--s-2);
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.auth__submit:hover {
+  background: var(--cta-1);
+  transform: translateY(-1px);
+}
+
+.auth__submit:active {
+  transform: translateY(0);
+}
+
+.auth__submit:disabled {
+  background: var(--off);
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* === Divider "Hoặc" === */
+.auth__divider {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  margin: var(--s-6) 0 var(--s-4);
+  color: var(--ink-2);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  grid-column: 1 / -1;
+}
+
+.auth__divider::before,
+.auth__divider::after {
+  content: '';
+  flex: 1 1 0;
+  height: 1px;
+  background: #e5e7eb;
+}
+
+/* === Social buttons === */
+.auth__socials {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-3);
+  grid-column: 1 / -1;
+}
+
+.auth__social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  padding: 12px var(--s-3);
+  background: var(--surface-0);
+  color: var(--ink-1);
+  border: 1px solid #e5e7eb;
+  border-radius: var(--r-md);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.auth__social:hover {
+  border-color: var(--ink-3);
+  background: var(--surface-1);
+  color: var(--ink-0);
+}
+
+.auth__social-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+}
+
+/* === Footer link dưới form === */
+.auth__foot {
+  text-align: center;
+  font-size: 14px;
+  color: var(--ink-2);
+  margin: var(--s-6) 0 0;
+  grid-column: 1 / -1;
+}
+
+.auth__switch {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-left: 4px;
+  color: var(--brand-2);
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.auth__switch:hover {
+  color: var(--brand-1);
+  text-decoration: underline;
+}

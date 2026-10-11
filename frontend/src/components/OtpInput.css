@@ -1,0 +1,143 @@
+/* ============================================================
+   OtpInput — 6 ô số, dùng cho mã xác nhận OTP.
+   ============================================================ */
+
+.otp {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.otp__boxes {
+  display: flex;
+  gap: var(--s-2);
+  justify-content: center;
+  width: 100%;
+}
+
+.otp__box {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 52px;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink-0);
+  background: var(--surface-0);
+  border: 1.5px solid #e5e7eb;
+  border-radius: var(--r-md);
+  outline: none;
+  padding: 0;
+  caret-color: var(--brand-2);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.otp__box:focus {
+  border-color: var(--brand-2);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+  transform: translateY(-1px);
+}
+
+.otp__box--filled {
+  border-color: var(--brand-2);
+  color: var(--brand-1);
+}
+
+.otp__box:disabled {
+  background: var(--surface-3);
+  color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+.otp--error .otp__box {
+  border-color: #dc2626;
+}
+
+.otp--error .otp__box:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+
+.otp__err {
+  font-size: 12px;
+  color: #dc2626;
+  font-weight: 500;
+  text-align: center;
+}
+
+@media (max-width: 520px) {
+  .otp__box {
+    height: 46px;
+    font-size: 20px;
+  }
+}
+
+/* === Bố cục OTP section (label + boxes + resend) === */
+.otp-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  grid-column: 1 / -1;
+  padding: var(--s-4);
+  background: var(--surface-1);
+  border: 1px dashed #cbd5e1;
+  border-radius: var(--r-md);
+}
+
+.otp-section__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+
+.otp-section__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-1);
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.otp-section__label svg {
+  color: var(--brand-2);
+  flex: 0 0 16px;
+}
+
+.otp-section__resend {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-2);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.otp-section__resend:not(:disabled):hover {
+  color: var(--brand-2);
+  text-decoration: underline;
+}
+
+.otp-section__resend:disabled {
+  color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+.otp-section__hint {
+  font-size: 12px;
+  color: var(--ink-2);
+  text-align: center;
+  margin: 0;
+}
+
+.otp-section__hint b {
+  color: var(--ink-1);
+  font-weight: 600;
+}
