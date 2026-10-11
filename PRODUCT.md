@@ -21,7 +21,7 @@ Three audiences on a single web product:
 
 ## Product Purpose
 
-ShuttleHub giúp khách tìm và đặt sân cầu lông trong vài phút thay vì gọi điện hoặc đến tận nơi, đồng thời giúp chủ sân vận hành nhiều sân cùng lúc mà không cần sổ tay.
+Cầu Lông dee giúp khách tìm và đặt sân cầu lông trong vài phút thay vì gọi điện hoặc đến tận nơi, đồng thời giúp chủ sân vận hành nhiều sân cùng lúc mà không cần sổ tay.
 
 Success = tỉ lệ khách tìm được sân trống và đặt thành công trong một lần truy cập, và chủ sân giảm thời gian xử lý thủ công.
 
@@ -50,7 +50,7 @@ Chưa quyết định:
 
 ## Brand Commitments
 
-Tên: ShuttleHub. Thương hiệu của chính dự án — không phải thương hiệu đối tác.
+Tên: Cầu Lông dee. Thương hiệu của chính dự án — không phải thương hiệu đối tác.
 Phong cách: năng động, trẻ trung, hướng thể thao (đã chốt với người dùng).
 Chưa có logo, palette, hay font chính thức — sẽ chọn trong `new-work` chứ không trong `init`.
 

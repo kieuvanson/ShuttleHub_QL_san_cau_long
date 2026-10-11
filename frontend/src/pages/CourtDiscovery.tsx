@@ -100,7 +100,7 @@ export function CourtDiscovery() {
           <nav className="cd__crumbs" aria-label="Đường dẫn">
             <a href="/">Trang chủ</a>
             <span className="cd__crumbs-sep" aria-hidden="true">/</span>
-            <span aria-current="page">Tìm sân</span>
+            <span aria-current="page">Tìm sân cầu lông</span>
           </nav>
 
           {/* Bộ lọc nằm NGANG phía trên */}
@@ -113,7 +113,7 @@ export function CourtDiscovery() {
           {/* List sân — full width */}
           <section className="cd__results">
             <div className="cd__results-head">
-              <h2 className="cd__results-title">Sân cầu lông phù hợp</h2>
+              <h2 className="cd__results-title">Sân cầu lông phù hợp trên Cầu Lông dee</h2>
               <p className="cd__results-sub">
                 {filtered.length} sân • Cập nhật {new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
               </p>
@@ -150,7 +150,7 @@ export function CourtDiscovery() {
           {/* Bản đồ — đặt ở DƯỚI cùng, full width */}
           <section className="cd__map" aria-label="Bản đồ sân">
             <div className="cd__map-head">
-              <h2 className="cd__map-title">Bản đồ sân</h2>
+              <h2 className="cd__map-title">Bản đồ sân — Cầu Lông dee</h2>
               <p className="cd__map-sub">
                 Nhấp vào pin để xem chi tiết sân.
               </p>

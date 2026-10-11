@@ -1,6 +1,6 @@
-# ShuttleHub - Quản lý sân cầu lông
+# Cầu Lông dee
 
-Ứng dụng quản lý sân cầu lông với Spring Boot và PostgreSQL.
+Ứng dụng đặt sân cầu lông với Spring Boot và PostgreSQL — tìm sân trống gần bạn, xác nhận trong 30 giây.
 
 ## 🚀 Công nghệ sử dụng
 
@@ -12,7 +12,7 @@
 
 1. Clone repository:
 ```bash
-git clone https://github.com/sonki236/ShuttleHub_QL_san_cau_long.git
+git clone https://github.com/sonki236/CauLongDee.git
 ```
 
 2. Cấu hình database trong `src/main/resources/application.properties`:

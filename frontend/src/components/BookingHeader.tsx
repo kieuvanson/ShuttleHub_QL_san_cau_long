@@ -27,7 +27,7 @@ export function BookingHeader(_: Props) {
   }, []);
 
   return (
-    <section className="bh" aria-label="Banner tìm sân">
+    <section className="bh" aria-label="Cầu Lông dee — Banner tìm sân">
       <div className="bh__track" aria-hidden="true">
         {SLIDES.map((src, i) => (
           <div

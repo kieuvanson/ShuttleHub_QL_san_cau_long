@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import './Hero.css';
 
 const BANNERS = [
-  { src: '/banner_hero1.jpg', alt: 'Cầu lông — Cầu Lông Dee' },
-  { src: '/banner_hero2.jpg', alt: 'Sân cầu lông — Cầu Lông Dee' },
+  { src: '/banner_hero1.jpg', alt: 'Cầu lông — Cầu Lông dee' },
+  { src: '/banner_hero2.jpg', alt: 'Sân cầu lông — Cầu Lông dee' },
 ];
 
 export function Hero() {
@@ -35,14 +35,14 @@ export function Hero() {
 
       <div className="hero__inner">
         <div className="hero__copy">
-          <span className="hero__eyebrow">Cầu Lông Dee</span>
+          <span className="hero__eyebrow">Cầu Lông dee</span>
           <h1 className="hero__title">
-            Đặt sân cầu lông
+            Đặt sân cầu lông với Cầu Lông dee
             <br />
             <span className="hero__title-accent">mọi lúc mọi nơi</span>
           </h1>
           <p className="hero__sub">
-            Tìm sân trống gần bạn trong 30 giây. Xác nhận tức thì, không gọi điện,
+            Tìm sân trống gần bạn trong 30 giây. Cầu Lông dee — xác nhận tức thì, không gọi điện, không chờ tin nhắn.
             không chờ đợi.
           </p>
         </div>

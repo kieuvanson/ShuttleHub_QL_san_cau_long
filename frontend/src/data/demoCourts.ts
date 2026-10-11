@@ -1,5 +1,5 @@
 /**
- * Demo data for ShuttleHub.
+ * Demo data for Cầu Lông dee.
  * Gắn nhãn "DEMO" rõ ràng — không được dùng thay cho dữ liệu thật.
  * Mọi giá trị sẽ thay bằng API thật khi backend sẵn sàng.
  */
@@ -34,7 +34,7 @@ export const AREAS = [
 export const DEMO_COURTS: Court[] = [
   {
     id: 'c-001',
-    name: 'ShuttleHub Cầu Giấy',
+    name: 'Cầu Lông dee Cầu Giấy',
     district: 'Cầu Giấy',
     city: 'hanoi',
     priceFrom: 80000,
@@ -47,7 +47,7 @@ export const DEMO_COURTS: Court[] = [
   },
   {
     id: 'c-002',
-    name: 'ShuttleHub Hai Bà Trưng',
+    name: 'Cầu Lông dee Hai Bà Trưng',
     district: 'Hai Bà Trưng',
     city: 'hanoi',
     priceFrom: 90000,
@@ -60,7 +60,7 @@ export const DEMO_COURTS: Court[] = [
   },
   {
     id: 'c-003',
-    name: 'ShuttleHub Quận 1',
+    name: 'Cầu Lông dee Quận 1',
     district: 'Quận 1',
     city: 'hcm',
     priceFrom: 120000,
@@ -73,7 +73,7 @@ export const DEMO_COURTS: Court[] = [
   },
   {
     id: 'c-004',
-    name: 'ShuttleHub Bình Thạnh',
+    name: 'Cầu Lông dee Bình Thạnh',
     district: 'Bình Thạnh',
     city: 'hcm',
     priceFrom: 70000,
@@ -86,7 +86,7 @@ export const DEMO_COURTS: Court[] = [
   },
   {
     id: 'c-005',
-    name: 'ShuttleHub Sơn Trà',
+    name: 'Cầu Lông dee Sơn Trà',
     district: 'Sơn Trà',
     city: 'danang',
     priceFrom: 60000,
@@ -100,7 +100,7 @@ export const DEMO_COURTS: Court[] = [
   },
   {
     id: 'c-006',
-    name: 'ShuttleHub Thanh Khê',
+    name: 'Cầu Lông dee Thanh Khê',
     district: 'Thanh Khê',
     city: 'danang',
     priceFrom: 55000,
@@ -114,7 +114,7 @@ export const DEMO_COURTS: Court[] = [
   },
   {
     id: 'c-007',
-    name: 'ShuttleHub Hải Châu',
+    name: 'Cầu Lông dee Hải Châu',
     district: 'Hải Châu',
     city: 'danang',
     priceFrom: 75000,
@@ -127,7 +127,7 @@ export const DEMO_COURTS: Court[] = [
   },
   {
     id: 'c-008',
-    name: 'ShuttleHub Ngũ Hành Sơn',
+    name: 'Cầu Lông dee Ngũ Hành Sơn',
     district: 'Ngũ Hành Sơn',
     city: 'danang',
     priceFrom: 90000,

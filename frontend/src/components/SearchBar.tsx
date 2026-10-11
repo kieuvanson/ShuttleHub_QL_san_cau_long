@@ -14,7 +14,7 @@ export function SearchBar() {
   };
 
   return (
-    <section className="search" aria-label="Tìm sân nhanh">
+    <section className="search" aria-label="Cầu Lông dee — Tìm sân nhanh">
       <div className="search__inner">
         <form className="search__form" onSubmit={handleSubmit} role="search">
           <div className="search__field">

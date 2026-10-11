@@ -3,7 +3,7 @@ import './FaqSection.css';
 
 const FAQS = [
   {
-    q: 'Làm sao đặt sân trên ShuttleHub?',
+    q: 'Làm sao đặt sân trên Cầu Lông dee?',
     a: 'Chọn khu vực, ngày, giờ ở thanh tìm kiếm → chọn sân trống → điền thông tin → thanh toán online. Xác nhận trong vòng 30 giây.',
   },
   {
@@ -16,7 +16,7 @@ const FAQS = [
   },
   {
     q: 'Sân có sẵn cho khách vãng lai không?',
-    a: 'Tất cả sân trên ShuttleHub đều nhận khách vãng lai. Bạn chỉ cần tài khoản ShuttleHub để xác nhận đặt sân.',
+    a: 'Tất cả sân trên Cầu Lông dee đều nhận khách vãng lai. Bạn chỉ cần tài khoản Cầu Lông dee để xác nhận đặt sân.',
   },
 ];
 

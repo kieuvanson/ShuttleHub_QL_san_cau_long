@@ -15,7 +15,7 @@ export function QuickSearchBar({ city, date, onCityChange, onDateChange, onViewS
   const today = new Date(date);
 
   return (
-    <div className="qsb" role="search" aria-label="Tìm sân nhanh">
+    <div className="qsb" role="search" aria-label="Cầu Lông dee — Tìm sân nhanh">
       <div className="qsb__field">
         <span className="qsb__icon" aria-hidden="true">
           <MapPin size={20} strokeWidth={2.2} />
