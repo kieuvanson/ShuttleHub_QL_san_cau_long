@@ -11,20 +11,24 @@ export type Court = {
   city: string;
   priceFrom: number; // VND per hour
   rating: number; // 0–5
+  reviewCount?: number; // số lượt đánh giá
   nextAvailable: string; // e.g. "18:00"
   nextAvailableDate: string; // ISO
   courtsCount: number; // số sân trong cụm
   amenities: string[];
   imageGradient: [string, string]; // fallback khi chưa có ảnh thật
+  isNew?: boolean;
+  isHot?: boolean;
+  distanceKm?: number; // khoảng cách từ trung tâm
 };
 
 export const AREAS = [
-  { id: 'all', label: 'Tất cả' },
-  { id: 'hanoi', label: 'Hà Nội' },
-  { id: 'hcm', label: 'TP.HCM' },
-  { id: 'danang', label: 'Đà Nẵng' },
-  { id: 'haiphong', label: 'Hải Phòng' },
-  { id: 'cantho', label: 'Cần Thơ' },
+  { id: 'all', label: 'Tất cả khu vực', count: 1248 },
+  { id: 'hanoi', label: 'Hà Nội', count: 412 },
+  { id: 'hcm', label: 'TP. Hồ Chí Minh', count: 538 },
+  { id: 'danang', label: 'Đà Nẵng', count: 156 },
+  { id: 'haiphong', label: 'Hải Phòng', count: 89 },
+  { id: 'cantho', label: 'Cần Thơ', count: 53 },
 ] as const;
 
 export const DEMO_COURTS: Court[] = [
@@ -92,6 +96,48 @@ export const DEMO_COURTS: Court[] = [
     courtsCount: 5,
     amenities: ['Máy lạnh', 'View biển'],
     imageGradient: ['#1a2630', '#0d1820'],
+    isHot: true,
+  },
+  {
+    id: 'c-006',
+    name: 'ShuttleHub Thanh Khê',
+    district: 'Thanh Khê',
+    city: 'danang',
+    priceFrom: 55000,
+    rating: 4.2,
+    nextAvailable: '19:00',
+    nextAvailableDate: '2026-10-11',
+    courtsCount: 4,
+    amenities: ['Đỗ xe', 'Nước uống'],
+    imageGradient: ['#2a1f2e', '#1a0d1f'],
+    isNew: true,
+  },
+  {
+    id: 'c-007',
+    name: 'ShuttleHub Hải Châu',
+    district: 'Hải Châu',
+    city: 'danang',
+    priceFrom: 75000,
+    rating: 4.6,
+    nextAvailable: '20:30',
+    nextAvailableDate: '2026-10-11',
+    courtsCount: 6,
+    amenities: ['Máy lạnh', 'Đỗ xe', 'Cho thuê vợt', 'Căng-tin'],
+    imageGradient: ['#1e2a30', '#0d1820'],
+  },
+  {
+    id: 'c-008',
+    name: 'ShuttleHub Ngũ Hành Sơn',
+    district: 'Ngũ Hành Sơn',
+    city: 'danang',
+    priceFrom: 90000,
+    rating: 4.9,
+    nextAvailable: '21:00',
+    nextAvailableDate: '2026-10-11',
+    courtsCount: 7,
+    amenities: ['Máy lạnh', 'Đỗ xe', 'Phòng thay đồ', 'Cho thuê vợt', 'Căng-tin'],
+    imageGradient: ['#2a1a2e', '#1a0d1f'],
+    isHot: true,
   },
 ];
 
