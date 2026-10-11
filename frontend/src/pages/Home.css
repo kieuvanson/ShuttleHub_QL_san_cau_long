@@ -1,0 +1,41 @@
+/* ============================================================
+   Home — trang chủ ShuttleHub
+   Flat layout, no nested cards. Section is the outer container.
+   ============================================================ */
+
+.home {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--ground-0);
+}
+
+.home__main {
+  flex: 1;
+  width: 100%;
+}
+
+/* Each section is a flat strip — never a card */
+.home__section {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--s-12) var(--s-6);
+}
+
+.home__section--tight {
+  padding: var(--s-8) var(--s-6);
+}
+
+.home__section--bleed {
+  /* Section that wants to touch the viewport edge */
+  max-width: none;
+  padding: var(--s-12) 0;
+}
+
+@media (max-width: 720px) {
+  .home__section,
+  .home__section--bleed {
+    padding: var(--s-8) var(--s-4);
+  }
+}

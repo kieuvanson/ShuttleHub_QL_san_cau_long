@@ -1,0 +1,149 @@
+/* ============================================================
+   Header — light, sticky, big logo + emerald wordmark + nav + actions.
+   ============================================================ */
+
+.hdr {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: saturate(140%) blur(10px);
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.hdr__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  height: 76px; /* tăng để vừa logo to */
+  padding: 0 var(--s-6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-6);
+}
+
+/* === Brand: logo + wordmark === */
+.hdr__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  flex: 0 0 auto;
+  color: inherit;
+  text-decoration: none;
+}
+
+.hdr__logo {
+  /* viewBox 680x400 → tỷ lệ 1.7:1 — set height để giữ ratio */
+  height: 52px;
+  width: auto;
+  display: block;
+  border-radius: 8px;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.hdr__brand:hover .hdr__logo {
+  transform: rotate(-4deg);
+}
+
+.hdr__wordmark {
+  font-family: var(--font-brand);
+  font-weight: 800;
+  font-size: 24px;
+  line-height: 1;
+  /* Bricolage đã bo nét mềm mại — chỉ cần letter-spacing âm nhẹ */
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+  /* Cam đậm → cam nhạt, nổi trên nền trắng */
+  background: linear-gradient(135deg, #ea580c 0%, #f97316 50%, #fb923c 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  filter: drop-shadow(0 1px 0 rgba(234, 88, 12, 0.18));
+}
+
+/* === Nav === */
+.hdr__nav {
+  display: flex;
+  align-items: center;
+  gap: var(--s-6);
+  flex: 1 1 auto;
+  justify-content: center;
+  min-width: 0;
+}
+
+.hdr__navlink {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-1);
+  white-space: nowrap;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.hdr__navlink:hover {
+  color: #085041;
+}
+
+/* === Actions === */
+.hdr__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  flex: 0 0 auto;
+}
+
+.hdr__login {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-1);
+  padding: 8px 14px;
+  white-space: nowrap;
+  border-radius: var(--r-sm);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.hdr__login:hover {
+  color: #085041;
+}
+
+.hdr__signup {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cta-ink);
+  background: var(--cta-0);
+  padding: 8px 16px;
+  white-space: nowrap;
+  border-radius: var(--r-sm);
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.hdr__signup:hover {
+  background: var(--cta-1);
+}
+
+/* === Mobile === */
+@media (max-width: 720px) {
+  .hdr__inner {
+    height: 64px;
+    padding: 0 var(--s-4);
+    gap: var(--s-3);
+  }
+  .hdr__logo {
+    height: 40px;
+  }
+  .hdr__wordmark {
+    font-size: 20px;
+  }
+  .hdr__nav {
+    display: none;
+  }
+  .hdr__login {
+    display: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .hdr__wordmark {
+    display: none; /* rất nhỏ thì ẩn wordmark, chỉ giữ logo */
+  }
+}

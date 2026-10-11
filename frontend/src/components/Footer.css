@@ -1,0 +1,105 @@
+/* ============================================================
+   Footer — dark strip, 3 columns + base.
+   Matches the dark footer in the reference image.
+   ============================================================ */
+
+.foot {
+  width: 100%;
+  background: #0f172a;
+  color: #cbd5e1;
+  margin-top: auto;
+}
+
+.foot__inner {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--s-10) var(--s-6);
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: var(--s-10);
+}
+
+.foot__col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  min-width: 0;
+}
+
+.foot__brand {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.1;
+  color: #ffffff;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.foot__desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #94a3b8;
+  margin: 0;
+  max-width: 36ch;
+}
+
+.foot__heading {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #ffffff;
+  margin: 0 0 var(--s-1) 0;
+  white-space: nowrap;
+}
+
+.foot__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.foot__link {
+  font-size: 13px;
+  line-height: 1.4;
+  color: #cbd5e1;
+  white-space: nowrap;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.foot__link:hover {
+  color: #a855f7;
+}
+
+.foot__base {
+  width: 100%;
+  border-top: 1px solid #1e293b;
+}
+
+.foot__base p {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--s-4) var(--s-6);
+  font-size: 12px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 720px) {
+  .foot__inner {
+    grid-template-columns: 1fr;
+    gap: var(--s-6);
+    padding: var(--s-8) var(--s-4);
+  }
+  .foot__base p {
+    padding: var(--s-3) var(--s-4);
+  }
+}

@@ -1,0 +1,116 @@
+/* ============================================================
+   CourtDiscovery — light theme.
+   ============================================================ */
+
+.page {
+  width: 100%;
+  padding: var(--s-6) 0 var(--s-12);
+  background: var(--surface-0);
+}
+
+.page__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--s-6);
+}
+
+.page__head {
+  margin-bottom: var(--s-6);
+  padding-top: var(--s-4);
+}
+
+.page__title {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: clamp(24px, 3.5vw, 32px);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--ink-0);
+}
+
+.page__sub {
+  margin: var(--s-2) 0 0;
+  font-size: 13px;
+  color: var(--ink-2);
+  font-weight: 500;
+}
+
+.page__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+.page__item {
+  display: block;
+}
+
+/* === Empty state === */
+.page__empty {
+  padding: var(--s-12) var(--s-4);
+  text-align: center;
+  border: 1px dashed #e5e7eb;
+  border-radius: var(--r-md);
+  background: var(--surface-1);
+}
+
+.page__empty-title {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink-0);
+}
+
+.page__empty-sub {
+  margin: var(--s-2) 0 var(--s-5);
+  color: var(--ink-2);
+  font-size: 14px;
+}
+
+.page__empty-cta {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cta-ink);
+  background: var(--cta-0);
+  border-radius: var(--r-sm);
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.page__empty-cta:hover {
+  background: var(--cta-1);
+}
+
+/* === Toast === */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: var(--s-6);
+  transform: translateX(-50%);
+  padding: 10px 18px;
+  background: var(--ink-0);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--r-sm);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.25);
+  z-index: 100;
+  max-width: 90vw;
+  text-align: center;
+  animation: toast-in var(--dur-med) var(--ease-out);
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translate(-50%, 10px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@media (max-width: 720px) {
+  .page__inner {
+    padding: 0 var(--s-4);
+  }
+}

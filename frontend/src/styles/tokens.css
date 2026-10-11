@@ -1,0 +1,131 @@
+/* ============================================================
+   ShuttleHub — Design Tokens
+   Light theme + Indigo/Purple gradient (hero) + Orange CTA.
+   ============================================================ */
+
+:root {
+  /* Surface — light */
+  --surface-0: #ffffff;        /* page bg */
+  --surface-1: #f8f9fc;        /* secondary bg */
+  --surface-2: #ffffff;        /* card */
+  --surface-3: #eef0f6;        /* divider / hover */
+  --line: 1px solid #e5e7eb;
+
+  /* Ink — dark text */
+  --ink-0: #0f172a;            /* primary on light */
+  --ink-1: #334155;            /* secondary */
+  --ink-2: #64748b;            /* muted */
+  --ink-3: #94a3b8;            /* disabled / placeholder */
+  --ink-on-dark: #ffffff;      /* text on hero / footer */
+
+  /* Brand gradient — Indigo → Violet → Fuchsia (matches image) */
+  --brand-1: #4f46e5;          /* indigo-600 */
+  --brand-2: #7c3aed;          /* violet-600 */
+  --brand-3: #a855f7;          /* fuchsia-500 */
+
+  /* Accent — Orange CTA */
+  --cta-0: #f97316;            /* orange-500 */
+  --cta-1: #ea580c;            /* orange-600 */
+  --cta-ink: #ffffff;
+
+  /* Status */
+  --ok: #16a34a;
+  --warn: #d97706;
+  --off: #cbd5e1;
+
+  /* Type */
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Inter', system-ui, sans-serif;
+  /* Brand wordmark — mềm mại, bo góc, dùng riêng cho logo text */
+  --font-brand: 'Bricolage Grotesque', 'Quicksand', system-ui, sans-serif;
+
+  /* Sizing */
+  --unit: 4px;
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 16px;
+
+  /* Spacing scale (4-base) */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-10: 40px;
+  --s-12: 48px;
+  --s-16: 64px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 180ms;
+  --dur-med: 320ms;
+}
+
+/* Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background: var(--surface-0);
+  color: var(--ink-0);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+::selection {
+  background: var(--brand-2);
+  color: var(--ink-on-dark);
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand-2);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--surface-1);
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

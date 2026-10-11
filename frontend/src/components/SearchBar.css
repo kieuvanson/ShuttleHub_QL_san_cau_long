@@ -1,0 +1,128 @@
+/* ============================================================
+   SearchBar — section Tìm sân đặt riêng dưới Hero.
+   Nền sáng, form trắng nổi lên trên shadow nhẹ.
+   ============================================================ */
+
+.search {
+  width: 100%;
+  background: var(--surface-1);
+  border-bottom: var(--line);
+  /* Kéo lên để "neo" vào Hero — hiệu ứng card nổi */
+  margin-top: -40px;
+  position: relative;
+  z-index: 2;
+}
+
+.search__inner {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--s-4) var(--s-6) var(--s-6);
+}
+
+.search__form {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  background: #ffffff;
+  border: var(--line);
+  border-radius: var(--r-lg);
+  padding: var(--s-2);
+  width: 100%;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+}
+
+.search__field {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--s-2) var(--s-4);
+  text-align: left;
+}
+
+.search__label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.search__input {
+  background: transparent;
+  border: none;
+  color: var(--ink-0);
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  padding: 0;
+  width: 100%;
+  min-width: 0;
+  outline: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search__input:focus {
+  color: var(--brand-2);
+}
+
+.search__sep {
+  width: 1px;
+  background: #e5e7eb;
+  align-self: stretch;
+  margin: var(--s-2) 0;
+}
+
+.search__submit {
+  flex: 0 0 auto;
+  background: var(--cta-0);
+  color: var(--cta-ink);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 15px;
+  padding: 0 var(--s-6);
+  border-radius: var(--r-md);
+  white-space: nowrap;
+  align-self: stretch;
+  transition: background var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.search__submit:hover {
+  background: var(--cta-1);
+  transform: translateY(-1px);
+}
+
+.search__submit:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 720px) {
+  .search {
+    margin-top: -24px;
+  }
+  .search__inner {
+    padding: var(--s-3) var(--s-4) var(--s-4);
+  }
+  .search__form {
+    flex-wrap: wrap;
+  }
+  .search__field {
+    flex: 1 1 calc(50% - var(--s-2));
+    min-width: 0;
+  }
+  .search__sep {
+    display: none;
+  }
+  .search__submit {
+    flex: 1 1 100%;
+    padding: var(--s-3) var(--s-4);
+    margin-top: var(--s-2);
+  }
+}
