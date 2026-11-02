@@ -203,6 +203,54 @@
   margin-top: 2px;
 }
 
+/* === Lỗi chung từ server === */
+.auth__alert {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+/* === Mã OTP dev (mock mode) === */
+.otp-dev {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px dashed rgba(245, 158, 11, 0.5);
+}
+
+.otp-dev__label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #92400e;
+}
+
+.otp-dev__code {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: #b45309;
+  background: transparent;
+  border: 0;
+  padding: 2px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.otp-dev__code:hover {
+  background: rgba(180, 83, 9, 0.12);
+}
+
 /* === SĐT + nút gửi OTP === */
 .auth__phone-wrap {
   position: relative;

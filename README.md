@@ -15,11 +15,15 @@
 git clone https://github.com/sonki236/CauLongDee.git
 ```
 
-2. Cấu hình database trong `src/main/resources/application.properties`:
-```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/postgres
-spring.datasource.username=postgres
-spring.datasource.password=YOUR_PASSWORD
+2. Cấu hình database:
+```bash
+# Copy file template ra file thật
+cd backend/src/main/resources
+cp application.properties.template application.properties
+
+# Sửa password + JWT secret trong application.properties
+# spring.datasource.password=YOUR_PASSWORD
+# app.jwt.secret=RANDOM_256_BIT_STRING
 ```
 
 3. Chạy ứng dụng:
@@ -27,6 +31,8 @@ spring.datasource.password=YOUR_PASSWORD
 cd backend
 mvn spring-boot:run
 ```
+
+4. Flyway sẽ tự động chạy migration lần đầu (`V1__baseline_users.sql`, `V2__create_otp_codes.sql`).
 
 ## 📁 Cấu trúc dự án
 

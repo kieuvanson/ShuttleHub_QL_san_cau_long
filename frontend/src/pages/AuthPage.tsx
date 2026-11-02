@@ -3,6 +3,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import { OtpInput } from '../components/OtpInput';
+import { useAuth } from '../context/AuthContext';
+import { authApi } from '../api/auth';
+import { ApiError } from '../api/types';
 import './AuthLayout.css';
 
 type Mode = 'login' | 'register';
@@ -11,9 +14,11 @@ type FieldErrors = Partial<{
   email: string;
   password: string;
   name: string;
+  username: string;
   phone: string;
   confirm: string;
   otp: string;
+  form: string;
 }>;
 
 const OTP_LENGTH = 6;
@@ -27,12 +32,14 @@ const RESEND_SECONDS = 60;
 export function AuthPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { login, register: registerAccount } = useAuth();
 
   // Mode lấy từ URL
   const mode: Mode = location.pathname === '/dang-ky' ? 'register' : 'login';
 
   // Shared state
   const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -46,6 +53,8 @@ export function AuthPage() {
   // OTP state
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);       // đã gửi mã chưa
+  const [otpSending, setOtpSending] = useState(false);  // đang gọi API gửi mã
+  const [devOtp, setDevOtp] = useState('');           // mã OTP mock (dev only)
   const [resendIn, setResendIn] = useState(0);         // đếm ngược gửi lại
   const resendTimer = useRef<number | null>(null);
 
@@ -57,6 +66,7 @@ export function AuthPage() {
       setConfirm('');
       setPhone('');
       setName('');
+      setUsername('');
       setOtp('');
       setOtpSent(false);
       setResendIn(0);
@@ -91,6 +101,13 @@ export function AuthPage() {
     if (mode === 'register' && name.trim().length < 2) {
       e.name = 'Vui lòng nhập họ tên (ít nhất 2 ký tự).';
     }
+    if (mode === 'register') {
+      if (username.trim().length < 3) {
+        e.username = 'Tên đăng nhập phải có ít nhất 3 ký tự.';
+      } else if (!/^[a-zA-Z0-9_]+$/.test(username.trim())) {
+        e.username = 'Tên đăng nhập chỉ gồm chữ, số và gạch dưới.';
+      }
+    }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       e.email = 'Email chưa đúng định dạng.';
     }
@@ -115,42 +132,81 @@ export function AuthPage() {
     return e;
   };
 
-  const handleSendOtp = () => {
+  const handleSendOtp = async () => {
     // Validate SĐT trước khi cho gửi
-    if (!/^(0|\+84)[0-9]{9,10}$/.test(phone.replace(/\s/g, ''))) {
+    const cleanPhone = phone.replace(/\s/g, '');
+    if (!/^(0|\+84)[0-9]{9,10}$/.test(cleanPhone)) {
       setErrors((p) => ({ ...p, phone: 'Số điện thoại chưa hợp lệ — không thể gửi mã.' }));
       return;
     }
-    // Mô phỏng gọi API gửi OTP
-    console.log('[auth] send OTP to', phone);
-    setOtpSent(true);
-    setOtp('');
-    setResendIn(RESEND_SECONDS);
-    setErrors((p) => ({ ...p, otp: undefined, phone: undefined }));
+    setOtpSending(true);
+    try {
+      const res = await authApi.sendOtp(cleanPhone);
+      setOtpSent(true);
+      setOtp('');
+      setResendIn(RESEND_SECONDS);
+      setErrors((p) => ({ ...p, otp: undefined, phone: undefined, form: undefined }));
+
+      // Mock mode (dev): backend trả về mã OTP để test không cần SMS thật
+      if (res?.otp) {
+        setDevOtp(res.otp);
+      }
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : 'Không thể gửi mã OTP. Vui lòng thử lại.';
+      setErrors((p) => ({ ...p, form: msg }));
+    } finally {
+      setOtpSending(false);
+    }
   };
 
-  const handleResendOtp = () => {
-    if (resendIn > 0) return;
-    console.log('[auth] resend OTP to', phone);
-    setOtp('');
-    setResendIn(RESEND_SECONDS);
+  const handleResendOtp = async () => {
+    if (resendIn > 0 || otpSending) return;
+    setOtpSending(true);
+    try {
+      const res = await authApi.sendOtp(phone.replace(/\s/g, ''));
+      setOtp('');
+      setResendIn(RESEND_SECONDS);
+      setErrors((p) => ({ ...p, otp: undefined, form: undefined }));
+      if (res?.otp) {
+        setDevOtp(res.otp);
+      }
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : 'Không thể gửi lại mã. Vui lòng thử lại.';
+      setErrors((p) => ({ ...p, form: msg }));
+    } finally {
+      setOtpSending(false);
+    }
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const eMap = validate();
     setErrors(eMap);
     if (Object.keys(eMap).length > 0) return;
 
     setSubmitting(true);
-    setTimeout(() => {
+    try {
       if (mode === 'login') {
-        console.log('[auth] login', { email, remember });
+        await login({ email: email.trim(), password });
+        navigate('/');
       } else {
-        console.log('[auth] register', { name, email, phone, otp });
+        await registerAccount({
+          fullName: name.trim(),
+          email: email.trim(),
+          phone: phone.replace(/\s/g, ''),
+          password,
+          otp: otp.replace(/\s/g, ''),
+          username: username.trim(),
+        });
+        navigate('/');
       }
+    } catch (err) {
+      // Lỗi 500 đã được backend ẩn chi tiết → hiển thị message chung
+      const msg = err instanceof ApiError ? err.message : 'Đã xảy ra lỗi. Vui lòng thử lại.';
+      setErrors((p) => ({ ...p, form: msg }));
+    } finally {
       setSubmitting(false);
-    }, 600);
+    }
   };
 
   const isLogin = mode === 'login';
@@ -241,6 +297,23 @@ export function AuthPage() {
                   </div>
                 )}
 
+                {/* Tên đăng nhập — chỉ register */}
+                {!isLogin && (
+                  <div className="auth__field">
+                    <label className="auth__label" htmlFor="auth-username">Tên đăng nhập</label>
+                    <input
+                      id="auth-username"
+                      type="text"
+                      className={`auth__input ${errors.username ? 'auth__input--error' : ''}`}
+                      placeholder="nguyenvana"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      autoComplete="username"
+                    />
+                    {errors.username && <span className="auth__err">{errors.username}</span>}
+                  </div>
+                )}
+
                 {/* Email */}
                 <div className="auth__field">
                   <label className="auth__label" htmlFor="auth-email">Email</label>
@@ -275,11 +348,13 @@ export function AuthPage() {
                           type="button"
                           className="auth__send-otp"
                           onClick={handleSendOtp}
-                          disabled={resendIn > 0 && otpSent}
+                          disabled={otpSending || (resendIn > 0 && otpSent)}
                         >
-                          {otpSent
-                            ? (resendIn > 0 ? `Gửi lại (${resendIn}s)` : 'Gửi lại')
-                            : 'Gửi mã'}
+                          {otpSending
+                            ? 'Đang gửi…'
+                            : otpSent
+                              ? (resendIn > 0 ? `Gửi lại (${resendIn}s)` : 'Gửi lại')
+                              : 'Gửi mã'}
                         </button>
                       </div>
                       {errors.phone && <span className="auth__err">{errors.phone}</span>}
@@ -302,9 +377,9 @@ export function AuthPage() {
                             type="button"
                             className="otp-section__resend"
                             onClick={handleResendOtp}
-                            disabled={resendIn > 0}
+                            disabled={resendIn > 0 || otpSending}
                           >
-                            {resendIn > 0 ? `Gửi lại sau ${resendIn}s` : 'Gửi lại mã'}
+                            {otpSending ? 'Đang gửi…' : resendIn > 0 ? `Gửi lại sau ${resendIn}s` : 'Gửi lại mã'}
                           </button>
                         </div>
                         <OtpInput
@@ -317,6 +392,21 @@ export function AuthPage() {
                         <p className="otp-section__hint">
                           Mã có hiệu lực trong <b>5 phút</b>. Không chia sẻ mã này với bất kỳ ai.
                         </p>
+
+                        {/* Mock mode (dev): hiện mã OTP để test không cần SMS thật */}
+                        {devOtp && (
+                          <div className="otp-dev">
+                            <span className="otp-dev__label">Mã OTP (dev — chưa gửi SMS thật):</span>
+                            <button
+                              type="button"
+                              className="otp-dev__code"
+                              onClick={() => setOtp(devOtp)}
+                              title="Nhấn để điền vào ô OTP"
+                            >
+                              {devOtp}
+                            </button>
+                          </div>
+                        )}
                       </motion.div>
                     )}
                   </>
@@ -391,6 +481,11 @@ export function AuthPage() {
                       <a href="#">Chính sách bảo mật</a> của Cầu Lông dee.
                     </span>
                   </label>
+                )}
+
+                {/* Lỗi chung từ server (VD: email trùng, OTP sai) */}
+                {errors.form && (
+                  <div className="auth__alert" role="alert">{errors.form}</div>
                 )}
 
                 {/* Submit */}

@@ -1,4 +1,3 @@
-import { Court } from '../data/demoCourts';
 import { RotateCcw, Sparkles, X } from 'lucide-react';
 import './FilterPanel.css';
 

@@ -63,8 +63,22 @@ bin/
 /.nb-gradle/
 
 # Application properties (chứa password - KHÔNG đẩy lên)
+# Bản thật: src/main/resources/application.properties  (gitignore)
+# Bản mẫu để copy: application.properties.template  (commit được)
 src/main/resources/application.properties
+src/main/resources/application-local.properties
+src/main/resources/application-prod.properties
+.env
+.env.local
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Temp runtime (Spring Boot session store)
+.tmp/
+backend/target/tmp/
+backend/target/tomcat-sessions/
+
+# Frontend build
+frontend/dist/
