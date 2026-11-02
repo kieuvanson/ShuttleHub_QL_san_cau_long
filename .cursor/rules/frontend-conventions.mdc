@@ -1,0 +1,86 @@
+---
+description: Convention code cho frontend React 19 + TypeScript + Vite — API client, auth state, component, CSS token
+globs: frontend/src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Frontend Convention — React 19 + TypeScript
+
+## Type
+- **Không dùng `any`**. Tạo type/interface cho mọi payload API.
+- `type` cho shape dữ liệu, `interface` chỉ khi cần extend.
+- Union type cho trạng thái: `type LoadState = 'idle' | 'loading' | 'success' | 'error'`
+
+## API client — điểm mấu chốt
+`src/api/client.ts` là **cửa duy nhất** để gọi API.
+
+```ts
+// ✅ Đúng
+import { api } from '../api/client'
+const res = await api.get<Court[]>('/courts')
+const court = await api.post<Booking>('/bookings', payload)
+
+// ❌ Sai — không dùng fetch rải rác
+const res = await fetch('/api/courts')
+```
+
+| Tuỳ chọn | Ý nghĩa |
+|---|---|
+| mặc định | Gắn `Authorization: Bearer` + tự refresh khi 401 |
+| `{ anonymous: true }` | Endpoint public, không gắn token |
+| `{ signal }` | Hủy request khi component unmount |
+
+Backend trả `{ code, message, data }` → `client.ts` đã tự bóc `data` và ném `ApiError` khi `code !== 200`.
+
+## Auth state
+```tsx
+// ✅ Đúng
+import { useAuth } from '../context/AuthContext'
+const { isAuthenticated, user, logout } = useAuth()
+
+// ❌ Sai — không tự đọc/ghi localStorage token ở component
+const token = localStorage.getItem('accessToken')
+```
+
+## Component
+- Functional component + hook (không class)
+- CSS **cùng file**: `Component.tsx` + `Component.css`, import trong component
+- Dùng token màu từ `src/styles/tokens.css`, **không hardcode** màu
+- Icon: `lucide-react` · Animation: `framer-motion`
+- Text tiếng Việt có dấu
+
+## Hook
+```tsx
+function useCourts() {
+  const [courts, setCourts] = useState<Court[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const ctrl = new AbortController()
+    setLoading(true)
+    api.get<Court[]>('/courts', { signal: ctrl.signal })
+      .then(setCourts)
+      .catch((e) => setError(e instanceof Error ? e.message : 'Lỗi không xác định'))
+      .finally(() => setLoading(false))
+    return () => ctrl.abort()
+  }, [])
+
+  return { courts, loading, error }
+}
+```
+
+## Xác minh trước khi báo xong
+```powershell
+cd frontend
+.\node_modules\.bin\tsc --noEmit   # type-check, không lỗi
+npm run build                       # build thành công
+```
+
+## Lỗi thường gặp
+| Triệu chứng | Nguyên nhân |
+|---|---|
+| `Property 'x' does not exist on type` | Thiếu type cho API response |
+| `any` báo lint | Dùng `unknown` + type guard thay `any` |
+| Token hết hạn nhảy về login | Kiểm tra `client.ts` đã xử lý refresh 401 chưa |
+| Màu lệch giữa các trang | Dùng token CSS thay vì hardcode |

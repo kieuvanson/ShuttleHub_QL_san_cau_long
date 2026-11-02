@@ -1,0 +1,91 @@
+---
+description: Convention code cho backend Spring Boot (Java 25) — entity, migration, security, transaction
+globs: backend/src/main/java/**/*.java
+alwaysApply: false
+---
+
+# Backend Convention — Spring Boot 4.1.1
+
+## Entity
+```java
+@Entity
+@Table(name = "users")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id")
+    private String id;
+
+    @Column(name = "email", nullable = false, unique = true, length = 100)
+    private String email;
+
+    @Enumerated(EnumType.STRING)          // luôn STRING, không ORDINAL
+    @Column(name = "role", nullable = false, length = 20)
+    private Role role;
+
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;              // soft delete
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+}
+```
+
+❌ Không đặt `@Size` / `@NotBlank` trên entity — validation thuộc về DTO.
+❌ Không dùng `GenerationType.IDENTITY` với `String id`.
+
+## DTO — record + validation
+```java
+public record LoginRequest(
+    @NotBlank(message = "Email không được để trống")
+    @Email(message = "Email chưa đúng định dạng")
+    String email,
+
+    @Size(min = 6, max = 100, message = "Mật khẩu phải từ 6 đến 100 ký tự")
+    String password
+) {
+    // Chuẩn hoá TRƯỚC khi validate — compact constructor chạy lúc Jackson deserialize
+    public LoginRequest {
+        email = email == null ? null : email.trim().toLowerCase(Locale.ROOT);
+    }
+}
+```
+
+## Migration Flyway
+- File: `backend/src/main/resources/db/migration/V{n}__{snake_case}.sql`
+- **Không sửa migration đã chạy** → tạo file version mới
+- `ddl-auto=validate` → thiếu bảng = thiếu migration
+
+## Security
+| Điểm | Quy tắc |
+|---|---|
+| Access token | 15 phút, header `Authorization: Bearer` |
+| Refresh token | 7 ngày, lưu **SHA-256 hash** trong `refresh_tokens` |
+| Rotation | Mỗi lần refresh → revoke token cũ, cấp token mới |
+| Replay | Dùng lại token đã revoke → `revokeAllByUserId` + ném 401 |
+| Transaction | `@Transactional(noRollbackFor = InvalidCredentialsException.class)` khi cần giữ lệnh revoke |
+| Endpoint | Ngoài `/api/auth/**` → phải `authenticated()`, không `permitAll` |
+| Lỗi 500 | Không trả `ex.getMessage()` — lộ SQL/path. Chỉ `log.error` |
+
+## Transaction
+```java
+@Transactional(readOnly = true)   // CHỈ khi thật sự không ghi DB
+public UserDto getUser(String id) { ... }
+
+@Transactional                   // khi có ghi DB
+public AuthResponse login(...) { ... }   // ← login ghi refresh token, KHÔNG được readOnly
+```
+
+## Exception
+- Exception riêng trong `auth/exception/`, message tiếng Việt
+- Handler trong `GlobalExceptionHandler` (`@RestControllerAdvice`)
+- Map status: 400 validation · 401 auth · 409 conflict · 429 rate limit · 503 SMS · 500 chung
+
+## Comment
+Tiếng Việt, giải thích **tại sao** chứ không **cái gì**.
+```java
+// ✅ Tăng bộ đếm sai — phải COMMIT dù sẽ ném exception,
+//    nếu không user có thể thử sai mã vô hạn lần.
+// ❌ // tăng attempt count
+```

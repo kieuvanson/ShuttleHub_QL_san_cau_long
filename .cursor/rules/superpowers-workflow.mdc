@@ -1,0 +1,208 @@
+---
+description: Quy trình làm việc bắt buộc cho dự án Cầu Lông dee — dùng Superpowers skills (brainstorming, TDD, systematic-debugging) và tuân thủ convention Spring Boot + React
+alwaysApply: true
+---
+
+# Quy trình làm việc — Cầu Lông dee
+
+## 0. Bối cảnh dự án
+
+| | |
+|---|---|
+| Backend | Spring Boot 4.1.1 · Java 25 · PostgreSQL · Maven · Flyway · JWT |
+| Frontend | Vite · React 19 · TypeScript · React Router · framer-motion · lucide-react |
+| Package | `vn.ShuttleHub.backend` |
+| DB | PostgreSQL local, user `postgres`, DB `postgres` |
+| Chạy | Backend `cd backend && .\mvnw.cmd spring-boot:run` (:8080) · Frontend `cd frontend && npm run dev` (:5173) |
+
+**Quy tắc ngôn ngữ:** Trả lời và viết comment bằng **tiếng Việt**. Code (tên biến/hàm/class) viết tiếng Anh. **Không** đưa Kotlin vào dự án này — stack là Java + TypeScript.
+
+---
+
+## 1. Quy tắc số 1 — Kiểm tra skill TRƯỚC khi hành động
+
+Nếu có **bất kỳ 1% khả năng** nào một skill của Superpowers áp dụng cho việc đang làm → **phải invoke skill đó trước**, trước cả khi trả lời, trước khi đọc code, trước khi hỏi câu hỏi.
+
+Bảng tra cứu nhanh:
+
+| Yêu cầu của user | Skill phải dùng |
+|---|---|
+| "Làm/tạo/thêm X", tính năng mới, đổi hành vi | `superpowers:brainstorming` |
+| "Sửa lỗi", "không chạy", "lỗi khi..." | `superpowers:systematic-debugging` |
+| Viết code mới, thêm test | `superpowers:test-driven-development` |
+| Cần kế hoạch chi tiết trước khi code | `superpowers:writing-plans` |
+| Đã có plan rồi, bắt đầu thực thi | `superpowers:executing-plans` |
+| Review code trước khi merge | `superpowers:requesting-code-review` |
+| Nhận feedback review rồi sửa | `superpowers:receiving-code-review` |
+| Xác nhận xong / trước khi báo "đã xong" | `superpowers:verification-before-completion` |
+| 2+ task độc lập, có thể chạy song song | `superpowers:dispatching-parallel-agents` |
+| Cần cách ly thay đổi trên branch riêng | `superpowers:using-git-worktrees` |
+
+**Cách invoke:** đọc file `SKILL.md` tương ứng trong
+`~/.cursor/plugins/local/superpowers/skills/<tên>/SKILL.md` rồi làm theo đúng checklist của nó.
+
+**Phải nói rõ:** `Using [tên skill] để [mục đích]` trước khi bắt đầu.
+
+---
+
+## 2. Brainstorming — không được bỏ qua
+
+Với **mọi** việc sáng tạo (tính năng mới, thêm API, đổi UI, đổi luồng nghiệp vụ):
+
+1. **Đọc code hiện tại trước** — không hỏi lại thứ project đã trả lời được.
+2. **Hỏi 1 câu mở** mỗi lượt, cụ thể cho dự án này. Không kèm menu ví dụ.
+3. **Trình bày 2–3 cách làm** (Approaches) trong một tin nhắn riêng, nêu đánh đổi, **đề xuất 1 cách** và hỏi user chọn.
+4. **Viết design doc** vào `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md`.
+5. **Chờ user duyệt design doc.**
+
+> 🚧 **HARD GATE:** Chưa được viết code sản phẩm, scaffolding, cài dependency, tạo project, hay gọi skill implement cho tới khi user **duyệt design doc**.
+> Chỉ đọc và khám phá thì được.
+> Sau khi duyệt → chuyển sang `superpowers:writing-plans`, **không** skill khác.
+
+Ngoại lệ: user nói rõ *"làm luôn, không cần hỏi"* → bỏ qua gate, làm theo workflow thường.
+
+---
+
+## 3. Debugging — không đoán mò
+
+Khi có bug:
+
+1. **Tái hiện** được trước (lệnh/API cụ thể + output thật).
+2. **Tìm nguyên nhân gốc** — đọc code, đọc log, không phải đoán.
+3. Sửa **nguyên nhân gốc**, không sửa triệu chứng.
+4. **Verify** bằng cách chạy thật (build + test + request thật).
+5. Nếu có >1 giả thuyết → tách từng cái, loại trừ.
+
+**Không** sửa code mà không verify được. Nếu verify không được (vd: cần browser thật) → **nói rõ** và xin phép chạy.
+
+---
+
+## 4. Backend — convention bắt buộc
+
+### Cấu trúc package
+```
+vn.ShuttleHub.backend
+├── auth/          controller, dto, exception, service
+├── config/        SecurityConfig
+├── entity/        JPA entity
+├── repository/    Spring Data JPA
+├── security/      JwtAuthenticationFilter, entry point, access denied
+└── dto/           (nếu dùng chung)
+```
+
+### Entity
+- Dùng **Lombok**: `@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder`
+- `@Id @GeneratedValue(strategy = GenerationType.UUID)` — `String id`
+- Không dùng `@Size` trên field entity (chỉ dùng ở DTO). `length` đặt trong `@Column`.
+- Soft delete qua cột `isActive` (không xoá dòng user).
+- `createdAt` có `updatable = false`.
+
+### Migration (Flyway)
+- **Mỗi thay đổi schema = 1 file** `V{n}__{mô_tả}.sql` trong `backend/src/main/resources/db/migration/`
+- **Không sửa file migration đã chạy** (đã apply vào DB rồi) → tạo file mới
+- `ddl-auto=validate` → Hibernate chỉ kiểm tra, không tạo bảng. Thiếu bảng = thiếu migration.
+
+### Security
+- Access token 15 phút, refresh token 7 ngày, refresh token **lưu dạng SHA-256 hash** trong bảng `refresh_tokens`
+- Mỗi lần refresh → **rotation**: revoke token cũ, cấp token mới. Dùng lại token đã revoke → huỷ **toàn bộ** session của user đó.
+- `@Transactional(noRollbackFor = InvalidCredentialsException.class)` khi cần giữ lại lệnh revoke trước khi ném exception.
+- Endpoint mới (không phải `/api/auth/**`) → **phải có JWT**, không được `permitAll`.
+- CORS chỉ cho `app.cors.allowed-origins` (localhost:5173).
+- Lỗi 500 **không** trả `ex.getMessage()` cho client (lộ SQL/path). Chỉ log server.
+
+### Viết code
+- Comment tiếng Việt, giải thích **tại sao** chứ không **cái gì**
+- Xử lý lỗi: bắt exception cụ thể, trả message tiếng Việt dễ hiểu
+- Transaction: chọn `readOnly = true` **chỉ khi** thật sự không ghi DB
+
+---
+
+## 5. Frontend — convention bắt buộc
+
+### Kiểu dữ liệu & API
+- **Luôn TypeScript**, không dùng `any`. Tạo type cho mọi payload API.
+- Gọi API qua `src/api/client.ts` (`api.get/post/...`), **không** dùng `fetch` rải rác trong component.
+- Response backend có shape `{ code, message, data }` → `client.ts` đã tự bóc `data` và ném `ApiError`.
+- Endpoint cần token → dùng `api.get(...)` (tự gắn header). Endpoint public → `{ anonymous: true }`.
+
+### Auth state
+- Dùng `useAuth()` từ `src/context/AuthContext.tsx`. **Không** tự đọc/ghi `localStorage` token ở component.
+- Component hiển thị trạng thái đăng nhập → `useAuth().isAuthenticated` / `.user`.
+
+### Component
+- Functional component + hook, không class component
+- CSS đặt **cùng file** component: `Component.tsx` + `Component.css`
+- Dùng biến CSS từ `src/styles/tokens.css`, không hardcode màu
+- Icon: `lucide-react`
+- Animation: `framer-motion`
+- Text tiếng Việt, có dấu
+
+### Kiểm tra trước khi báo xong
+```powershell
+cd frontend
+.\node_modules\.bin\tsc --noEmit   # type-check
+npm run build                       # build
+```
+
+---
+
+## 6. Verify trước khi báo "xong"
+
+**Không được báo "đã xong" nếu chưa chạy thật.** Áp dụng `superpowers:verification-before-completion`.
+
+### Backend
+```powershell
+cd backend
+.\mvnw.cmd -o -q package -DskipTests   # phải BUILD SUCCESS
+.\mvnw.cmd spring-boot:run              # phải "Started BackendApplication"
+```
+Sau đó test API thật bằng `curl.exe` / `Invoke-RestMethod` — **in ra response thật**, không tự nhận là OK.
+
+### Frontend
+```powershell
+cd frontend
+.\node_modules\.bin\tsc --noEmit   # không lỗi
+npm run build                       # build thành công
+```
+
+### Nếu không verify được
+Nói thẳng: *"Phần này tôi chưa verify được vì cần <browser / môi trường X>. Bạn chạy thử giúp nhé."* — **không** nói "chắc là chạy được".
+
+---
+
+---
+
+## 7. Cập nhật README sau khi hoàn thành chức năng
+
+**Bắt buộc:** mỗi khi một chức năng xong và đã verify → cập nhật mục **"📈 Tiến trình dự án"** trong `README.md` (gốc repo).
+
+1. Tìm hạng mục tương ứng trong bảng tiến trình.
+2. Đổi trạng thái: `⬜` → `🚧` (đang làm) hoặc `✅` (xong **và đã verify**).
+3. Hạng mục mới chưa có trong bảng → thêm hàng mới vào đúng giai đoạn.
+4. Thêm/sửa endpoint → cập nhật mục "🌐 API Endpoints" của `README.md`.
+5. Thêm dependency mới → cập nhật mục "🚀 Công nghệ sử dụng".
+
+> ⚠️ Chỉ đánh dấu `✅` khi đã verify thật (build pass + test API thật). Không đánh dấu cho code chưa chạy được.
+
+Các giai đoạn trong bảng tiến trình: 0 Nền tảng · 1 Xác thực · 2 Quản lý sân (Chủ sân) · 3 Tìm & đặt sân (Khách) · 4 Vận hành (Nhân viên).
+
+---
+
+## 8. Git
+
+- Không commit file nhạy cảm: `application.properties` (đã gitignore), `.env`
+- Commit message: tiếng Việt hoặc tiếng Anh, mô tả **việc đã làm** (không "fix bug")
+- Không tự `git push` trừ khi user yêu cầu
+
+---
+
+## 9. Cấu trúc phản hồi
+
+Khi làm việc, nói rõ:
+1. **Đang dùng skill nào** (nếu có)
+2. **Tìm ra gì** trong code (kèm file + dòng)
+3. **Đã sửa/viết gì**
+4. **Đã verify bằng cách nào** — kèm output thật
+5. **Còn lại gì chưa làm / cần user quyết định**
+
+Không dump code dài trong chat — file đã trên đĩa rồi, chỉ trích dẫn đoạn quan trọng.

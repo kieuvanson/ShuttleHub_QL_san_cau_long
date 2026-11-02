@@ -1,0 +1,20 @@
+# .cursorrules — Cầu Lông dee
+
+> File này là "điểm vào" cho Cursor. Cursor 2.x đọc `AGENTS.md` ở gốc repo — nội dung đầy đủ nằm ở đó.
+> Các rule chi tiết theo file nằm trong `.cursor/rules/`.
+
+## Bắt buộc đọc trước khi làm việc
+
+1. `AGENTS.md` (gốc repo) — bối cảnh dự án, quy trình, convention backend/frontend.
+2. `.cursor/rules/superpowers-workflow.mdc` — luồng skill Superpowers.
+3. `.cursor/rules/backend-conventions.mdc` — khi sửa file trong `backend/`.
+4. `.cursor/rules/frontend-conventions.mdc` — khi sửa file trong `frontend/`.
+
+## Tóm tắt
+
+- **Trước khi hành động:** kiểm tra skill Superpowers có áp dụng không → invoke nó (brainstorming / systematic-debugging / TDD / verification).
+- **Tính năng mới:** brainstorm → design doc → chờ user duyệt → mới code.
+- **Báo lỗi:** phải reproduce được, tìm root cause, sửa root cause, verify bằng cách chạy thật.
+- **Báo "xong":** phải chạy build/type-check thật và in output, không tự nhận.
+- **Ngôn ngữ:** trả lời + comment tiếng Việt, tên code tiếng Anh.
+- **Sau khi xong 1 chức năng:** cập nhật mục "📈 Tiến trình dự án" + "🌐 API Endpoints" trong `README.md` (chỉ đánh `✅` khi đã verify thật).
