@@ -1,6 +1,6 @@
-# ShuttleHub - Quản lý sân cầu lông
+# Cầu Lông dee
 
-Ứng dụng quản lý sân cầu lông với Spring Boot và PostgreSQL.
+Ứng dụng đặt sân cầu lông với Spring Boot và PostgreSQL — tìm sân trống gần bạn, xác nhận trong 30 giây.
 
 ## 🚀 Công nghệ sử dụng
 
@@ -12,14 +12,18 @@
 
 1. Clone repository:
 ```bash
-git clone https://github.com/sonki236/ShuttleHub_QL_san_cau_long.git
+git clone https://github.com/sonki236/CauLongDee.git
 ```
 
-2. Cấu hình database trong `src/main/resources/application.properties`:
-```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/postgres
-spring.datasource.username=postgres
-spring.datasource.password=YOUR_PASSWORD
+2. Cấu hình database:
+```bash
+# Copy file template ra file thật
+cd backend/src/main/resources
+cp application.properties.template application.properties
+
+# Sửa password + JWT secret trong application.properties
+# spring.datasource.password=YOUR_PASSWORD
+# app.jwt.secret=RANDOM_256_BIT_STRING
 ```
 
 3. Chạy ứng dụng:
@@ -27,6 +31,8 @@ spring.datasource.password=YOUR_PASSWORD
 cd backend
 mvn spring-boot:run
 ```
+
+4. Flyway sẽ tự động chạy migration lần đầu (`V1__baseline_users.sql`, `V2__create_otp_codes.sql`).
 
 ## 📁 Cấu trúc dự án
 

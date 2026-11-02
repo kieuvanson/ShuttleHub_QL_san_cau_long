@@ -55,6 +55,45 @@
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+
+		<!-- Flyway: version control database migration -->
+		<!-- QUAN TRỌNG: phải có spring-boot-starter-flyway (hoặc spring-boot-flyway).
+		     Chỉ thêm flyway-core / flyway-database-postgresql là KHÔNG đủ —
+		     Spring Boot chỉ tự chạy Flyway khi có module auto-config
+		     org.springframework.boot:spring-boot-flyway trên classpath. -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-flyway</artifactId>
+		</dependency>
+		<!-- Flyway 10+ tách module hỗ trợ từng DB riêng.
+		     Bắt buộc cho PostgreSQL, nếu thiếu sẽ lỗi "Unsupported Database: PostgreSQL". -->
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-database-postgresql</artifactId>
+		</dependency>
+
+		<!-- JWT -->
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-api</artifactId>
+			<version>0.12.6</version>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>0.12.6</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-jackson</artifactId>
+			<version>0.12.6</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
@@ -73,10 +112,22 @@
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
+		<plugin>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-maven-plugin</artifactId>
+			<configuration>
+				<!--
+					Trỏ java.io.tmpdir về thư mục target của project.
+					Lý do: Spring Boot 4.1 kiểm tra quyền sở hữu thư mục temp
+					Tomcat dùng cho session. Thư mục trong %TEMP% của Windows
+					có thể đã được tạo bởi user khác (vd: lúc chạy quyền Admin)
+					→ lỗi "Existing directory '...' is not owned by <user>".
+					Trỏ về target/ đảm bảo chúng ta luôn là owner.
+					Lưu ý: target/ luôn tồn tại sau bước compile.
+				-->
+				<jvmArguments>-Djava.io.tmpdir=${project.build.directory}</jvmArguments>
+			</configuration>
+		</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>

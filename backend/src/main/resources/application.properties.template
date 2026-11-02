@@ -1,0 +1,65 @@
+# =====================================================================
+# application-dev.properties
+# Cấu hình cho môi trường DEVELOPMENT — KHÔNG commit file này lên git
+# (đã có trong .gitignore)
+#
+# Cách dùng:
+#   1. Copy file này thành application-local.properties
+#   2. Sửa giá trị theo môi trường của bạn
+#   3. Chạy: mvn spring-boot:run -Dspring-boot.run.profiles=local
+# =====================================================================
+
+spring.application.name=backend
+
+# Database - PostgreSQL local
+spring.datasource.url=jdbc:postgresql://localhost:5432/postgres
+spring.datasource.username=postgres
+spring.datasource.password=YOUR_PASSWORD_HERE
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# JPA - validate: chỉ kiểm tra schema, KHÔNG tự sửa
+spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.properties.hibernate.format_sql=true
+
+# Flyway
+spring.flyway.enabled=true
+spring.flyway.baseline-on-migrate=true
+spring.flyway.baseline-version=0
+spring.flyway.locations=classpath:db/migration
+
+# JWT
+# ⚠️ Production PHẢI đổi secret này (>= 32 bytes random)
+app.jwt.secret=dev-secret-please-change-this-in-production-it-must-be-at-least-256-bits-long
+app.jwt.access-token-expiration=900000           # 15 phút
+app.jwt.refresh-token-expiration=604800000       # 7 ngày
+app.jwt.issuer=CauLongDee
+
+# OTP
+app.otp.length=6
+app.otp.ttl-seconds=300
+app.otp.max-attempts=5
+app.otp.resend-cooldown-seconds=60
+
+# SMS - SpeedSMS.vn
+# Lấy access token tại https://speedsms.vn/my-account/api
+app.sms.provider=speedsms
+app.sms.access-token=
+app.sms.sender=CauLongDee
+
+# ⚠️ MOCK MODE
+#   true  → mã OTP trả về thẳng cho frontend (hiện trên màn hình), dev/test.
+#   false → gọi API SpeedSMS thật, mã OTP gửi về điện thoại.
+# Production PHẢI đặt false.
+app.sms.mock=true
+
+# CORS
+app.cors.allowed-origins=http://localhost:5173,http://localhost:3000
+
+# ----- Tomcat Session Store -----
+# Chỉ định thư mục lưu session riêng trong project.
+# Nếu KHÔNG set, Spring Boot dùng %TEMP%\servlet-sessions và có thể
+# gặp lỗi "not owned by <user>" (Spring Boot 4.1 kiểm tra quyền sở hữu).
+server.servlet.session.store-dir=target/tomcat-sessions
+server.servlet.session.persistent=false

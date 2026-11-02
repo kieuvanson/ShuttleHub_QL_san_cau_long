@@ -1,0 +1,46 @@
+/* ============================================================
+   Pagination — nút số trang.
+   ============================================================ */
+
+.pg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: var(--s-8);
+}
+
+.pg__btn {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-1);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: var(--r-sm);
+  transition: all var(--dur-fast) var(--ease-out);
+}
+
+.pg__btn:hover:not(:disabled):not(.pg__btn--active) {
+  border-color: var(--brand-2);
+  color: var(--brand-2);
+}
+
+.pg__btn--active {
+  color: #ffffff;
+  background: var(--brand-2);
+  border-color: var(--brand-2);
+  cursor: default;
+}
+
+.pg__btn--nav {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.pg__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

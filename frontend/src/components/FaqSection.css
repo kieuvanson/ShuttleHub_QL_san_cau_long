@@ -1,0 +1,117 @@
+/* ============================================================
+   FaqSection — light surface, flat list with dividers.
+   ============================================================ */
+
+.faq {
+  width: 100%;
+  background: var(--surface-1);
+}
+
+.faq__inner {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--s-12) var(--s-6);
+}
+
+.faq__head {
+  margin-bottom: var(--s-6);
+}
+
+.faq__title {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 1.2;
+  color: var(--ink-0);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.faq__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid #e5e7eb;
+  background: var(--surface-2);
+  border-radius: var(--r-md);
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.faq__item {
+  border-bottom: 1px solid #e5e7eb;
+  margin: 0;
+  padding: 0;
+}
+
+.faq__item:last-child {
+  border-bottom: none;
+}
+
+.faq__q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  width: 100%;
+  padding: var(--s-4) var(--s-5);
+  text-align: left;
+  background: transparent;
+  min-width: 0;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.faq__q:hover {
+  background: var(--surface-1);
+}
+
+.faq__qtext {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.3;
+  color: var(--ink-0);
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.faq__item--open .faq__qtext {
+  color: var(--brand-2);
+  white-space: normal;
+}
+
+.faq__icon {
+  font-family: var(--font-body);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--brand-2);
+  flex: 0 0 auto;
+  width: 20px;
+  text-align: center;
+  line-height: 1;
+}
+
+.faq__a {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-1);
+  margin: 0;
+  padding: 0 var(--s-5) var(--s-4) var(--s-5);
+  max-width: 70ch;
+}
+
+@media (max-width: 560px) {
+  .faq__inner {
+    padding: var(--s-8) var(--s-4);
+  }
+  .faq__qtext {
+    white-space: normal;
+  }
+}

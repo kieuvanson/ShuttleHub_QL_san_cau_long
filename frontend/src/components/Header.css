@@ -1,0 +1,233 @@
+/* ============================================================
+   Header — light, sticky, big logo + emerald wordmark + nav + actions.
+   ============================================================ */
+
+.hdr {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: saturate(140%) blur(10px);
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.hdr__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  height: 76px; /* tăng để vừa logo to */
+  padding: 0 var(--s-6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-6);
+}
+
+/* === Brand: logo + wordmark === */
+.hdr__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  flex: 0 0 auto;
+  color: inherit;
+  text-decoration: none;
+}
+
+.hdr__logo {
+  /* viewBox 680x400 → tỷ lệ 1.7:1 — set height để giữ ratio */
+  height: 52px;
+  width: auto;
+  display: block;
+  border-radius: 8px;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.hdr__brand:hover .hdr__logo {
+  transform: rotate(-4deg);
+}
+
+.hdr__wordmark {
+  font-family: var(--font-brand);
+  font-weight: 800;
+  font-size: 24px;
+  line-height: 1;
+  /* Bricolage đã bo nét mềm mại — chỉ cần letter-spacing âm nhẹ */
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+  /* Cam đậm → cam nhạt, nổi trên nền trắng */
+  background: linear-gradient(135deg, #ea580c 0%, #f97316 50%, #fb923c 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  filter: drop-shadow(0 1px 0 rgba(234, 88, 12, 0.18));
+}
+
+/* === Nav === */
+.hdr__nav {
+  display: flex;
+  align-items: center;
+  gap: var(--s-6);
+  flex: 1 1 auto;
+  justify-content: center;
+  min-width: 0;
+}
+
+.hdr__navlink {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-1);
+  white-space: nowrap;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.hdr__navlink:hover {
+  color: #085041;
+}
+
+/* === Actions === */
+.hdr__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  flex: 0 0 auto;
+}
+
+.hdr__login {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-1);
+  padding: 8px 14px;
+  white-space: nowrap;
+  border-radius: var(--r-sm);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.hdr__login:hover {
+  color: #085041;
+}
+
+.hdr__signup {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cta-ink);
+  background: var(--cta-0);
+  padding: 8px 16px;
+  white-space: nowrap;
+  border-radius: var(--r-sm);
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.hdr__signup:hover {
+  background: var(--cta-1);
+}
+
+/* === Menu user (đã đăng nhập) === */
+.hdr__user {
+  position: relative;
+}
+
+.hdr__user-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-1, inherit);
+  background: transparent;
+  border: 1px solid var(--line-1, rgba(15, 23, 42, 0.12));
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.hdr__user-btn:hover {
+  background: rgba(15, 23, 42, 0.04);
+}
+
+.hdr__user-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+
+.hdr__user-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 50;
+  min-width: 220px;
+  padding: 6px;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: var(--r-md, 12px);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14);
+}
+
+.hdr__user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px 12px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  margin-bottom: 6px;
+}
+
+.hdr__user-info strong {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.hdr__user-info span {
+  font-size: 12px;
+  color: rgba(15, 23, 42, 0.55);
+  word-break: break-all;
+}
+
+.hdr__user-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #dc2626;
+  background: transparent;
+  border: 0;
+  border-radius: var(--r-sm, 8px);
+  cursor: pointer;
+  text-align: left;
+}
+
+.hdr__user-item:hover {
+  background: rgba(220, 38, 38, 0.08);
+}
+
+/* === Mobile === */
+@media (max-width: 720px) {
+  .hdr__inner {
+    height: 64px;
+    padding: 0 var(--s-4);
+    gap: var(--s-3);
+  }
+  .hdr__logo {
+    height: 40px;
+  }
+  .hdr__wordmark {
+    font-size: 20px;
+  }
+  .hdr__nav {
+    display: none;
+  }
+  .hdr__login {
+    display: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .hdr__wordmark {
+    display: none; /* rất nhỏ thì ẩn wordmark, chỉ giữ logo */
+  }
+}

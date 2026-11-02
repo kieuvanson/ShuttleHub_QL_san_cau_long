@@ -1,0 +1,90 @@
+/* ============================================================
+   BookingHeader — slideshow kiểu slide carousel:
+   ảnh trượt ngang (zoom + blur khi inactive), chuyển nhanh.
+   ============================================================ */
+
+.bh {
+  position: relative;
+  width: 100%;
+  height: 380px;
+  background-color: #0f172a;
+  overflow: hidden;
+  z-index: 1;
+}
+
+@media (min-width: 768px) {
+  .bh { height: 480px; }
+}
+
+@media (min-width: 1024px) {
+  .bh { height: 560px; }
+}
+
+@media (min-width: 1440px) {
+  .bh { height: 640px; }
+}
+
+/* Track chứa tất cả slide, xếp chồng */
+.bh__track {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.bh__slide {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  /* Trượt từ phải sang trái + zoom nhẹ + blur → active rõ, inactive mờ */
+  transform: translateX(40px) scale(1.08);
+  filter: blur(6px) brightness(0.7);
+  transition:
+    opacity 0.35s ease-out,
+    transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1),
+    filter 0.35s ease-out;
+}
+
+.bh__slide--active {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  filter: blur(0) brightness(1);
+}
+
+/* === Dots indicator === */
+.bh__dots {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  padding: 6px 10px;
+  background: rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 999px;
+  z-index: 2;
+}
+
+.bh__dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: background 0.3s ease, width 0.3s ease;
+}
+
+.bh__dot--active {
+  background: #ffffff;
+  width: 22px;
+}
+
+.bh__dot:hover {
+  background: rgba(255, 255, 255, 0.8);
+}
