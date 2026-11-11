@@ -171,12 +171,22 @@ Không đổi schema `users`. Chỉ cần `password` cho user OAuth = hash BCryp
 ## 7. Thay đổi backend
 
 ### Dependency
+
+> ⚠️ **Spring Boot 4 đã đổi tên starter.** `spring-boot-starter-oauth2-client` đã bị
+> deprecated (sẽ bị xoá). Tên đúng trong Boot 4:
+> `spring-boot-starter-security-oauth2-client`.
+> Nguồn: [Spring Boot 4.0 Migration Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide)
+> (dự án này dùng Boot 4.1.1 → bắt buộc dùng tên mới).
+
 ```xml
 <dependency>
     <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-oauth2-client</artifactId>
+    <artifactId>spring-boot-starter-security-oauth2-client</artifactId>
 </dependency>
 ```
+
+Starter này kéo theo `spring-boot-security-oauth2-client` → `spring-security-oauth2-client`
++ `spring-security-oauth2-jose` (cần cho OIDC của Google).
 
 ### File mới
 
@@ -376,7 +386,7 @@ Sau đó chạy backend từ **cửa sổ PowerShell mới** (để nhận env v
 
 | Rủi ro | Mức | Xử lý |
 |---|---|---|
-| `spring-boot-starter-oauth2-client` kéo thêm `spring-security-oauth2-*` | Thấp | Chỉ thêm dependency, không đụng code auth hiện tại. |
+| `spring-boot-starter-security-oauth2-client` kéo thêm `spring-security-oauth2-*` | Thấp | Chỉ thêm dependency, không đụng code auth hiện tại. |
 | Hai registration với `client-id` rỗng → app fail lúc start | Cao | Spring Boot **không** validate `client-id` rỗng lúc startup (chỉ fail khi user bấm nút). Nhưng để chắc, ta dùng `client-id=${GOOGLE_CLIENT_ID:}` (rỗng) và thêm endpoint `GET /api/auth/oauth/providers` chỉ trả về provider có `client-id` khác rỗng → FE ẩn nút. Kiểm tra bằng test khởi động context không có env var. |
 | `username` sinh tự động trùng | Thấp | Vòng lặp tối đa 5 lần + hậu tố random. Có UNIQUE constraint ở DB chặn trường hợp cuối. |
 | Đổi endpoint Facebook theo phiên bản API (`v21.0`) | Trung bình | Facebook tăng version theo năm. Đặt version ở 1 chỗ trong properties (`app.oauth.facebook.graph-version`) để dễ sửa. |
