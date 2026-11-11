@@ -81,6 +81,14 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Ticket OAuth không hợp lệ → 401 (client cần đăng nhập lại).
+     */
+    @ExceptionHandler(OAuthTicketException.class)
+    public ResponseEntity<ApiResponse<Object>> handleOAuthTicket(OAuthTicketException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(401, ex.getMessage()));
+    }
+
+    /**
      * Lỗi 500: KHÔNG trả message gốc cho client.
      *
      * ⚠️ `ex.getMessage()` có thể chứa thông tin nhạy cảm:
