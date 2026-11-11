@@ -6,6 +6,7 @@ import { OtpInput } from '../components/OtpInput';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../api/auth';
 import { ApiError } from '../api/types';
+import { digitsOnly, isValidPhone } from '../utils/phone';
 import './AuthLayout.css';
 
 type Mode = 'login' | 'register';
@@ -133,15 +134,15 @@ export function AuthPage() {
   };
 
   const handleSendOtp = async () => {
-    // Validate SĐT trước khi cho gửi
-    const cleanPhone = phone.replace(/\s/g, '');
-    if (!/^(0|\+84)[0-9]{9,10}$/.test(cleanPhone)) {
+    // Validate SĐT trước khi cho gửi — dùng cùng logic với backend
+    // (utils/phone.ts) để không chặn nhầm dạng SĐT hợp lệ.
+    if (!isValidPhone(phone)) {
       setErrors((p) => ({ ...p, phone: 'Số điện thoại chưa hợp lệ — không thể gửi mã.' }));
       return;
     }
     setOtpSending(true);
     try {
-      const res = await authApi.sendOtp(cleanPhone);
+      const res = await authApi.sendOtp(digitsOnly(phone));
       setOtpSent(true);
       setOtp('');
       setResendIn(RESEND_SECONDS);
@@ -163,7 +164,7 @@ export function AuthPage() {
     if (resendIn > 0 || otpSending) return;
     setOtpSending(true);
     try {
-      const res = await authApi.sendOtp(phone.replace(/\s/g, ''));
+      const res = await authApi.sendOtp(digitsOnly(phone));
       setOtp('');
       setResendIn(RESEND_SECONDS);
       setErrors((p) => ({ ...p, otp: undefined, form: undefined }));
@@ -193,7 +194,7 @@ export function AuthPage() {
         await registerAccount({
           fullName: name.trim(),
           email: email.trim(),
-          phone: phone.replace(/\s/g, ''),
+          phone: digitsOnly(phone),
           password,
           otp: otp.replace(/\s/g, ''),
           username: username.trim(),
