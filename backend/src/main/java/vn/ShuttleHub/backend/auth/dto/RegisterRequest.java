@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import vn.ShuttleHub.backend.common.PhoneNumbers;
 
 import java.util.Locale;
 
@@ -18,7 +19,7 @@ public record RegisterRequest(
 
     @NotBlank(message = "Số điện thoại không được để trống")
     @Pattern(
-        regexp = "^(0|\\+84)[0-9]{9,10}$",
+        regexp = "^84[0-9]{9}$",
         message = "Số điện thoại chưa hợp lệ"
     )
     String phone,
@@ -49,7 +50,7 @@ public record RegisterRequest(
     public RegisterRequest {
         email = normalizeEmail(email);
         username = username == null ? null : username.trim();
-        phone = phone == null ? null : phone.trim();
+        phone = PhoneNumbers.normalize(phone);
         fullName = fullName == null ? null : fullName.trim();
     }
 
