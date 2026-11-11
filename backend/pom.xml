@@ -34,6 +34,15 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
+		<!-- OAuth2 Client (Google OIDC · Facebook Login).
+		     ⚠️ Spring Boot 4 đã ĐỔI TÊN starter: bản cũ
+		     `spring-boot-starter-oauth2-client` đã deprecated, phải dùng
+		     `spring-boot-starter-security-oauth2-client`.
+		     Nguồn: Spring Boot 4.0 Migration Guide. -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security-oauth2-client</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc</artifactId>
