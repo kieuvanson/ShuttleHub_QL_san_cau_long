@@ -2,7 +2,7 @@ package vn.ShuttleHub.backend.auth.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +12,7 @@ import vn.ShuttleHub.backend.auth.dto.RegisterRequest;
 import vn.ShuttleHub.backend.auth.dto.UserDto;
 import vn.ShuttleHub.backend.auth.exception.EmailAlreadyExistsException;
 import vn.ShuttleHub.backend.auth.exception.InvalidCredentialsException;
+import vn.ShuttleHub.backend.auth.exception.RateLimitException;
 import vn.ShuttleHub.backend.entity.RefreshToken;
 import vn.ShuttleHub.backend.entity.Role;
 import vn.ShuttleHub.backend.entity.User;
@@ -22,7 +23,6 @@ import java.time.LocalDateTime;
 import java.util.Locale;
 
 @Service
-@RequiredArgsConstructor
 public class AuthService {
 
     private final UserRepository userRepo;
@@ -30,6 +30,36 @@ public class AuthService {
     private final OtpService otpService;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final RegistrationAttemptService registrationAttemptService;
+
+    /** Số lần đăng ký tối đa trên 1 số điện thoại trong 24h. */
+    private final int maxRegistrationsPerPhonePerDay;
+
+    /**
+     * ⚠️ Vì sao KHÔNG dùng {@code @RequiredArgsConstructor}?
+     * Lombok chỉ inject các field {@code final}. Field cấu hình
+     * {@code maxRegistrationsPerPhonePerDay} được gán từ {@code @Value} —
+     * nếu khai báo bằng {@code @Value} trên field (không final) thì
+     * Spring KHÔNG set giá trị cho nó → luôn bằng 0 → mọi lần đăng ký
+     * đều bị chặn. → Phải dùng constructor injection thủ công cho key này.
+     */
+    public AuthService(
+            UserRepository userRepo,
+            RefreshTokenRepository refreshTokenRepo,
+            OtpService otpService,
+            JwtService jwtService,
+            PasswordEncoder passwordEncoder,
+            RegistrationAttemptService registrationAttemptService,
+            @Value("${app.otp.max-registrations-per-phone-per-day}") int maxRegistrationsPerPhonePerDay
+    ) {
+        this.userRepo = userRepo;
+        this.refreshTokenRepo = refreshTokenRepo;
+        this.otpService = otpService;
+        this.jwtService = jwtService;
+        this.passwordEncoder = passwordEncoder;
+        this.registrationAttemptService = registrationAttemptService;
+        this.maxRegistrationsPerPhonePerDay = maxRegistrationsPerPhonePerDay;
+    }
 
     /**
      * Đăng ký user mới:
@@ -47,7 +77,37 @@ public class AuthService {
         // 1. Verify OTP trước (đã throw exception nếu sai)
         otpService.verifyOtp(req.phone(), req.otp());
 
-        // 2. Check trùng
+        // 2. Ghi bộ đếm lần đăng ký TRƯỚC khi kiểm tra trùng.
+        //
+        // ⚠️ Vì sao ghi TRƯỚC (kể cả khi đăng ký sẽ fail)?
+        //   Mỗi lần gọi /register đều đã tốn 1 tin SMS (đã gửi OTP + đã
+        //   verify thành công). Nếu chỉ đếm lần ĐĂNG KÝ THÀNH CÔNG thì:
+        //     - lần 1 → thành công → ghi 1 dòng
+        //     - lần 2,3,4 → bị chặn 409 "SĐT đã đăng ký" → KHÔNG ghi
+        //   → bộ đếm kẹt ở 1 → giới hạn 3 lần/ngày KHÔNG BAO GIỜ kích hoạt
+        //     → kẻ spam vẫn đốt được tiền SMS vô hạn.
+        //   Ghi trước thì lần 2,3,4 cũng bị tính → lần 4 bị chặn 429.
+        //
+        // ⚠️ Đánh đổi (user đã chấp nhận): người dùng thật gõ nhầm email
+        // sẽ bị trừ 1 lượt. Vì vậy mặc định đặt 3 lần/ngày (không phải 1)
+        // để vẫn còn dư lượt cho họ thử lại.
+        registrationAttemptService.recordRegistration(req.phone());
+
+        // 3. Chặn spam đăng ký: giới hạn số lần đăng ký trên 1 số điện thoại.
+        //
+        // ⚠️ Vì sao check giới hạn TRƯỚC check trùng?
+        //   Nếu check trùng SĐT trước, lần 2 trở đi luôn bị chặn 409 và
+        //   không bao giờ chạm tới nhánh 429 → giới hạn trở thành code chết.
+        //   Kiểm tra giới hạn trước → lần 4 trả 429 "đã đăng ký quá nhiều lần",
+        //   đúng mục đích chống đốt tiền SMS.
+        long attempts = registrationAttemptService.countRegistrationsInLast24h(req.phone());
+        if (attempts > maxRegistrationsPerPhonePerDay) {
+            throw new RateLimitException(
+                "Số điện thoại này đã đăng ký quá nhiều lần. Vui lòng thử lại sau."
+            );
+        }
+
+        // 4. Check trùng
         if (userRepo.existsByEmail(email)) {
             throw new EmailAlreadyExistsException("Email đã được sử dụng.");
         }
@@ -58,7 +118,7 @@ public class AuthService {
             throw new EmailAlreadyExistsException("Số điện thoại đã được đăng ký.");
         }
 
-        // 3. Tạo user
+        // 5. Tạo user
         User user = User.builder()
             .username(username)
             .email(email)
@@ -72,7 +132,7 @@ public class AuthService {
             .build();
         user = userRepo.save(user);
 
-        // 4. Sinh token
+        // 6. Sinh token
         return buildAuthResponse(user);
     }
 
