@@ -9,7 +9,7 @@
 - Spring Security + JWT (access token 15 phút, refresh token 7 ngày, có rotation)
 - Spring Data JPA · Hibernate · **Flyway** (migration)
 - PostgreSQL · Lombok · Validation
-- SpeedSMS (gửi OTP qua SMS)
+- SpeedSMS (gửi OTP qua SMS) — provider `speedsms` (thật) hoặc `mock` (dev)
 
 **Frontend**
 - **Vite** · **React 19** · **TypeScript**
@@ -51,6 +51,18 @@ npm run dev
 
 5. Flyway sẽ tự động chạy migration lần đầu:
    `V1__baseline_users.sql` → `V2__create_otp_codes.sql` → `V3__create_refresh_tokens.sql`
+   → `V4__normalize_phone_numbers.sql` → `V5__create_registration_attempts.sql`
+   → `V6__add_unique_phone_number.sql`
+
+6. (Tùy chọn) Dùng SMS giả lập khi phát triển — không tốn tiền tin nhắn:
+```bash
+cd backend/src/main/resources
+cp application-local.properties.template application-local.properties
+# rồi chạy: .\mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=local
+```
+> Profile `local` đặt `app.sms.provider=mock` → mã OTP in ra log server
+> (và hiện trên màn hình). **Production phải dùng `app.sms.provider=speedsms`**
+> + biến môi trường `SPEEDSMS_ACCESS_TOKEN`.
 
 ---
 
@@ -61,8 +73,9 @@ QL_san_cau_long/
 ├── backend/
 │   └── src/main/
 │       ├── java/vn/ShuttleHub/backend/
-│       │   ├── auth/            # controller · dto · exception · service
-│       │   ├── config/          # SecurityConfig
+│       │   ├── auth/            # controller · dto · exception · service · sms
+│       │   ├── common/          # PhoneNumbers — chuẩn hoá SĐT E.164
+│       │   ├── config/          # SecurityConfig · RestClientConfig
 │       │   ├── entity/          # JPA entities
 │       │   ├── repository/      # Spring Data JPA
 │       │   └── security/        # JWT filter, entry point, access denied
@@ -75,7 +88,8 @@ QL_san_cau_long/
         ├── components/          # UI dùng chung
         ├── context/             # AuthContext.tsx
         ├── pages/               # Home · AuthPage · CourtDiscovery
-        └── styles/              # tokens.css
+        ├── styles/              # tokens.css
+        └── utils/               # phone.ts — chuẩn hoá SĐT (khớp backend)
 ```
 
 ---
@@ -86,14 +100,16 @@ Tất cả response có shape `{ code, message, data }`.
 
 | Method | Endpoint | Auth | Mô tả |
 |--------|----------|------|-------|
-| POST | `/api/auth/send-otp` | Public | Gửi mã OTP về SĐT |
-| POST | `/api/auth/register` | Public | Đăng ký tài khoản (cần OTP) |
-| POST | `/api/auth/login` | Public | Đăng nhập email + mật khẩu |
+| POST | `/api/auth/send-otp` | Public | Gửi mã OTP về SĐT (chuẩn hoá E.164) · 429 khi vượt rate-limit |
+| POST | `/api/auth/register` | Public | Đăng ký tài khoản (cần OTP) · 429 khi vượt giới hạn đăng ký/SĐT/ngày |
+| POST | `/api/auth/login` | Public | Đăng nhập email + mật khẩu · 429 khi vượt rate-limit brute force |
 | POST | `/api/auth/refresh` | Public | Cấp access token mới (rotation) |
 | GET | `/api/auth/me` | Bearer | Thông tin user hiện tại |
 | POST | `/api/auth/logout` | Bearer | Vô hiệu hoá toàn bộ refresh token |
 
 > Endpoint mới ngoài `/api/auth/**` đều phải có JWT — không dùng `permitAll`.
+>
+> **Mã lỗi auth:** `400` sai định dạng · `401` sai thông tin / token hết hạn / user bị khoá · `409` email/tên/SĐT trùng · `429` vượt rate-limit · `503` lỗi dịch vụ SMS.
 
 ---
 
@@ -123,6 +139,14 @@ Tất cả response có shape `{ code, message, data }`.
 | 1.6 | Trang đăng nhập / đăng ký (UI, tab, ô nhập OTP) | ✅ |
 | 1.7 | Header hiển thị menu user đã đăng nhập | ✅ |
 | 1.8 | Quên mật khẩu / đặt lại mật khẩu bằng OTP | ⬜ |
+| 1.9 | Chuẩn hoá SĐT về E.164 (`PhoneNumbers`) + migration V4 | ✅ |
+| 1.10 | `SmsSender` + 2 provider (`mock` / `speedsms`) chọn bằng config | ✅ |
+| 1.11 | Rate-limit gửi OTP theo IP (10 lần/giờ) | ✅ |
+| 1.12 | Giới hạn đăng ký 3 lần/SĐT/24h (bảng `registration_attempts`) | ✅ |
+| 1.13 | Rate-limit đăng nhập theo IP (10 lần/giờ) — chống brute force | ✅ |
+| 1.14 | UNIQUE constraint `users.phone_number` (chống race condition) | ✅ |
+| 1.15 | JWT filter chặn user bị khoá (`isActive=false`) dùng token cũ | ✅ |
+| 1.16 | Job `@Scheduled` dọn refresh token hết hạn (03:00 hằng ngày) | ✅ |
 
 ### Giai đoạn 2 — Quản lý sân (Chủ sân)
 
