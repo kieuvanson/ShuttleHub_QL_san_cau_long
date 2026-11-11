@@ -218,14 +218,34 @@ spring.security.oauth2.client.registration.facebook.client-id=${FACEBOOK_CLIENT_
 spring.security.oauth2.client.registration.facebook.client-secret=${FACEBOOK_CLIENT_SECRET:}
 spring.security.oauth2.client.registration.facebook.scope=email,public_profile
 spring.security.oauth2.client.registration.facebook.redirect-uri={baseUrl}/login/oauth2/code/{registrationId}
-# Facebook: Spring đã bỏ provider mặc định → khai báo tay endpoint
-spring.security.oauth2.client.provider.facebook.authorize-uri=https://www.facebook.com/v21.0/dialog/oauth
-spring.security.oauth2.client.provider.facebook.token-uri=https://graph.facebook.com/v21.0/oauth/access_token
-spring.security.oauth2.client.provider.facebook.user-info-uri=https://graph.facebook.com/v21.0/me?fields=id,name,email
+```
+
+**Không cần khai báo endpoint thủ công cho Google và Facebook.** Cả hai đều là *common provider* của Spring Security (`CommonOAuth2Provider.GOOGLE` / `.FACEBOOK`) — Spring tự điền authorize-uri, token-uri, user-info-uri, user-name-attribute. Xác minh bằng Spring Security 7.1 API docs: `CommonOAuth2Provider` vẫn còn đủ `FACEBOOK, GITHUB, GOOGLE, OKTA, X`.
+
+⚠️ **Hai điểm phải override thủ công cho Facebook:**
+
+1. **Version Graph API.** Mặc định của Spring dùng `v2.8` (rất cũ). Bắt buộc override sang version hiện hành:
+
+```properties
+# Graph API version — cập nhật mỗi năm (Meta tăng version 1 lần/năm).
+# Bảng hỗ trợ: https://developers.facebook.com/docs/graph-api/changelog/versions/
+app.oauth.facebook.graph-version=v27.0
+spring.security.oauth2.client.provider.facebook.authorize-uri=https://www.facebook.com/v27.0/dialog/oauth
+spring.security.oauth2.client.provider.facebook.token-uri=https://graph.facebook.com/v27.0/oauth/access_token
+spring.security.oauth2.client.provider.facebook.user-info-uri=https://graph.facebook.com/v27.0/me?fields=id,name,email
 spring.security.oauth2.client.provider.facebook.user-name-attribute=id
 ```
 
-`{baseUrl}` = `http://localhost:8080` khi dev. Ở production phải là domain HTTPS đã đăng ký trong Google Console / Meta.
+> Tại thời điểm viết doc: version mới nhất là **v27.0**. Các version cũ vẫn sống ~2 năm
+> (v21.0 hết hạn 21/01/2027) nhưng nên dùng version mới nhất.
+
+2. **Client authentication method.** Mặc định của Spring là `CLIENT_SECRET_POST` (secret nằm trong body). Meta chấp nhận cả hai, nhưng `CLIENT_SECRET_BASIC` an toàn hơn (secret trong header). Có thể override:
+
+```properties
+spring.security.oauth2.client.registration.facebook.client-authentication-method=client_secret_basic
+```
+
+**Về `client-id` rỗng:** Spring Boot **không** validate `client-id` lúc startup — app vẫn start bình thường, chỉ fail khi user bấm nút. Endpoint `GET /api/auth/oauth/providers` sẽ chỉ trả về provider có `client-id` khác rỗng → FE ẩn nút. (Cần test khởi động context không có env var để chắc chắn.)
 
 ### Sinh `username` cho user OAuth
 
@@ -290,21 +310,79 @@ Bắt buộc có: `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`, `FACEBOOK_CLIENT_ID
 
 ### Môi trường provider cần chuẩn bị
 
-- **Google Cloud Console** → *APIs & Services* → *OAuth consent screen* → thêm scope `openid,email,profile` → tạo *Web application client* với redirect URI `http://localhost:8080/login/oauth2/code/google`.
-- **Meta for Developers** → tạo App → *Facebook Login* → thêm sản phẩm → redirect URI `http://localhost:8080/login/oauth2/code/facebook`.
-- Production: bắt buộc HTTPS (Meta chỉ chấp nhận HTTPS redirect URI khi app ở trạng thái *Live*), và tên miền phải được Meta verify.
+Xem mục **§11 — Việc cần đăng ký ở provider** (chi tiết từng bước).
 
-## 11. Ảnh hưởng & rủi ro khi triển khai
+## 11. Việc cần đăng ký ở provider
+
+> **Câu trả lời cho câu hỏi "có cần đăng ký gì không": CÓ.**
+> Cả 2 nhà cung cấp đều bắt buộc phải có App riêng trước khi dùng được.
+> Cả hai đều **miễn phí**, không cần thẻ tín dụng, và làm trong khoảng 15-20 phút.
+>
+> ⚠️ **Không bắt buộc phải có để build code.** Toàn bộ code + unit test có thể chạy
+> và pass mà không cần credential (dùng `MockOAuth2User` / test double).
+> Credential chỉ cần cho **verify end-to-end với provider thật** ở bước cuối.
+
+### 11.1. Google Cloud Console
+
+| Bước | Chi tiết |
+|---|---|
+| 1 | Vào [console.cloud.google.com](https://console.cloud.google.com) → tạo project mới (tên tùy ý, VD `CauLongDee`) |
+| 2 | Bật API: *APIs & Services* → *Library* → tìm **Google Identity / OpenID Connect** → *Enable* |
+| 3 | *APIs & Services* → *OAuth consent screen* → chọn **External** → điền App name, Support email → chọn scope **3 scope**: `.../auth/userinfo.email`, `.../auth/userinfo.profile`, `openid` → *Save* |
+| 4 | *Credentials* → *Create credentials* → **OAuth client ID** → Application type = **Web application** |
+| 5 | *Authorized redirect URIs* → thêm `http://localhost:8080/login/oauth2/code/google` (và domain production sau) |
+| 6 | Lấy **Client ID** + **Client Secret** → đặt vào biến môi trường `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` |
+
+> **Lưu ý:** ở trạng thái *Testing*, consent screen chỉ cho phép **tài khoản Gmail của chính bạn** (test users) đăng nhập. Muốn user thật đăng nhập thì phải *Publish to production* — khi đó Google có thể yêu cầu bạn xác minh domain và mô tả ứng dụng (không cần verification website nếu app chỉ dùng scope cơ bản, nhưng Google có thể yêu cầu bổ sung).
+>
+> Trong lúc dev, chỉ cần thêm email của bạn vào *Test users*.
+
+### 11.2. Meta for Developers (Facebook)
+
+| Bước | Chi tiết |
+|---|---|
+| 1 | Vào [developers.facebook.com](https://developers.facebook.com) → *My Apps* → *Create App* |
+| 2 | Chọn use case **Consumers** (login bằng tài khoản cá nhân) |
+| 3 | Thêm sản phẩm **Facebook Login for Others** (hoặc *Facebook Login*) |
+| 4 | Trong *Facebook Login* → *Settings* → *Valid OAuth Redirect URIs* → thêm `http://localhost:8080/login/oauth2/code/facebook` |
+| 5 | Lấy **App ID** + **App Secret** (App Secret cần bấm *Show* → hiện mật khẩu Facebook) → đặt vào `FACEBOOK_CLIENT_ID`, `FACEBOOK_CLIENT_SECRET` |
+| 6 | Trong *App Settings* → *Basic* → thêm **Privacy Policy URL** + **Terms of Service URL** + *Category* — bắt buộc để app Live |
+| 7 | Bật toggle **Live** (góc trên cùng bên phải) khi sẵn sàng production |
+
+> ⚠️ **2 giới hạn quan trọng của Meta:**
+> 1. **Redirect URI bắt buộc là HTTPS** khi app ở trạng thái *Live*. `http://localhost` chỉ chạy được ở trạng thái *Development* (mặc định).
+> 2. **Tên miền phải được Meta verify** (Settings → Basic → Domains). Nếu chưa verify, các user khác (ngoài test users / admin của app) sẽ **không** đăng nhập được.
+>
+> → Với dự án đang ở giai đoạn phát triển, chạy ở *Development* mode là đủ để test.
+
+### 11.3. Đặt biến môi trường
+
+```powershell
+# PowerShell (session hiện tại)
+$env:GOOGLE_CLIENT_ID="xxx.apps.googleusercontent.com"
+$env:GOOGLE_CLIENT_SECRET="GOCSPX-xxx"
+$env:FACEBOOK_CLIENT_ID="1234567890123456"
+$env:FACEBOOK_CLIENT_SECRET="abc123def456"
+
+# Hoặc set vĩnh viễn cho user hiện tại
+[Environment]::SetEnvironmentVariable("GOOGLE_CLIENT_ID","xxx","User")
+```
+
+Sau đó chạy backend từ **cửa sổ PowerShell mới** (để nhận env var) hoặc set trực tiếp trong `application-local.properties`.
+
+> 🔒 **Không** commit `client-secret` vào git. `.properties` chính đã gitignore, nhưng file `.template` phải để placeholder.
+
+## 12. Ảnh hưởng & rủi ro khi triển khai
 
 | Rủi ro | Mức | Xử lý |
 |---|---|---|
 | `spring-boot-starter-oauth2-client` kéo thêm `spring-security-oauth2-*` | Thấp | Chỉ thêm dependency, không đụng code auth hiện tại. |
 | Hai registration với `client-id` rỗng → app fail lúc start | Cao | Spring Boot **không** validate `client-id` rỗng lúc startup (chỉ fail khi user bấm nút). Nhưng để chắc, ta dùng `client-id=${GOOGLE_CLIENT_ID:}` (rỗng) và thêm endpoint `GET /api/auth/oauth/providers` chỉ trả về provider có `client-id` khác rỗng → FE ẩn nút. Kiểm tra bằng test khởi động context không có env var. |
 | `username` sinh tự động trùng | Thấp | Vòng lặp tối đa 5 lần + hậu tố random. Có UNIQUE constraint ở DB chặn trường hợp cuối. |
-| Đổi endpoint Facebook theo phiên bản API (`v21.0`) | Trung bình | Facebook tăng version theo năm. Nên đặt version ở 1 chỗ trong properties để dễ sửa. |
+| Đổi endpoint Facebook theo phiên bản API (`v21.0`) | Trung bình | Facebook tăng version theo năm. Đặt version ở 1 chỗ trong properties (`app.oauth.facebook.graph-version`) để dễ sửa. |
 | `email_verified` từ Google là `String` hay `Boolean` | Trung bình | Claim OIDC có thể là boolean hoặc string `"true"`. Extractor phải xử lý cả hai. |
 
-## 12. Việc còn lại cho builder
+## 13. Việc còn lại cho builder
 
 1. Thêm dependency + properties.
 2. Viết entity + repository + migration V7, V8.
@@ -318,7 +396,7 @@ Bắt buộc có: `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`, `FACEBOOK_CLIENT_ID
 10. Cập nhật `README.md` (tiến trình giai đoạn 1 + API endpoints + công nghệ).
 11. Verify thủ công với credential thật (nếu user cấp).
 
-## 13. Quyết định đã lấy (do tôi chọn, người dùng có thể đổi)
+## 14. Quyết định đã lấy (do tôi chọn, người dùng có thể đổi)
 
 | Quyết định | Lý do |
 |---|---|
