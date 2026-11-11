@@ -65,6 +65,9 @@ app.sms.max-sends-per-hour-per-ip=10
 # Số lần đăng ký tối đa / 1 số điện thoại / 24 giờ (chặn spam tạo account)
 app.otp.max-registrations-per-phone-per-day=3
 
+# Số lần thử đăng nhập tối đa / giờ / IP (chặn brute force mật khẩu)
+app.auth.max-logins-per-hour-per-ip=10
+
 # CORS
 app.cors.allowed-origins=http://localhost:5173,http://localhost:3000
 

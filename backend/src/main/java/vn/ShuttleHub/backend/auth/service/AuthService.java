@@ -31,6 +31,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final RegistrationAttemptService registrationAttemptService;
+    private final LoginRateLimiter loginRateLimiter;
 
     /** Số lần đăng ký tối đa trên 1 số điện thoại trong 24h. */
     private final int maxRegistrationsPerPhonePerDay;
@@ -50,6 +51,7 @@ public class AuthService {
             JwtService jwtService,
             PasswordEncoder passwordEncoder,
             RegistrationAttemptService registrationAttemptService,
+            LoginRateLimiter loginRateLimiter,
             @Value("${app.otp.max-registrations-per-phone-per-day}") int maxRegistrationsPerPhonePerDay
     ) {
         this.userRepo = userRepo;
@@ -58,6 +60,7 @@ public class AuthService {
         this.jwtService = jwtService;
         this.passwordEncoder = passwordEncoder;
         this.registrationAttemptService = registrationAttemptService;
+        this.loginRateLimiter = loginRateLimiter;
         this.maxRegistrationsPerPhonePerDay = maxRegistrationsPerPhonePerDay;
     }
 
@@ -145,8 +148,17 @@ public class AuthService {
      * sau sẽ luôn thất bại với 401.
      */
     @Transactional
-    public AuthResponse login(LoginRequest req) {
+    public AuthResponse login(LoginRequest req, String clientIp) {
         String email = normalizeEmail(req.email());
+
+        // Chặn brute force: giới hạn số lần thử đăng nhập theo IP.
+        // ⚠️ Kiểm tra TRƯỚC khi query DB → kẻ xấu không thể dò email tồn tại
+        // bằng cách spam mật khẩu sai.
+        if (!loginRateLimiter.tryAcquire(clientIp)) {
+            throw new RateLimitException(
+                "Bạn đã thử đăng nhập quá nhiều lần. Vui lòng thử lại sau."
+            );
+        }
 
         User user = userRepo.findByEmail(email)
             .orElseThrow(() -> new InvalidCredentialsException("Email hoặc mật khẩu không đúng."));

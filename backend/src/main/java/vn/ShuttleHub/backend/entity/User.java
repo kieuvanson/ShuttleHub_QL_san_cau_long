@@ -85,7 +85,11 @@ public class User {
     // min = 10: Tối thiểu 10 ký tự
     // max = 15: Tối đa 15 ký tự
     // ⚠️ CHỈ kiểm tra khi validate (không tự động lúc insert DB)
-    @Column(name = "phone_number", length = 15)
+    @Column(name = "phone_number", unique = true, length = 15)
+    // ✅ unique = true: 1 số điện thoại chỉ được gắn với 1 tài khoản.
+    // ⚠️ Ràng buộc UNIQUE ở DB là lớp bảo vệ CUỐI CÙNG — check ở tầng
+    // application (`existsByPhoneNumber`) có thể bị bypass bởi race condition
+    // (2 request đăng ký song song cùng SĐT).
     // ✅ length = 15: Tạo cột VARCHAR(15) trong database
     private String phoneNumber;
 

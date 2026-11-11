@@ -50,6 +50,9 @@ class AuthServiceRegistrationLimitTest {
     @Mock
     private RegistrationAttemptService registrationAttemptService;
 
+    @Mock
+    private LoginRateLimiter loginRateLimiter;
+
     private AuthService authService;
 
     /**
@@ -67,6 +70,7 @@ class AuthServiceRegistrationLimitTest {
                 jwtService,
                 passwordEncoder,
                 registrationAttemptService,
+                loginRateLimiter,
                 MAX_PER_DAY
         );
     }

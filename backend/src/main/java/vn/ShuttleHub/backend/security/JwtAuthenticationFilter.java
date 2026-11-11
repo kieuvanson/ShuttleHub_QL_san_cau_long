@@ -15,6 +15,8 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import vn.ShuttleHub.backend.auth.service.JwtService;
+import vn.ShuttleHub.backend.entity.User;
+import vn.ShuttleHub.backend.repository.UserRepository;
 
 import java.io.IOException;
 import java.util.List;
@@ -36,6 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String BEARER_PREFIX = "Bearer ";
 
     private final JwtService jwtService;
+    private final UserRepository userRepo;
 
     @Override
     protected void doFilterInternal(
@@ -58,6 +61,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 // Chỉ set context nếu chưa có authentication (không ghi đè)
                 if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    // ⚠️ Kiểm tra user còn tồn tại và còn active.
+                    //
+                    // Vì sao? Access token sống 15 phút, refresh token 7 ngày.
+                    // Nếu chủ sân khoá tài khoản (isActive=false) mà không
+                    // kiểm tra ở đây → user bị khoá vẫn dùng được token cũ
+                    // (và có thể refresh ra token mới) → soft-delete vô hiệu.
+                    //
+                    // ⚠️ Đánh đổi: mỗi request authenticated sẽ thêm 1 lượt
+                    // đọc DB. Với 1 instance + DB local thì không sao; nếu
+                    // scale lên nhiều instance nên cache trạng thái user
+                    // trong Redis (TTL ngắn) thay vì query mỗi request.
+                    User user = userRepo.findById(userId).orElse(null);
+                    if (user == null || !Boolean.TRUE.equals(user.getIsActive())) {
+                        // User không tồn tại hoặc đã bị khoá → coi như token
+                        // không hợp lệ, KHÔNG set context.
+                        SecurityContextHolder.clearContext();
+                        filterChain.doFilter(request, response);
+                        return;
+                    }
+
                     var authorities = List.of(
                         new SimpleGrantedAuthority("ROLE_" + (role != null ? role : "CUSTOMER"))
                     );
