@@ -136,7 +136,7 @@ public class AuthService {
         user = userRepo.save(user);
 
         // 6. Sinh token
-        return buildAuthResponse(user);
+        return issueTokens(user);
     }
 
     /**
@@ -172,7 +172,7 @@ public class AuthService {
         }
 
         // Ghi lại refresh token mới (cho phép nhiều thiết bị đăng nhập)
-        return buildAuthResponse(user);
+        return issueTokens(user);
     }
 
     /**
@@ -232,7 +232,7 @@ public class AuthService {
         refreshTokenRepo.save(stored);
 
         // Cấp cặp token mới
-        AuthResponse response = buildAuthResponse(user);
+        AuthResponse response = issueTokens(user);
 
         // Liên kết token mới với token cũ (trace token chain)
         stored.setReplacedBy(jwtService.hashToken(response.refreshToken()));
@@ -259,7 +259,16 @@ public class AuthService {
         refreshTokenRepo.revokeAllByUserId(userId, LocalDateTime.now());
     }
 
-    private AuthResponse buildAuthResponse(User user) {
+    /**
+     * Sinh cặp access + refresh token cho user và lưu refresh token vào DB.
+     *
+     * ⚠️ Vì sao public?
+     * OAuthAuthService cần cấp token sau khi đổi ticket, mà phải dùng
+     * ĐÚNG cơ chế refresh/rotation của hệ thống (lưu hash, ghi refresh
+     * token mới). Tách ra thành method public để cả 2 luồng dùng chung —
+     * tránh việc 2 nơi sinh token lệch nhau.
+     */
+    public AuthResponse issueTokens(User user) {
         String access = jwtService.generateAccessToken(user.getId(), user.getEmail(), user.getRole().name());
         String refresh = jwtService.generateRefreshToken(user.getId(), user.getEmail(), user.getRole().name());
 
