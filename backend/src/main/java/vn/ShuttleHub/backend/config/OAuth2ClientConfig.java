@@ -84,7 +84,10 @@ public class OAuth2ClientConfig {
     }
 
     private ClientRegistration buildFacebook() {
-        String v = facebookGraphVersion;
+        // ⚠️ Chuẩn hoá version về dạng "27.0" (bỏ tiền tố "v" nếu có).
+        // Vì template URL đã chứa sẵn chữ "v" → nếu không bỏ sẽ ra "vv27.0"
+        // và Facebook trả về lỗi.
+        String v = facebookGraphVersion.trim().replaceFirst("^[vV]", "");
         return ClientRegistration.withRegistrationId("facebook")
                 .clientId(facebookClientId)
                 .clientSecret(facebookClientSecret)

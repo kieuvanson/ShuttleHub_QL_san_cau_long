@@ -27,6 +27,18 @@ export interface AuthResponse {
   user: User;
 }
 
+/** Provider OAuth đang được bật (có client-id hợp lệ) */
+export interface OAuthProviders {
+  providers: string[];
+}
+
+/** Trạng thái ticket sau OAuth callback */
+export interface OAuthTicketStatus {
+  status: 'READY' | 'NEEDS_PROFILE';
+  provider: string;
+  fullName: string | null;
+}
+
 /** Lỗi API đã chuẩn hoá để UI hiển thị */
 export class ApiError extends Error {
   readonly status: number;

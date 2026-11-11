@@ -39,20 +39,27 @@ public class OAuthController {
     private final UserRepository userRepo;
 
     /**
+     * Repository chứa các provider OAuth đang được bật.
+     *
+     * ⚠️ Inject bằng CONSTRUCTOR (không phải method parameter) — nếu để ở
+     * method parameter, Spring MVC sẽ coi nó là `@ModelAttribute` và cố bind
+     * từ query string → lỗi `IllegalStateException: No primary or single
+     * unique constructor found for interface ClientRegistrationRepository`.
+     */
+    private final ClientRegistrationRepository registrations;
+
+    /**
      * Danh sách provider đang bật.
      *
      * ⚠️ Chỉ trả về provider có `client-id` khác rỗng — nếu chưa cấu hình
      * credential thì frontend ẨN nút tương ứng thay vì báo lỗi.
      *
      * ⚠️ Spring Security 7: `ClientRegistrationRepository` KHÔNG còn có
-     * `findAll()` — interface chỉ có `findByRegistrationId`. Bean thực tế là
-     * `InMemoryClientRegistrationRepository` vốn implements `Iterable`, nên ta
-     * duyệt qua Iterable thay vì gọi findAll().
+     * `findAll()` — interface chỉ có `findByRegistrationId`. Bean thực tế
+     * implement `Iterable`, nên ta duyệt qua Iterable thay vì gọi findAll().
      */
     @GetMapping("/providers")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> providers(
-            ClientRegistrationRepository registrations
-    ) {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> providers() {
         List<String> enabled = new ArrayList<>();
         if (registrations instanceof Iterable<?> iterable) {
             for (Object o : iterable) {

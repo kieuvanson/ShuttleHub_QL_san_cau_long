@@ -15,6 +15,8 @@ import { Layout } from './components/Layout';
 import { Home } from './pages/Home';
 import { CourtDiscovery } from './pages/CourtDiscovery';
 import { AuthPage } from './pages/AuthPage';
+import { OAuthCallbackPage } from './pages/OAuthCallbackPage';
+import { FacebookCompletePage } from './pages/FacebookCompletePage';
 import { AuthProvider } from './context/AuthContext';
 
 createRoot(document.getElementById('root')!).render(
@@ -27,6 +29,9 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/tim-san" element={<CourtDiscovery />} />
             <Route path="/dang-nhap" element={<AuthPage />} />
             <Route path="/dang-ky" element={<AuthPage />} />
+            {/* OAuth: backend redirect về kèm ticket (không có JWT trong URL) */}
+            <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
+            <Route path="/oauth/facebook" element={<FacebookCompletePage />} />
             <Route path="*" element={<Home />} />
           </Route>
         </Routes>

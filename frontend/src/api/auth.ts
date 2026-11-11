@@ -1,5 +1,5 @@
 import { api } from './client';
-import type { AuthResponse, User } from './types';
+import type { AuthResponse, OAuthProviders, OAuthTicketStatus, User } from './types';
 
 /**
  * Các API liên quan tới xác thực.
@@ -23,6 +23,14 @@ export interface RegisterPayload {
 export interface LoginPayload {
   email: string;
   password: string;
+}
+
+/** Payload hoàn thiện hồ sơ cho user đăng nhập bằng Facebook */
+export interface FacebookCompletePayload {
+  ticket: string;
+  email: string;
+  phone: string;
+  otp: string;
 }
 
 export interface SendOtpResult {
@@ -50,4 +58,29 @@ export const authApi = {
 
   /** Đăng xuất — thu hồi toàn bộ refresh token */
   logout: () => api.post<null>('/api/auth/logout'),
+
+  // ----- OAuth (Google / Facebook) -----
+
+  /** Danh sách provider OAuth đang bật (có client-id hợp lệ) */
+  oauthProviders: () =>
+    api.get<OAuthProviders>('/api/auth/oauth/providers', { anonymous: true }),
+
+  /** Hỏi ticket cần làm gì: READY (đổi token) hay NEEDS_PROFILE (hoàn thiện hồ sơ) */
+  oauthTicket: (ticket: string) =>
+    api.get<OAuthTicketStatus>(
+      `/api/auth/oauth/ticket/${encodeURIComponent(ticket)}`,
+      { anonymous: true },
+    ),
+
+  /** Đổi ticket lấy access + refresh token */
+  oauthExchange: (ticket: string) =>
+    api.post<AuthResponse>('/api/auth/oauth/exchange', { ticket }, { anonymous: true }),
+
+  /** Hoàn thiện hồ sơ Facebook (email + SĐT + OTP) */
+  oauthFacebookComplete: (payload: FacebookCompletePayload) =>
+    api.post<{ userId: string }>(
+      '/api/auth/oauth/facebook/complete',
+      payload,
+      { anonymous: true },
+    ),
 };

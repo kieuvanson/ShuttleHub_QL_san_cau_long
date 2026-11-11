@@ -7,6 +7,7 @@
 **Backend**
 - Spring Boot **4.1.1** · Java **25**
 - Spring Security + JWT (access token 15 phút, refresh token 7 ngày, có rotation)
+- **OAuth2 Client** — đăng nhập Google (OIDC) & Facebook (Graph API v27.0)
 - Spring Data JPA · Hibernate · **Flyway** (migration)
 - PostgreSQL · Lombok · Validation
 - SpeedSMS (gửi OTP qua SMS) — provider `speedsms` (thật) hoặc `mock` (dev)
@@ -52,7 +53,8 @@ npm run dev
 5. Flyway sẽ tự động chạy migration lần đầu:
    `V1__baseline_users.sql` → `V2__create_otp_codes.sql` → `V3__create_refresh_tokens.sql`
    → `V4__normalize_phone_numbers.sql` → `V5__create_registration_attempts.sql`
-   → `V6__add_unique_phone_number.sql`
+   → `V6__add_unique_phone_number.sql` → `V7__create_oauth_accounts.sql`
+   → `V8__create_oauth_tickets.sql`
 
 6. (Tùy chọn) Dùng SMS giả lập khi phát triển — không tốn tiền tin nhắn:
 ```bash
@@ -64,6 +66,29 @@ cp application-local.properties.template application-local.properties
 > (và hiện trên màn hình). **Production phải dùng `app.sms.provider=speedsms`**
 > + biến môi trường `SPEEDSMS_ACCESS_TOKEN`.
 
+6. (Tùy chọn) Bật đăng nhập Google / Facebook — cấu hình credential qua biến môi trường:
+```bash
+# Google Cloud Console → Credentials → OAuth 2.0 Client (Web)
+#   Authorized redirect URI: http://localhost:8080/login/oauth2/code/google
+export GOOGLE_CLIENT_ID=...
+export GOOGLE_CLIENT_SECRET=...
+
+# Meta for Developers → Facebook Login → Settings → Valid OAuth Redirect URIs
+#   http://localhost:8080/login/oauth2/code/facebook
+export FACEBOOK_CLIENT_ID=...
+export FACEBOOK_CLIENT_SECRET=...
+
+# Nơi backend redirect về sau khi đăng nhập thành công
+export OAUTH_FRONTEND_REDIRECT_URI=http://localhost:5173
+```
+> ⚠️ Nếu **không** cấu hình credential → app vẫn khởi động bình thường, nút
+> Google/Facebook tự ẩn khỏi trang đăng nhập (backend trả danh sách provider
+> rỗng qua `GET /api/auth/oauth/providers`).
+>
+> ⚠️ Với **Facebook**, Meta chỉ cấp `email` khi user đã cấp quyền `email`
+> và **không có** cờ `email_verified` → app bắt user hoàn thiện hồ sơ
+> (email + SĐT + OTP) thay vì tự động gộp vào tài khoản đã có.
+
 ---
 
 ## 📁 Cấu trúc dự án
@@ -73,9 +98,9 @@ QL_san_cau_long/
 ├── backend/
 │   └── src/main/
 │       ├── java/vn/ShuttleHub/backend/
-│       │   ├── auth/            # controller · dto · exception · service · sms
+│       │   ├── auth/            # controller · dto · exception · service · sms · oauth
 │       │   ├── common/          # PhoneNumbers — chuẩn hoá SĐT E.164
-│       │   ├── config/          # SecurityConfig · RestClientConfig
+│       │   ├── config/          # SecurityConfig · OAuth2ClientConfig · handlers
 │       │   ├── entity/          # JPA entities
 │       │   ├── repository/      # Spring Data JPA
 │       │   └── security/        # JWT filter, entry point, access denied
@@ -88,6 +113,7 @@ QL_san_cau_long/
         ├── components/          # UI dùng chung
         ├── context/             # AuthContext.tsx
         ├── pages/               # Home · AuthPage · CourtDiscovery
+        │                        # OAuthCallbackPage · FacebookCompletePage
         ├── styles/              # tokens.css
         └── utils/               # phone.ts — chuẩn hoá SĐT (khớp backend)
 ```
@@ -106,6 +132,29 @@ Tất cả response có shape `{ code, message, data }`.
 | POST | `/api/auth/refresh` | Public | Cấp access token mới (rotation) |
 | GET | `/api/auth/me` | Bearer | Thông tin user hiện tại |
 | POST | `/api/auth/logout` | Bearer | Vô hiệu hoá toàn bộ refresh token |
+
+**OAuth2 (Google / Facebook)**
+
+| Method | Endpoint | Auth | Mô tả |
+|--------|----------|------|-------|
+| GET | `/oauth2/authorization/{provider}` | Public | Bắt đầu luồng OAuth (redirect tới Google/Facebook) |
+| GET | `/login/oauth2/code/{provider}` | Public | Callback từ provider (Spring Security xử lý) |
+| GET | `/api/auth/oauth/providers` | Public | Danh sách provider đang bật (có client-id hợp lệ) |
+| GET | `/api/auth/oauth/ticket/{ticket}` | Public | Trạng thái ticket: `READY` hoặc `NEEDS_PROFILE` |
+| POST | `/api/auth/oauth/exchange` | Public | Đổi ticket (1 lần, TTL 60s) lấy access + refresh token |
+| POST | `/api/auth/oauth/facebook/complete` | Public | Hoàn thiện hồ sơ Facebook (email + SĐT + OTP) |
+
+> ⚠️ **JWT không bao giờ đi trong URL.** Sau khi provider redirect về, backend
+> sinh một *ticket* dùng-một-lần (32 byte random, hết hạn 60 giây, không chứa
+> PII) và chuyển hướng về `frontend/oauth/callback?ticket=...`. Frontend đổi
+> ticket lấy token qua POST → token nằm trong body JSON, không nằm trong
+> browser history / log server / header `Referer`.
+>
+> **Quy tắc gộp tài khoản:** chỉ provider có `email_verified=true` (Google) mới
+> được tự động gộp vào tài khoản đã tồn tại. Facebook không có cờ này → nếu
+> email trùng sẽ trả `409`, nếu email mới thì yêu cầu hoàn thiện hồ sơ.
+> Tài khoản OAuth có mật khẩu = hash BCrypt của chuỗi random 32 byte → không
+> ai đăng nhập được bằng mật khẩu.
 
 > Endpoint mới ngoài `/api/auth/**` đều phải có JWT — không dùng `permitAll`.
 >
@@ -147,6 +196,11 @@ Tất cả response có shape `{ code, message, data }`.
 | 1.14 | UNIQUE constraint `users.phone_number` (chống race condition) | ✅ |
 | 1.15 | JWT filter chặn user bị khoá (`isActive=false`) dùng token cũ | ✅ |
 | 1.16 | Job `@Scheduled` dọn refresh token hết hạn (03:00 hằng ngày) | ✅ |
+| 1.17 | Đăng nhập Google (OIDC) — ticket 1 lần, không lộ JWT trong URL | ✅ |
+| 1.18 | Đăng nhập Facebook (Graph API) + hoàn thiện hồ sơ (email + SĐT + OTP) | ✅ |
+| 1.19 | Tự động gộp tài khoản chỉ khi `email_verified=true` (Google) | ✅ |
+| 1.20 | Bảng `oauth_accounts` + `oauth_tickets` (migration V7, V8) | ✅ |
+| 1.21 | Nút social tự ẩn khi chưa cấu hình credential | ✅ |
 
 ### Giai đoạn 2 — Quản lý sân (Chủ sân)
 

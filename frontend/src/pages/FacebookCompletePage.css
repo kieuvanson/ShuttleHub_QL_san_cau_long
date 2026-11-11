@@ -1,0 +1,255 @@
+/* ============================================================
+   FacebookCompletePage — hoàn thiện hồ sơ sau khi đăng nhập Facebook.
+   ============================================================ */
+
+.fb-complete {
+  min-height: calc(100vh - 76px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-1);
+  padding: var(--s-8) var(--s-4);
+  background-image:
+    radial-gradient(circle at 0% 0%, rgba(24, 119, 242, 0.08), transparent 40%),
+    radial-gradient(circle at 100% 100%, rgba(13, 148, 136, 0.08), transparent 40%);
+}
+
+@media (max-width: 720px) {
+  .fb-complete {
+    min-height: calc(100vh - 64px);
+    padding: var(--s-4) var(--s-3);
+  }
+}
+
+.fb-complete__card {
+  width: 100%;
+  max-width: 480px;
+  background: var(--surface-2);
+  border: var(--line);
+  border-radius: var(--r-lg);
+  padding: var(--s-10) var(--s-8);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.1);
+}
+
+@media (max-width: 520px) {
+  .fb-complete__card {
+    padding: var(--s-6) var(--s-4);
+  }
+}
+
+.fb-complete__head {
+  text-align: center;
+  margin-bottom: var(--s-6);
+}
+
+.fb-complete__logo {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto var(--s-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(24, 119, 242, 0.1);
+}
+
+.fb-complete__title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--ink-0);
+  margin: 0 0 var(--s-2);
+}
+
+.fb-complete__sub {
+  font-size: 14px;
+  color: var(--ink-2);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.fb-complete__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+.fb-complete__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fb-complete__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-1);
+}
+
+.fb-complete__input {
+  width: 100%;
+  padding: 12px 14px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--ink-0);
+  background: var(--surface-0);
+  border: 1px solid #e5e7eb;
+  border-radius: var(--r-md);
+  outline: none;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.fb-complete__input::placeholder {
+  color: var(--ink-3);
+}
+
+.fb-complete__input:focus {
+  border-color: var(--brand-2);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+}
+
+.fb-complete__input--error {
+  border-color: #dc2626;
+}
+
+.fb-complete__input--error:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+
+.fb-complete__err {
+  font-size: 12px;
+  color: #dc2626;
+  font-weight: 500;
+}
+
+/* === SĐT + nút gửi OTP === */
+.fb-complete__phone-wrap {
+  display: flex;
+  gap: var(--s-2);
+}
+
+.fb-complete__phone-wrap .fb-complete__input {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.fb-complete__send-otp {
+  flex: 0 0 auto;
+  padding: 0 14px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--brand-2);
+  background: rgba(13, 148, 136, 0.08);
+  border: 1px solid rgba(13, 148, 136, 0.25);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.fb-complete__send-otp:hover:not(:disabled) {
+  background: var(--brand-2);
+  color: #fff;
+}
+
+.fb-complete__send-otp:disabled {
+  color: var(--ink-3);
+  background: var(--surface-3);
+  border-color: var(--surface-3);
+  cursor: not-allowed;
+}
+
+/* === Mã OTP dev (mock mode) === */
+.fb-complete__dev {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px dashed rgba(245, 158, 11, 0.5);
+}
+
+.fb-complete__dev-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #92400e;
+}
+
+.fb-complete__dev-code {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: #b45309;
+  background: transparent;
+  border: 0;
+  padding: 2px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.fb-complete__dev-code:hover {
+  background: rgba(180, 83, 9, 0.12);
+}
+
+/* === Lỗi chung === */
+.fb-complete__alert {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+/* === Submit === */
+.fb-complete__submit {
+  width: 100%;
+  padding: 14px var(--s-6);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--cta-ink);
+  background: var(--cta-0);
+  border: none;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.fb-complete__submit:hover:not(:disabled) {
+  background: var(--cta-1);
+  transform: translateY(-1px);
+}
+
+.fb-complete__submit:disabled {
+  background: var(--off);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.fb-complete__spinner {
+  animation: fb-complete-spin 0.9s linear infinite;
+}
+
+@keyframes fb-complete-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

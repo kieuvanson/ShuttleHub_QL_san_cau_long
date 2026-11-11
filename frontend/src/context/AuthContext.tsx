@@ -18,6 +18,8 @@ interface AuthContextValue {
   isLoading: boolean;
   login: (payload: LoginPayload) => Promise<User>;
   register: (payload: RegisterPayload) => Promise<User>;
+  /** Đăng nhập bằng OAuth — đổi ticket lấy token */
+  loginWithTicket: (ticket: string) => Promise<User>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -109,6 +111,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [persist],
   );
 
+  /**
+   * Đăng nhập bằng OAuth: đổi ticket (single-use, 60s) lấy access + refresh token.
+   * Ticket do backend redirect về kèm trong query string.
+   */
+  const loginWithTicket = useCallback(
+    async (ticket: string) => {
+      const res = await authApi.oauthExchange(ticket);
+      persist(res.accessToken, res.refreshToken, res.user);
+      return res.user;
+    },
+    [persist],
+  );
+
   const logout = useCallback(async () => {
     try {
       await authApi.logout();
@@ -138,10 +153,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading,
       login,
       register,
+      loginWithTicket,
       logout,
       refreshUser,
     }),
-    [user, isLoading, login, register, logout, refreshUser],
+    [user, isLoading, login, register, loginWithTicket, logout, refreshUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
