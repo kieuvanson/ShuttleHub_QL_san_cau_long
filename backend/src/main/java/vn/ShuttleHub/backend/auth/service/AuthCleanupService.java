@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.ShuttleHub.backend.repository.OAuthTicketRepository;
 import vn.ShuttleHub.backend.repository.RefreshTokenRepository;
 
 import java.time.LocalDateTime;
@@ -26,6 +27,7 @@ import java.time.LocalDateTime;
 public class AuthCleanupService {
 
     private final RefreshTokenRepository refreshTokenRepo;
+    private final OAuthTicketRepository oauthTicketRepo;
 
     /**
      * Xoá refresh token đã hết hạn — chạy mỗi ngày lúc 03:00.
@@ -39,6 +41,21 @@ public class AuthCleanupService {
         int deleted = refreshTokenRepo.deleteExpired(LocalDateTime.now());
         if (deleted > 0) {
             log.info("[Auth cleanup] Đã xoá {} refresh token hết hạn.", deleted);
+        }
+    }
+
+    /**
+     * Xoá ticket OAuth quá 7 ngày — chạy cùng lịch 03:00.
+     *
+     * ⚠️ Giữ 7 ngày (không phải 60 giây như TTL) vì ticket đã hết hạn vẫn
+     * còn giá trị để điều tra sự cố. Bảng nhỏ nên không tốn tài nguyên.
+     */
+    @Scheduled(cron = "0 0 3 * * *")
+    @Transactional
+    public void purgeExpiredOAuthTickets() {
+        int deleted = oauthTicketRepo.deleteByExpiresAtBefore(LocalDateTime.now().minusDays(7));
+        if (deleted > 0) {
+            log.info("[Auth cleanup] Đã xoá {} OAuth ticket cũ.", deleted);
         }
     }
 }

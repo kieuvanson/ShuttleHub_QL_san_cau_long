@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import vn.ShuttleHub.backend.repository.OAuthTicketRepository;
 import vn.ShuttleHub.backend.repository.RefreshTokenRepository;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -18,6 +19,9 @@ class AuthCleanupServiceTest {
     @Mock
     private RefreshTokenRepository refreshTokenRepo;
 
+    @Mock
+    private OAuthTicketRepository oauthTicketRepo;
+
     @InjectMocks
     private AuthCleanupService service;
 
@@ -29,5 +33,15 @@ class AuthCleanupServiceTest {
         service.purgeExpiredRefreshTokens();
 
         verify(refreshTokenRepo).deleteExpired(any());
+    }
+
+    @Test
+    @DisplayName("Job dọn ticket OAuth gọi deleteByExpiresAtBefore với ngưỡng 7 ngày")
+    void purgeExpiredOAuthTickets_callsDeleteWithRetentionWindow() {
+        when(oauthTicketRepo.deleteByExpiresAtBefore(any())).thenReturn(3);
+
+        service.purgeExpiredOAuthTickets();
+
+        verify(oauthTicketRepo).deleteByExpiresAtBefore(any());
     }
 }
