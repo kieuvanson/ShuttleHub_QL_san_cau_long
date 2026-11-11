@@ -1,5 +1,6 @@
 package vn.ShuttleHub.backend.auth.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,12 +25,15 @@ public class AuthController {
      * POST /api/auth/send-otp
      * Body: { "phone": "0912345678" }
      *
-     * ⚠️ Khi app.sms.mock=true, mã OTP được trả về trong response để dev
-     * test được mà không cần SMS thật. Production PHẢI đặt mock=false.
+     * ⚠️ Khi provider SMS là "mock", mã OTP được trả về trong response để dev
+     * test được mà không cần SMS thật. Production PHẢI dùng "speedsms".
      */
     @PostMapping("/send-otp")
-    public ResponseEntity<ApiResponse<Map<String, String>>> sendOtp(@Valid @RequestBody SendOtpRequest req) {
-        String otp = otpService.sendOtp(req.phone());
+    public ResponseEntity<ApiResponse<Map<String, String>>> sendOtp(
+            @Valid @RequestBody SendOtpRequest req,
+            HttpServletRequest httpRequest
+    ) {
+        String otp = otpService.sendOtp(req.phone(), clientIp(httpRequest));
 
         Map<String, String> data = null;
         if (otp != null) {
@@ -40,6 +44,20 @@ public class AuthController {
         return ResponseEntity.ok(
             ApiResponse.success("Mã OTP đã được gửi về SĐT của bạn.", data)
         );
+    }
+
+    /**
+     * Lấy IP thật của client để rate-limit theo IP.
+     *
+     * ⚠️ `X-Forwarded-For` chỉ tin khi request đi qua reverse proxy của
+     * bạn — nếu app expose trực tiếp, header này do client tự set → kẻ xấu
+     * giả mạo được để né rate-limit. Vì vậy chỉ dùng khi có nhiều instance
+     * sau proxy; ở giai đoạn hiện tại (1 instance) dùng remoteAddr.
+     *
+     * TODO: bật đọc X-Forwarded-For khi deploy sau reverse proxy.
+     */
+    private String clientIp(HttpServletRequest request) {
+        return request.getRemoteAddr();
     }
 
     /**

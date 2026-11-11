@@ -1,6 +1,7 @@
 package vn.ShuttleHub.backend.auth.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -9,19 +10,23 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.ShuttleHub.backend.auth.exception.OtpInvalidException;
 import vn.ShuttleHub.backend.auth.exception.RateLimitException;
 import vn.ShuttleHub.backend.auth.exception.SmsSendException;
+import vn.ShuttleHub.backend.auth.sms.SmsSendResult;
+import vn.ShuttleHub.backend.auth.sms.SmsSender;
 import vn.ShuttleHub.backend.entity.OtpCode;
 import vn.ShuttleHub.backend.repository.OtpCodeRepository;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OtpService {
 
     private final OtpCodeRepository otpRepo;
     private final OtpAttemptService otpAttemptService;
-    private final SmsService smsService;
+    private final SmsSender smsSender;
+    private final SmsRateLimiter smsRateLimiter;
     private final PasswordEncoder passwordEncoder;
 
     @Value("${app.otp.length}")
@@ -40,18 +45,28 @@ public class OtpService {
 
     /**
      * Sinh OTP ngẫu nhiên, hash, lưu DB, gửi SMS.
-     * Rate-limit: nếu trong `resendCooldownSeconds` gần nhất đã gửi → 429.
+     * Rate-limit 2 tầng:
+     *   1. Theo SĐT — cooldown giữa 2 lần gửi (chống spam 1 số).
+     *   2. Theo IP  — tối đa N lần/giờ (chống đốt tiền tài khoản SMS).
      *
+     * @param clientIp IP người gọi (dùng cho rate-limit theo IP)
      * @return mã OTP nếu mock mode (để dev test), null nếu đã gửi SMS thật
      */
     @Transactional
-    public String sendOtp(String phone) {
-        // Rate limit: kiểm tra OTP gần nhất
+    public String sendOtp(String phone, String clientIp) {
+        // Rate limit #1 — theo SĐT: kiểm tra OTP gần nhất
         LocalDateTime cooldownBefore = LocalDateTime.now().minusSeconds(resendCooldownSeconds);
         long recentCount = otpRepo.countByPhoneAndCreatedAtAfter(phone, cooldownBefore);
         if (recentCount > 0) {
             throw new RateLimitException(
                 "Vui lòng đợi " + resendCooldownSeconds + " giây trước khi gửi lại mã."
+            );
+        }
+
+        // Rate limit #2 — theo IP: chặn kẻ xấu đổi nhiều số khác nhau.
+        if (!smsRateLimiter.tryAcquire(clientIp)) {
+            throw new RateLimitException(
+                "Bạn đã gửi quá nhiều mã xác nhận. Vui lòng thử lại sau."
             );
         }
 
@@ -61,11 +76,11 @@ public class OtpService {
         // Gửi SMS TRƯỚC khi lưu DB.
         // ⚠️ Nếu gửi SMS thất bại mà vẫn lưu OTP → user nhận mã gõ sai sẽ
         // bị báo "OTP không đúng", gây rối. Gửi trước, thành công mới lưu.
-        boolean sent = smsService.sendOtp(phone, code);
-        if (!sent) {
-            throw new SmsSendException(
-                "Không thể gửi mã xác nhận. Vui lòng kiểm tra lại số điện thoại và thử lại."
-            );
+        SmsSendResult result = smsSender.sendOtp(phone, code);
+        if (!result.success()) {
+            log.error("[SMS] Gửi OTP tới {} thất bại: {} (code={})",
+                    phone, result.errorMessage(), result.errorCode());
+            throw new SmsSendException(result.errorMessage());
         }
 
         // Lưu hash + TTL
@@ -80,7 +95,7 @@ public class OtpService {
         otpRepo.save(otp);
 
         // Mock mode → trả mã về cho FE; SMS thật → trả null
-        return smsService.isMock() ? code : null;
+        return smsSender.exposesCode() ? code : null;
     }
 
     /**

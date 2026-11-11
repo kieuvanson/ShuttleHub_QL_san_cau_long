@@ -1,0 +1,15 @@
+# =====================================================================
+# application-local.properties
+# Profile DEV — KHÔNG commit file thật lên git (đã có trong .gitignore)
+#
+# Cách dùng:
+#   1. Copy file này thành application-local.properties
+#   2. Chạy: .\mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=local
+#
+# Profile này CHỈ ghi đè những key cần khác. Mọi key còn lại vẫn lấy
+# từ application.properties (DB, JWT, CORS...).
+# =====================================================================
+
+# Provider SMS: mock → in OTP ra console log, KHÔNG gửi tin thật, không tốn tiền.
+# Nhờ vậy test được trọn luồng đăng ký mà không mất tiền SMS.
+app.sms.provider=mock
