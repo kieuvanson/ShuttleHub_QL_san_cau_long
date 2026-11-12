@@ -35,15 +35,17 @@
 .auth__card {
   width: 100%;
   max-width: 640px;
-  background: var(--surface-2);
-  border: var(--line);
-  border-radius: var(--r-lg);
-  padding: var(--s-10) var(--s-12) var(--s-8);
   box-shadow: 0 12px 32px rgba(15, 23, 42, 0.1);
 }
 
+/* Padding nằm ở wrapper vì `Card` của Astryx áp padding bằng StyleX,
+   thắng mọi rule trong `@layer app`. */
+.auth__card-body {
+  padding: var(--s-10) var(--s-12) var(--s-8);
+}
+
 @media (max-width: 720px) {
-  .auth__card {
+  .auth__card-body {
     padding: var(--s-6) var(--s-4);
   }
 }
@@ -93,18 +95,10 @@
 }
 
 .auth__title {
-  font-family: var(--font-display);
-  font-size: 26px;
-  font-weight: 800;
-  line-height: 1.2;
-  letter-spacing: -0.01em;
-  color: var(--ink-0);
   margin: 0 0 var(--s-2);
 }
 
 .auth__sub {
-  font-size: 14px;
-  color: var(--ink-2);
   margin: 0;
 }
 
@@ -386,62 +380,17 @@
   text-decoration: underline;
 }
 
-/* === Submit button (CTA chính) === */
+/* === Submit button (CTA chính) — dùng Button của Astryx === */
 .auth__submit {
-  width: 100%;
-  padding: 14px var(--s-6);
-  font-family: var(--font-body);
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--cta-ink);
-  background: var(--cta-0);
-  border: none;
-  border-radius: var(--r-md);
-  cursor: pointer;
   margin-top: var(--s-2);
-  transition:
-    background var(--dur-fast) var(--ease-out),
-    transform var(--dur-fast) var(--ease-out);
 }
 
-.auth__submit:hover {
-  background: var(--cta-1);
-  transform: translateY(-1px);
-}
-
-.auth__submit:active {
-  transform: translateY(0);
-}
-
-.auth__submit:disabled {
-  background: var(--off);
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* === Divider "Hoặc" === */
+/* === Divider "Hoặc" — dùng Divider của Astryx === */
 .auth__divider {
-  display: flex;
-  align-items: center;
-  gap: var(--s-3);
   margin: var(--s-6) 0 var(--s-4);
-  color: var(--ink-2);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  grid-column: 1 / -1;
 }
 
-.auth__divider::before,
-.auth__divider::after {
-  content: '';
-  flex: 1 1 0;
-  height: 1px;
-  background: #e5e7eb;
-}
-
-/* === Social buttons === */
+/* === Social buttons — dùng Button của Astryx với icon provider === */
 .auth__socials {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -449,37 +398,16 @@
   grid-column: 1 / -1;
 }
 
-.auth__social {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--s-2);
-  padding: 12px var(--s-3);
-  background: var(--surface-0);
-  color: var(--ink-1);
-  border: 1px solid #e5e7eb;
-  border-radius: var(--r-md);
-  font-family: var(--font-body);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: none;
-  transition:
-    border-color var(--dur-fast) var(--ease-out),
-    background var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out);
-}
-
-.auth__social:hover {
-  border-color: var(--ink-3);
-  background: var(--surface-1);
-  color: var(--ink-0);
-}
-
 .auth__social-icon {
   width: 18px;
   height: 18px;
   flex: 0 0 18px;
+}
+
+/* Vùng chạm tối thiểu 44px (WCAG 2.2) cho các nút trong form auth. */
+.auth__social,
+.auth__submit {
+  min-height: 44px;
 }
 
 /* === Footer link dưới form === */
