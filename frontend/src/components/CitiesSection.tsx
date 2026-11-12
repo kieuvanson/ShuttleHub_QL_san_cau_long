@@ -1,4 +1,8 @@
-import { useNavigate } from 'react-router-dom';
+import { Grid } from '@astryxdesign/core/Grid';
+import { VStack } from '@astryxdesign/core/VStack';
+import { Heading, Text } from '@astryxdesign/core/Text';
+import { ClickableCard } from '@astryxdesign/core/ClickableCard';
+import { AspectRatio } from '@astryxdesign/core/AspectRatio';
 import { AREAS } from '../data/demoCourts';
 import './CitiesSection.css';
 
@@ -10,38 +14,57 @@ const CITY_BLURBS: Record<string, { count: string; tag: string }> = {
   cantho:   { count: '20+ sân',   tag: 'Miền Tây' },
 };
 
+/**
+ * `AREAS` là `as const` nên phần tử 'all' không có `image`. TypeScript không
+ * tự thu hẹp union sau `filter`, nên ta khai báo kiểu rõ ràng cho nhánh còn lại.
+ */
+type City = { id: string; label: string; count: number; image: string };
+
 export function CitiesSection() {
-  const navigate = useNavigate();
-  const cities = AREAS.filter((a) => a.id !== 'all');
+  const cities = AREAS.filter((a) => a.id !== 'all') as ReadonlyArray<City>;
 
   return (
     <section className="cities" aria-labelledby="cities-title">
       <div className="cities__inner">
         <div className="cities__head">
-          <h2 id="cities-title" className="cities__title">
-            Tìm theo thành phố
-          </h2>
+          <Heading level={2} id="cities-title">
+            Sân cầu lông ở Hà Nội, TP.HCM và Đà Nẵng
+          </Heading>
+          <Text type="supporting" color="secondary">
+            Chọn khu vực để xem sân trống ngay.
+          </Text>
         </div>
 
-        <ul className="cities__list">
+        <Grid columns={{minWidth: 190, max: 5}} gap={4}>
           {cities.map((city) => {
             const blurb = CITY_BLURBS[city.id];
             return (
-              <li key={city.id} className="cities__item">
-                <button
-                  type="button"
-                  className="cities__btn"
-                  onClick={() => navigate('/tim-san')}
-                >
-                  <span className="cities__name">{city.label}</span>
+              <ClickableCard
+                key={city.id}
+                label={`Tìm sân ở ${city.label}`}
+                href="/tim-san"
+                padding={0}
+                className="cities__card"
+              >
+                <AspectRatio ratio={3 / 2} fit="cover" className="cities__media">
+                  <img
+                    src={city.image}
+                    alt={`Sân cầu lông tại ${city.label}`}
+                    width={960}
+                    height={640}
+                    loading="lazy"
+                  />
+                </AspectRatio>
+                <VStack gap={1} className="cities__body">
+                  <Text type="body" weight="semibold">{city.label}</Text>
                   {blurb && (
-                    <span className="cities__tag">{blurb.count} · {blurb.tag}</span>
+                    <Text type="supporting">{blurb.count} · {blurb.tag}</Text>
                   )}
-                </button>
-              </li>
+                </VStack>
+              </ClickableCard>
             );
           })}
-        </ul>
+        </Grid>
       </div>
     </section>
   );

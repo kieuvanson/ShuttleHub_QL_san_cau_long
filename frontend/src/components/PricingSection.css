@@ -1,0 +1,65 @@
+/* ============================================================
+   PricingSection — 3 thẻ khung giờ.
+   ============================================================ */
+
+@layer app {
+.pricing {
+  width: 100%;
+  background: var(--surface-1);
+  scroll-margin-top: 80px; /* neo không bị header che khi bấm "Bảng giá" */
+}
+
+.pricing__inner {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--s-12) var(--s-6);
+}
+
+.pricing__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  margin-bottom: var(--s-6);
+}
+
+.pricing__card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.pricing__card > * {
+  flex: 1 1 auto;
+}
+
+.pricing__card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+
+.pricing__perks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  font-size: 14px;
+  color: var(--ink-1);
+}
+
+/* Vùng chạm tối thiểu 44px (WCAG 2.2). Astryx đặt `height` ở @layer
+   astryx-base nên `min-height` khai ở @layer app vẫn có hiệu lực. */
+.pricing__card .astryx-button {
+  min-height: 44px;
+}
+
+@media (max-width: 560px) {
+  .pricing__inner {
+    padding: var(--s-8) var(--s-4);
+  }
+}
+}
