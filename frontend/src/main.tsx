@@ -19,9 +19,11 @@ import '@astryxdesign/core/astryx.css';       // @layer astryx-base
 import './themes/caulongdee/caulongdee.css';   // @layer astryx-theme (sinh máy)
 
 import { Theme } from '@astryxdesign/core/theme';
+import { LinkProvider } from '@astryxdesign/core/Link';
 import { caulongdeeTheme } from './themes/caulongdee/caulongdee';
 
 import { Layout } from './components/Layout';
+import { AppLink } from './components/AppLink';
 import { Home } from './pages/Home';
 import { CourtDiscovery } from './pages/CourtDiscovery';
 import { AuthPage } from './pages/AuthPage';
@@ -33,20 +35,24 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Theme theme={caulongdeeTheme} mode="light">
       <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            <Route element={<Layout />}>
-              <Route path="/" element={<Home />} />
-              <Route path="/tim-san" element={<CourtDiscovery />} />
-              <Route path="/dang-nhap" element={<AuthPage />} />
-              <Route path="/dang-ky" element={<AuthPage />} />
-              {/* OAuth: backend redirect về kèm ticket (không có JWT trong URL) */}
-              <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
-              <Route path="/oauth/facebook" element={<FacebookCompletePage />} />
-              <Route path="*" element={<Home />} />
-            </Route>
-          </Routes>
-        </AuthProvider>
+        {/* Astryx dùng link component này cho mọi `href` → điều hướng SPA
+            thay vì reload trang. */}
+        <LinkProvider component={AppLink}>
+          <AuthProvider>
+            <Routes>
+              <Route element={<Layout />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/tim-san" element={<CourtDiscovery />} />
+                <Route path="/dang-nhap" element={<AuthPage />} />
+                <Route path="/dang-ky" element={<AuthPage />} />
+                {/* OAuth: backend redirect về kèm ticket (không có JWT trong URL) */}
+                <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
+                <Route path="/oauth/facebook" element={<FacebookCompletePage />} />
+                <Route path="*" element={<Home />} />
+              </Route>
+            </Routes>
+          </AuthProvider>
+        </LinkProvider>
       </BrowserRouter>
     </Theme>
   </StrictMode>

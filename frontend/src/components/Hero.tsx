@@ -1,81 +1,99 @@
-import { useEffect, useState } from 'react';
+import { motion, type Variants } from 'framer-motion';
+import { Grid } from '@astryxdesign/core/Grid';
+import { VStack } from '@astryxdesign/core/VStack';
+import { HStack } from '@astryxdesign/core/HStack';
+import { Heading, Text } from '@astryxdesign/core/Text';
+import { Button } from '@astryxdesign/core/Button';
+import { Badge } from '@astryxdesign/core/Badge';
+import { AspectRatio } from '@astryxdesign/core/AspectRatio';
+import { Section } from '@astryxdesign/core/Section';
+import { SearchBar } from './SearchBar';
 import './Hero.css';
 
-const BANNERS = [
-  { src: '/banner_hero1.jpg', alt: 'Cầu lông — Cầu Lông dee' },
-  { src: '/banner_hero2.jpg', alt: 'Sân cầu lông — Cầu Lông dee' },
+const HERO_STATS = [
+  { value: '500+', label: 'sân đối tác' },
+  { value: '30 giây', label: 'xác nhận' },
+  { value: '4.8★', label: 'đánh giá trung bình' },
 ];
 
+/**
+ * Biến chuyển dùng chung cho các khối trong hero — vào lần lượt với độ trễ
+ * tăng dần tạo cảm giác "gõ dần" thay vì mọi thứ nhảy cùng lúc.
+ *
+ * `custom` truyền chỉ số thứ tự vào hàm `show` để tính độ trễ.
+ */
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 12 },
+  show: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.06, duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+  }),
+};
+
 export function Hero() {
-  const [idx, setIdx] = useState(0);
-
-  // Auto-rotate banner mỗi 5s
-  useEffect(() => {
-    const t = setInterval(() => {
-      setIdx((i) => (i + 1) % BANNERS.length);
-    }, 5000);
-    return () => clearInterval(t);
-  }, []);
-
   return (
-    <section className="hero" aria-label="Đặt sân nhanh">
-      <div className="hero__slider" aria-hidden="true">
-        {BANNERS.map((b, i) => (
-          <div
-            key={b.src}
-            className={`hero__slide ${i === idx ? 'hero__slide--active' : ''}`}
-            style={{ backgroundImage: `url(${b.src})` }}
-            role="img"
-            aria-label={b.alt}
-          />
-        ))}
-        {/* Lớp phủ tối + gradient để chữ nổi */}
-        <div className="hero__overlay" />
-      </div>
-
+    <Section variant="transparent" padding={0} className="hero">
       <div className="hero__inner">
-        <div className="hero__copy">
-          <span className="hero__eyebrow">Cầu Lông dee</span>
-          <h1 className="hero__title">
-            Đặt sân cầu lông với Cầu Lông dee
-            <br />
-            <span className="hero__title-accent">mọi lúc mọi nơi</span>
-          </h1>
-          <p className="hero__sub">
-            Tìm sân trống gần bạn trong 30 giây. Cầu Lông dee — xác nhận tức thì, không gọi điện, không chờ tin nhắn.
-            không chờ đợi.
-          </p>
-        </div>
+        <Grid columns={{minWidth: 320, max: 2}} gap={6} align="center">
+          <VStack gap={4} className="hero__copy">
+            <motion.div variants={fadeUp} initial="hidden" animate="show" custom={0}>
+              <Badge variant="teal" label="Cầu Lông dee" />
+            </motion.div>
 
-        <div className="hero__trust">
-          <span className="hero__trust-item">
-            <strong>500+</strong> sân đối tác
-          </span>
-          <span className="hero__trust-sep" aria-hidden="true">·</span>
-          <span className="hero__trust-item">
-            <strong>30 giây</strong> xác nhận
-          </span>
-          <span className="hero__trust-sep" aria-hidden="true">·</span>
-          <span className="hero__trust-item">
-            <strong>4.8★</strong> đánh giá trung bình
-          </span>
-        </div>
+            <motion.div variants={fadeUp} initial="hidden" animate="show" custom={1}>
+              <Heading level={1} type="display-2" textWrap="balance">
+                Đặt sân cầu lông trong 30 giây
+              </Heading>
+            </motion.div>
 
-        {/* Dots chỉ báo 2 banner */}
-        <div className="hero__dots" role="tablist" aria-label="Chọn banner">
-          {BANNERS.map((b, i) => (
-            <button
-              key={b.src}
-              type="button"
-              role="tab"
-              aria-selected={i === idx}
-              aria-label={`Banner ${i + 1}`}
-              className={`hero__dot ${i === idx ? 'hero__dot--active' : ''}`}
-              onClick={() => setIdx(i)}
-            />
-          ))}
-        </div>
+            <motion.div variants={fadeUp} initial="hidden" animate="show" custom={2}>
+              <Text type="large" color="secondary" textWrap="pretty">
+                Tìm sân trống gần bạn, xem giá và khung giờ, đặt ngay. Không gọi điện, không chờ tin nhắn.
+              </Text>
+            </motion.div>
+
+            <motion.div variants={fadeUp} initial="hidden" animate="show" custom={3}>
+              <HStack gap={3} className="hero__actions">
+                <Button label="Tìm sân trống" variant="primary" href="/tim-san" />
+                <Button label="Xem bảng giá" variant="secondary" href="/#bang-gia" />
+              </HStack>
+            </motion.div>
+
+            <motion.div variants={fadeUp} initial="hidden" animate="show" custom={4}>
+              <HStack gap={5} className="hero__stats">
+                {HERO_STATS.map((s) => (
+                  <VStack key={s.label} gap={0} className="hero__stat">
+                    <Text type="large" weight="bold">{s.value}</Text>
+                    <Text type="supporting">{s.label}</Text>
+                  </VStack>
+                ))}
+              </HStack>
+            </motion.div>
+
+            <motion.div variants={fadeUp} initial="hidden" animate="show" custom={5}>
+              <SearchBar />
+            </motion.div>
+          </VStack>
+
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            animate="show"
+            custom={2}
+            className="hero__media"
+          >
+            <AspectRatio ratio={4 / 3} fit="cover">
+              <img
+                src="/banner_hero2.jpg"
+                alt="Sân cầu lông trong nhà tại Cầu Lông dee"
+                width={1200}
+                height={900}
+              />
+            </AspectRatio>
+          </motion.div>
+        </Grid>
       </div>
-    </section>
+    </Section>
   );
 }
