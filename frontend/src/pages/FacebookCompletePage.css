@@ -2,6 +2,7 @@
    FacebookCompletePage — hoàn thiện hồ sơ sau khi đăng nhập Facebook.
    ============================================================ */
 
+@layer app {
 .fb-complete {
   min-height: calc(100vh - 76px);
   display: flex;
@@ -252,4 +253,5 @@
   to {
     transform: rotate(360deg);
   }
+}
 }

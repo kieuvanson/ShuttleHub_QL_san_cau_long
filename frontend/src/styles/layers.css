@@ -1,0 +1,27 @@
+/* ============================================================
+   Thứ tự cascade layer — file này PHẢI import đầu tiên trong main.tsx.
+   ============================================================
+
+   Quy tắc CSS cascade layer (đã kiểm chứng bằng Chrome headless):
+
+   1. Layer khai báo SAU trong `@layer a, b;` có ưu tiên CAO hơn.
+   2. Ưu tiên layer thắng specificity.
+   3. CSS unlayered thắng MỌI named layer.
+
+   Thứ tự ở đây là "cao → thấp":
+
+     astryx-theme  → token + component override của theme (cao nhất)
+     astryx-base   → style gốc của component Astryx
+     app           → CSS legacy của project Cầu Lông dee
+     reset         → reset phổ quát (thấp nhất)
+
+   Vì sao `app` phải nằm TRÊN `reset`?
+   Theme có typography reset phổ quát trong layer `reset`
+   (`:where(h1)`, `:where(p)` …). Nếu `app` nằm dưới `reset`, mọi
+   heading và <p> legacy sẽ bị đè bởi font-size mặc định của theme.
+
+   Vì sao `app` phải nằm DƯỚI `astryx-base`?
+   Để style legacy của ta không đè lên style component Astryx
+   (Button, Card, Badge…) — đó là lý do tách reset khỏi tokens.css.
+   ============================================================ */
+@layer reset, app, astryx-base, astryx-theme;

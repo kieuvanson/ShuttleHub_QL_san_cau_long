@@ -2,6 +2,7 @@
    Layout — khung chung Header + main + Footer.
    ============================================================ */
 
+@layer app {
 .layout {
   min-height: 100dvh;
   display: flex;
@@ -12,4 +13,5 @@
 .layout__main {
   flex: 1;
   width: 100%;
+}
 }

@@ -2,6 +2,7 @@
    OAuthCallbackPage — trạng thái chờ / lỗi sau khi OAuth redirect về.
    ============================================================ */
 
+@layer app {
 .oauth-cb {
   min-height: calc(100vh - 76px);
   display: flex;
@@ -93,4 +94,5 @@
 .oauth-cb__btn:hover {
   background: var(--cta-1);
   transform: translateY(-1px);
+}
 }

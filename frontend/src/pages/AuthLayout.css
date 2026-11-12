@@ -3,6 +3,7 @@
    Tab Login/Register, animation trượt ngang khi đổi mode.
    ============================================================ */
 
+@layer app {
 .auth {
   min-height: calc(100vh - 76px);
   display: flex;
@@ -506,4 +507,5 @@
 .auth__switch:hover {
   color: var(--brand-1);
   text-decoration: underline;
+}
 }

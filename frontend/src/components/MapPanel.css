@@ -2,6 +2,7 @@
    MapPanel — bản đồ mock (gradient + lưới + pin + search).
    ============================================================ */
 
+@layer app {
 .mp {
   position: relative;
   width: 100%;
@@ -295,4 +296,5 @@
 .mp__card-close:hover {
   background: #e5e7eb;
   color: var(--ink-0);
+}
 }

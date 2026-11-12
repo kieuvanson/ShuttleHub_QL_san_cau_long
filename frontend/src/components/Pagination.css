@@ -2,6 +2,7 @@
    Pagination — nút số trang.
    ============================================================ */
 
+@layer app {
 .pg {
   display: flex;
   align-items: center;
@@ -43,4 +44,5 @@
 .pg__btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
 }

@@ -3,6 +3,7 @@
    nổi lên trên nền trang nhờ shadow + border trắng.
    ============================================================ */
 
+@layer app {
 .qsb {
   display: flex;
   align-items: stretch;
@@ -175,4 +176,5 @@
     flex: 1 1 100%;
     padding: 14px;
   }
+}
 }

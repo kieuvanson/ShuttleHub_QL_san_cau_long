@@ -3,6 +3,7 @@
    Phần Tìm sân đã chuyển xuống <SearchBar /> bên dưới.
    ============================================================ */
 
+@layer app {
 .hero {
   position: relative;
   width: 100%;
@@ -187,4 +188,5 @@
     font-size: 12px;
     gap: var(--s-2);
   }
+}
 }

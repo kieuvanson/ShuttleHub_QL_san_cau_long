@@ -3,6 +3,7 @@
    nội dung (filter, list, map) nằm phía dưới.
    ============================================================ */
 
+@layer app {
 .cd {
   width: 100%;
   /* Search bar nổi lên chèn vào banner → kéo content lên 60px */
@@ -200,4 +201,5 @@
   .cd__inner {
     padding: 0 var(--s-4);
   }
+}
 }

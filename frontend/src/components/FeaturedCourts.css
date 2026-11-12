@@ -3,6 +3,7 @@
    No card-around-card. Section is the container.
    ============================================================ */
 
+@layer app {
 .featured {
   width: 100%;
   background: var(--surface-1);
@@ -201,4 +202,5 @@
   .featured__title {
     font-size: 24px;
   }
+}
 }

@@ -2,6 +2,7 @@
    Header — light, sticky, big logo + emerald wordmark + nav + actions.
    ============================================================ */
 
+@layer app {
 .hdr {
   position: sticky;
   top: 0;
@@ -230,4 +231,5 @@
   .hdr__wordmark {
     display: none; /* rất nhỏ thì ẩn wordmark, chỉ giữ logo */
   }
+}
 }

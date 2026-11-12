@@ -2,6 +2,7 @@
    CourtCard — hero card 2 cột (media + body).
    ============================================================ */
 
+@layer app {
 .card {
   display: grid;
   grid-template-columns: 280px 1fr;
@@ -289,4 +290,5 @@
     height: 180px;
     min-height: 0;
   }
+}
 }

@@ -3,6 +3,7 @@
    ảnh trượt ngang (zoom + blur khi inactive), chuyển nhanh.
    ============================================================ */
 
+@layer app {
 .bh {
   position: relative;
   width: 100%;
@@ -87,4 +88,5 @@
 
 .bh__dot:hover {
   background: rgba(255, 255, 255, 0.8);
+}
 }

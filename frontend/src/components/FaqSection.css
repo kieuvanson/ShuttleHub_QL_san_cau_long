@@ -2,6 +2,7 @@
    FaqSection — light surface, flat list with dividers.
    ============================================================ */
 
+@layer app {
 .faq {
   width: 100%;
   background: var(--surface-1);
@@ -114,4 +115,5 @@
   .faq__qtext {
     white-space: normal;
   }
+}
 }

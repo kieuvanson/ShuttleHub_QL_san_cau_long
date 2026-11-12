@@ -2,6 +2,7 @@
    FilterPanel — bộ lọc ngang, pill-style đẹp.
    ============================================================ */
 
+@layer app {
 .fp {
   background: #ffffff;
   border: 1px solid #e5e7eb;
@@ -246,4 +247,5 @@
   .fp__groups {
     grid-template-columns: 1fr;
   }
+}
 }

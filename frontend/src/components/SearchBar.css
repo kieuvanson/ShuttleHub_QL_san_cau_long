@@ -3,6 +3,7 @@
    Nền sáng, form trắng nổi lên trên shadow nhẹ.
    ============================================================ */
 
+@layer app {
 .search {
   width: 100%;
   background: var(--surface-1);
@@ -125,4 +126,5 @@
     padding: var(--s-3) var(--s-4);
     margin-top: var(--s-2);
   }
+}
 }

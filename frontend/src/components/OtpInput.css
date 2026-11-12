@@ -2,6 +2,7 @@
    OtpInput — 6 ô số, dùng cho mã xác nhận OTP.
    ============================================================ */
 
+@layer app {
 .otp {
   display: flex;
   flex-direction: column;
@@ -140,4 +141,5 @@
 .otp-section__hint b {
   color: var(--ink-1);
   font-weight: 600;
+}
 }
