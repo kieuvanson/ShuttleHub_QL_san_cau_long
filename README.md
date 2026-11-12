@@ -15,7 +15,9 @@
 **Frontend**
 - **Vite** · **React 19** · **TypeScript**
 - React Router · framer-motion · lucide-react
-- CSS tokens (`src/styles/tokens.css`)
+- **Astryx design system** — `@astryxdesign/core` (174 component, React 19) · `@astryxdesign/theme-neutral` (theme nền tảng) · `@astryxdesign/cli` (docs / component / theme build)
+- Theme riêng `caulongdee` extends từ Neutral tại `src/themes/caulongdee/`
+- CSS tokens (`src/styles/tokens.css`) + CSS cascade layers (`src/styles/layers.css`)
 
 ---
 
@@ -222,6 +224,7 @@ Tất cả response có shape `{ code, message, data }`.
 | 3.5 | Tạo booking + khóa slot chống đặt trùng | ⬜ |
 | 3.6 | Trang "Sân của tôi" (lịch đặt sân) | ⬜ |
 | 3.7 | Thanh toán (chờ chốt cổng: VNPay / MoMo / tiền mặt) | ⬜ |
+| 3.8 | Redesign giao diện theo **Astryx design system** (theme Cầu Lông dee) | ✅ |
 
 ### Giai đoạn 4 — Vận hành (Nhân viên)
 

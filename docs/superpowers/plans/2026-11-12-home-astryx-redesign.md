@@ -1,4 +1,4 @@
-# Trang chủ Cầu Lông dee — Redesign bằng Astryx — Implementation Plan
+﻿# Trang chủ Cầu Lông dee — Redesign bằng Astryx — Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -162,7 +162,7 @@ Năm lớp rủi ro mà spec ngụ ý nhưng không task nào kiểm tra tự đ
   - `src/styles/layers.css` — khai `@layer reset, astryx-base, astryx-theme, app;`
   - Token cục bộ `--cl-teal` khả dụng trong mọi component (theme `localTokens`).
 
-- [ ] **Step 1: Tạo config palette, strip BOM, sinh palette**
+- [x] **Step 1: Tạo config palette, strip BOM, sinh palette**
 
 Tạo `frontend/src/themes/caulongdee/palette.config.json`:
 ```json
@@ -190,7 +190,7 @@ Expected:
 ```
 File sinh ra có cấu trúc: `export const palette = { brand: { name, light: {0,5,…,100}, dark: {…} } }`.
 
-- [ ] **Step 2: Viết theme `caulongdeeTheme.ts`**
+- [x] **Step 2: Viết theme `caulongdeeTheme.ts`**
 
 Tạo `frontend/src/themes/caulongdee/caulongdeeTheme.ts`:
 ```ts
@@ -273,7 +273,7 @@ export const caulongdeeTheme = defineTheme({
 >
 > `localTokens` nhận **bất kỳ** tên CSS custom property hợp lệ (`--cl-teal`, `--cl-teal-hover`) — đây là chỗ dành cho token riêng của brand, không bị validate theo danh sách token chuẩn.
 
-- [ ] **Step 3: Tạo descriptor theme**
+- [x] **Step 3: Tạo descriptor theme**
 
 Tạo `frontend/src/themes/caulongdee/caulongdeeTheme.doc.mjs`:
 ```js
@@ -287,7 +287,7 @@ export default {
 };
 ```
 
-- [ ] **Step 4: Build theme**
+- [x] **Step 4: Build theme**
 
 ```powershell
 cd frontend
@@ -306,7 +306,7 @@ Sinh ra 4 file cạnh source: `caulongdee.css`, `caulongdee.css.d.ts`, `caulongd
 >
 > **Không dùng `npx astryx theme add caulongdee`** — lệnh đó chỉ nhận slug theme có sẵn trong registry (`butter`, `chocolate`, `gothic`, `matcha`, `neutral`, `stone`, `y2k`) và sẽ báo `Error: Unknown theme "caulongdee"`.
 
-- [ ] **Step 5: Tạo `layers.css` và `reset-legacy.css`**
+- [x] **Step 5: Tạo `layers.css` và `reset-legacy.css`**
 
 Tạo `frontend/src/styles/layers.css`:
 ```css
@@ -345,7 +345,7 @@ Tạo `frontend/src/styles/reset-legacy.css`:
 >
 > `reset.css` của Astryx **đã** lo phần lớn việc này (`:where(button)` → `font: inherit`, `background-color: transparent`, `:where(img)` → `display:block; max-width:100%`), nên ta chỉ giữ lại phần thật sự cần.
 
-- [ ] **Step 6: Sửa `tokens.css` — bọc layer + tách reset + đổi accent**
+- [x] **Step 6: Sửa `tokens.css` — bọc layer + tách reset + đổi accent**
 
 Trong `frontend/src/styles/tokens.css`:
 1. Thêm `@layer app {` ngay sau comment đầu file, và `}` ở cuối file — bọc **toàn bộ** nội dung.
@@ -364,7 +364,7 @@ Trong `frontend/src/styles/tokens.css`:
    ```
    > **Nguồn sự thật là theme** (`localTokens` trong `caulongdeeTheme.ts`). Bản trong `tokens.css` chỉ là dự phòng cho trường hợp theme chưa load; theme nằm ở layer `astryx-theme` (cao hơn `app`) nên luôn thắng. Hai giá trị phải **giống nhau**.
 
-- [ ] **Step 7: Bọc `@layer app` cho toàn bộ CSS component hiện có**
+- [x] **Step 7: Bọc `@layer app` cho toàn bộ CSS component hiện có**
 
 Các file sau **phải** được bọc trong `@layer app` ở bước này (trước khi Task 3–9 viết lại chúng):
 ```
@@ -394,7 +394,7 @@ Với mỗi file, thêm `@layer app {` sau dòng comment đầu tiên và `}` �
 
 > **Bắt buộc:** nếu bỏ qua bước này, các rule cũ (unlayered) sẽ đè lên `Button`/`Card` Astryx. Kiểm tra sau khi làm: chạy `npm run build`, mở DevTools → tab Layers, xác nhận các rule cũ nằm trong layer `app`.
 
-- [ ] **Step 8: Sửa `main.tsx` — import + bọc `<Theme>`**
+- [x] **Step 8: Sửa `main.tsx` — import + bọc `<Theme>`**
 
 ```tsx
 // Inter font (self-hosted)
@@ -455,7 +455,7 @@ createRoot(document.getElementById('root')!).render(
 >
 > `mode="light"` — trang thiết kế sáng. Nếu sau này muốn dark mode thì đổi sang `mode="system"`.
 
-- [ ] **Step 9: Smoke test — xác nhận theme đúng màu**
+- [x] **Step 9: Smoke test — xác nhận theme đúng màu**
 
 Tạo tạm `frontend/src/pages/SmokeTest.tsx`:
 ```tsx
@@ -499,11 +499,11 @@ Mở `http://localhost:5173/__smoke` và xác nhận bằng mắt:
 Nếu nút bị mất nền → còn rule cũ unlayered đè → kiểm tra Step 7 đã bọc hết `@layer app`.
 Nếu mọi thứ vẫn là màu xanh dương mặc định → theme chưa được áp → kiểm tra `caulongdee.css` có được import và `caulongdeeTheme` có `name: 'caulongdee'`.
 
-- [ ] **Step 10: Xoá smoke test**
+- [x] **Step 10: Xoá smoke test**
 
 Xoá `frontend/src/pages/SmokeTest.tsx` và route `/__smoke` trong `main.tsx`.
 
-- [ ] **Step 11: Verify + commit**
+- [x] **Step 11: Verify + commit**
 
 ```powershell
 npx tsc --noEmit
@@ -531,7 +531,7 @@ git commit -m "feat(frontend): thêm theme Astryx caulongdee + cascade layer app
   - `Court.image?: string` — đường dẫn ảnh tương đối, ví dụ `'/img/court-01.jpg'`. `undefined` ⇒ dùng `imageGradient` làm fallback.
   - `AREAS` — mỗi phần tử có thêm `image: string`.
 
-- [ ] **Step 1: Copy 9 ảnh vào `frontend/public/img/`**
+- [x] **Step 1: Copy 9 ảnh vào `frontend/public/img/`**
 
 ```powershell
 cd D:\hocHanh\project\QL_san_cau_long
@@ -547,7 +547,7 @@ Copy-Item assets\img\photo-f125986121-960.jpg frontend\public\img\city-cantho.jp
 ```
 Expected: `frontend/public/img/` có 9 file jpg.
 
-- [ ] **Step 2: Thêm field `image` vào type `Court`**
+- [x] **Step 2: Thêm field `image` vào type `Court`**
 
 Trong `frontend/src/data/demoCourts.ts`, sửa type:
 ```ts
@@ -571,7 +571,7 @@ export type Court = {
 };
 ```
 
-- [ ] **Step 3: Gán ảnh cho 8 sân**
+- [x] **Step 3: Gán ảnh cho 8 sân**
 
 Trong mảng `DEMO_COURTS`, thêm `image` cho từng phần tử — **phân bổ để 4 sân đầu (hiện ở trang chủ) dùng 4 ảnh khác nhau**:
 - `c-001` → `image: '/img/court-01.jpg'`
@@ -585,7 +585,7 @@ Trong mảng `DEMO_COURTS`, thêm `image` cho từng phần tử — **phân b�
 
 > Trang chủ chỉ hiện `DEMO_COURTS.slice(0, 4)` → 4 ảnh khác nhau, không ảnh nào lặp trong cùng trang. `/tim-san` phân trang 4/trang → cũng không lặp trong trang.
 
-- [ ] **Step 4: Thêm `image` vào `AREAS`**
+- [x] **Step 4: Thêm `image` vào `AREAS`**
 
 ```ts
 export const AREAS = [
@@ -600,7 +600,7 @@ export const AREAS = [
 
 > `AREAS` là `as const` → kiểu `readonly` tự suy ra `image: string` literal. Phần tử `all` không có `image` — mọi nơi dùng `AREAS` phải xử lý `undefined` cho `all` (đã lọc ở Task 6).
 
-- [ ] **Step 5: Verify + commit**
+- [x] **Step 5: Verify + commit**
 
 ```powershell
 cd frontend
@@ -627,7 +627,7 @@ git commit -m "feat(frontend): thêm ảnh minh hoạ cho sân và thành phố"
 - Consumes: `Button` từ `@astryxdesign/core/Button`; `Link` từ `react-router-dom`.
 - Produces: anchor id có sẵn cho các section sau: `#bang-gia` (Task 6), `#faq` (Task 7), `#dieu-khoan`, `#chinh-sach` (Task 7). Header/Footer chỉ trỏ link — **section đích tạo ở task sau**, link không được chết.
 
-- [ ] **Step 1: Layout — thêm skip link**
+- [x] **Step 1: Layout — thêm skip link**
 
 `frontend/src/components/Layout.tsx`:
 ```tsx
@@ -674,7 +674,7 @@ export function Layout() {
 }
 ```
 
-- [ ] **Step 2: Header — nav link thật**
+- [x] **Step 2: Header — nav link thật**
 
 `frontend/src/components/Header.tsx` — thay khối `<nav>`:
 ```tsx
@@ -696,7 +696,7 @@ Thay khối nút chưa đăng nhập:
 
 Menu user (`hdr__user-menu`) — **giữ nguyên markup hiện tại**. Ghi rõ là ngoại lệ: `DropdownMenu` của Astryx có API khác và map không 1-1 với menu "thông tin user + đăng xuất".
 
-- [ ] **Step 3: Header.css — đồng bộ token**
+- [x] **Step 3: Header.css — đồng bộ token**
 
 Đổi các giá trị hardcode sang token:
 - `border-bottom: 1px solid #e5e7eb` → `border-bottom: 1px solid var(--line)`
@@ -706,7 +706,7 @@ Menu user (`hdr__user-menu`) — **giữ nguyên markup hiện tại**. Ghi rõ 
 - `.hdr__user-menu { border-radius: var(--r-md, 12px) }` → `var(--r-md)` (bỏ fallback)
 - `.hdr__user-menu { border: 1px solid rgba(15,23,42,.1) }` → `1px solid var(--line)`
 
-- [ ] **Step 4: Footer.tsx — 6 link thật + credits**
+- [x] **Step 4: Footer.tsx — 6 link thật + credits**
 
 `frontend/src/components/Footer.tsx`:
 ```tsx
@@ -775,7 +775,7 @@ export function Footer() {
 
 > Nguồn ảnh lấy từ `assets/img/credits.json`. Đọc file đó để lấy **đúng** tên tác giả/giấy phép — nếu khác với danh sách viết tay ở trên thì lấy theo `credits.json`.
 
-- [ ] **Step 5: Footer.css — tap target 44px + contrast + credits**
+- [x] **Step 5: Footer.css — tap target 44px + contrast + credits**
 
 Sửa/thêm (trong `@layer app`):
 ```css
@@ -821,7 +821,7 @@ Sửa/thêm (trong `@layer app`):
 
 > `.foot__base p` hiện có `white-space: nowrap; overflow: hidden; text-overflow: ellipsis` → bỏ `white-space: nowrap` để dòng credits xuống dòng được.
 
-- [ ] **Step 6: Verify + commit**
+- [x] **Step 6: Verify + commit**
 
 ```powershell
 cd frontend
@@ -850,7 +850,7 @@ git commit -m "feat(frontend): link thật, tap target 44px, credits ảnh, skip
 - Consumes: `Grid` từ `@astryxdesign/core/Grid`; `VStack` từ `@astryxdesign/core/VStack`; `HStack` từ `@astryxdesign/core/HStack`; `Heading`, `Text` từ `@astryxdesign/core/Text`; `Button` từ `@astryxdesign/core/Button`; `Badge` từ `@astryxdesign/core/Badge`; `AspectRatio` từ `@astryxdesign/core/AspectRatio`; `Section` từ `@astryxdesign/core/Section`; `framer-motion` (đã có).
 - Produces: `<Hero />` không còn nhận prop nào.
 
-- [ ] **Step 1: Viết `Hero.tsx` mới**
+- [x] **Step 1: Viết `Hero.tsx` mới**
 
 ```tsx
 import { motion } from 'framer-motion';
@@ -960,7 +960,7 @@ export function Hero() {
 >
 > `AspectRatio` với `fit="cover"` tự co giãn child — không cần set `width/height/objectFit` cho ảnh (nhưng vẫn nên đặt `width`/`height` để tránh CLS).
 
-- [ ] **Step 2: Viết `Hero.css` mới (thay toàn bộ)**
+- [x] **Step 2: Viết `Hero.css` mới (thay toàn bộ)**
 
 ```css
 /* ============================================================
@@ -1020,7 +1020,7 @@ export function Hero() {
 
 > 76px = chiều cao header desktop, 64px = mobile. Header phải `position: sticky` để hero không bị che.
 
-- [ ] **Step 3: Sửa `SearchBar.tsx` — gộp vào hero**
+- [x] **Step 3: Sửa `SearchBar.tsx` — gộp vào hero**
 
 Xoá `<section className="search">` và `<div className="search__inner">` bọc ngoài — `SearchBar` giờ trả về **chỉ form** để nhúng trong `VStack` của hero:
 
@@ -1086,7 +1086,7 @@ export function SearchBar() {
 
 > Giữ `<select>` native — Astryx không có component `Select`. Label luôn hiện (không dùng placeholder làm label) → đáp ứng WCAG 3.3.2.
 
-- [ ] **Step 4: Viết `SearchBar.css` mới (thay toàn bộ)**
+- [x] **Step 4: Viết `SearchBar.css` mới (thay toàn bộ)**
 
 ```css
 /* ============================================================
@@ -1169,7 +1169,7 @@ export function SearchBar() {
 
 > **Review Focus #3:** ở 390px, `grid-template-columns: 1fr` → 4 hàng dọc, không tràn ngang.
 
-- [ ] **Step 5: Xoá `SearchBar` khỏi `Home.tsx`**
+- [x] **Step 5: Xoá `SearchBar` khỏi `Home.tsx`**
 
 `frontend/src/pages/Home.tsx` — `SearchBar` đã nằm trong `Hero` nên không import ở đây nữa:
 ```tsx
@@ -1195,7 +1195,7 @@ export function Home() {
 
 > `PricingSection` chưa tồn tại ở Task 4 → import nó ở **Task 6**. Tạm thời bỏ dòng import đó và giữ nguyên danh sách section cũ cho tới Task 6.
 
-- [ ] **Step 6: Verify + commit**
+- [x] **Step 6: Verify + commit**
 
 ```powershell
 cd frontend
@@ -1227,7 +1227,7 @@ git commit -m "feat(frontend): Hero split layout, bỏ slider, gộp form tìm k
 - Consumes: `Court` type có `image?: string` (Task 2); `ClickableCard` từ `@astryxdesign/core/ClickableCard`; `Grid` từ `@astryxdesign/core/Grid`; `VStack` từ `@astryxdesign/core/VStack`; `HStack` từ `@astryxdesign/core/HStack`; `Heading`, `Text` từ `@astryxdesign/core/Text`; `Badge` từ `@astryxdesign/core/Badge`; `AspectRatio` từ `@astryxdesign/core/AspectRatio`.
 - Produces: không.
 
-- [ ] **Step 1: Viết `FeaturedCourts.tsx` mới**
+- [x] **Step 1: Viết `FeaturedCourts.tsx` mới**
 
 ```tsx
 import { Grid } from '@astryxdesign/core/Grid';
@@ -1330,7 +1330,7 @@ export function FeaturedCourts() {
 >
 > `ClickableCard` `label` là bắt buộc (accessibility) — dùng "Đặt sân {tên}".
 
-- [ ] **Step 2: Viết `FeaturedCourts.css` mới (thay toàn bộ)**
+- [x] **Step 2: Viết `FeaturedCourts.css` mới (thay toàn bộ)**
 
 ```css
 /* ============================================================
@@ -1457,7 +1457,7 @@ export function FeaturedCourts() {
 }
 ```
 
-- [ ] **Step 3: Verify + commit**
+- [x] **Step 3: Verify + commit**
 
 ```powershell
 cd frontend
@@ -1492,7 +1492,7 @@ git commit -m "feat(frontend): thẻ sân dùng ảnh thật + ClickableCard + h
 - Consumes: `AREAS` có `image` (Task 2); `Grid` từ `@astryxdesign/core/Grid`; `Card` từ `@astryxdesign/core/Card`; `ClickableCard` từ `@astryxdesign/core/ClickableCard`; `VStack` từ `@astryxdesign/core/VStack`; `Heading`, `Text` từ `@astryxdesign/core/Text`; `Badge` từ `@astryxdesign/core/Badge`; `Button` từ `@astryxdesign/core/Button`; `AspectRatio` từ `@astryxdesign/core/AspectRatio`.
 - Produces: `<section id="bang-gia">` — điểm neo cho link "Bảng giá" ở Header (Task 3) và nút "Xem bảng giá" ở Hero (Task 4).
 
-- [ ] **Step 1: Viết `CitiesSection.tsx` mới**
+- [x] **Step 1: Viết `CitiesSection.tsx` mới**
 
 ```tsx
 import { Grid } from '@astryxdesign/core/Grid';
@@ -1569,7 +1569,7 @@ export function CitiesSection() {
 > }>;
 > ```
 
-- [ ] **Step 2: Viết `CitiesSection.css` mới (thay toàn bộ)**
+- [x] **Step 2: Viết `CitiesSection.css` mới (thay toàn bộ)**
 
 ```css
 /* ============================================================
@@ -1649,7 +1649,7 @@ export function CitiesSection() {
 
 > **Review Focus #5:** `.cities__body > *` bỏ `white-space: nowrap` → tag "120+ sân · Trung tâm & ngoại thành" xuống dòng ở 320px, không tràn.
 
-- [ ] **Step 3: Tạo `PricingSection.tsx`**
+- [x] **Step 3: Tạo `PricingSection.tsx`**
 
 ```tsx
 import { Grid } from '@astryxdesign/core/Grid';
@@ -1742,7 +1742,7 @@ export function PricingSection() {
 
 > **Giá lấy từ dữ liệu thật:** `DEMO_COURTS` có `priceFrom` từ 55.000 (c-006) → 120.000 (c-003). Ba khoảng giá trên bám đúng min/max của dataset. Không bịa thêm mức nào ngoài dataset.
 
-- [ ] **Step 4: Tạo `PricingSection.css`**
+- [x] **Step 4: Tạo `PricingSection.css`**
 
 ```css
 /* ============================================================
@@ -1807,11 +1807,11 @@ export function PricingSection() {
 }
 ```
 
-- [ ] **Step 5: Ghép `PricingSection` vào `Home.tsx`**
+- [x] **Step 5: Ghép `PricingSection` vào `Home.tsx`**
 
 Thêm `import { PricingSection } from '../components/PricingSection';` và `<PricingSection />` giữa `<FeaturedCourts />` và `<CitiesSection />`.
 
-- [ ] **Step 6: Verify + commit**
+- [x] **Step 6: Verify + commit**
 
 ```powershell
 cd frontend
@@ -1843,7 +1843,7 @@ git commit -m "feat(frontend): thêm section Bảng giá, CitiesSection dùng �
 - Consumes: `Collapsible`, `CollapsibleGroup` từ `@astryxdesign/core/Collapsible`; `Grid` từ `@astryxdesign/core/Grid`; `VStack` từ `@astryxdesign/core/VStack`; `Heading`, `Text` từ `@astryxdesign/core/Text`; `Button` từ `@astryxdesign/core/Button`; `AspectRatio` từ `@astryxdesign/core/AspectRatio`.
 - Produces: anchor `#faq` (section), `#dieu-khoan`, `#chinh-sach` — điểm neo cho link Footer (Task 3).
 
-- [ ] **Step 1: Viết `FaqSection.tsx` mới**
+- [x] **Step 1: Viết `FaqSection.tsx` mới**
 
 ```tsx
 import { Grid } from '@astryxdesign/core/Grid';
@@ -1948,7 +1948,7 @@ export function FaqSection() {
 >
 > `Collapsible` cần `trigger` (bắt buộc) và `value` để group điều phối. `defaultIsOpen` bị group bỏ qua khi `value` được set — để mở mặc định câu đầu, dùng `defaultValue={FAQS[0].q}` trên `CollapsibleGroup` **thay vì** `defaultIsOpen` trên `Collapsible`.
 
-- [ ] **Step 2: Viết `FaqSection.css` mới (thay toàn bộ)**
+- [x] **Step 2: Viết `FaqSection.css` mới (thay toàn bộ)**
 
 ```css
 /* ============================================================
@@ -2016,7 +2016,7 @@ export function FaqSection() {
 
 > `scroll-margin-top: 96px` trên `.faq__terms` để anchor `#dieu-khoan` / `#chinh-sach` không bị header sticky che.
 
-- [ ] **Step 3: Verify + commit**
+- [x] **Step 3: Verify + commit**
 
 ```powershell
 cd frontend
@@ -2051,7 +2051,7 @@ git commit -m "feat(frontend): FAQ split có ảnh, accordion, CTA và khối đ
 
 > Vì theme áp dụng cả website, trang này phải dùng cùng token/component, nếu không hai trang sẽ trông khác nhau. **Giữ nguyên logic**: filter, phân trang, bản đồ, toast — chỉ đổi lớp trình bày.
 
-- [ ] **Step 1: Viết `CourtCard.tsx` mới**
+- [x] **Step 1: Viết `CourtCard.tsx` mới**
 
 ```tsx
 import { Card } from '@astryxdesign/core/Card';
@@ -2143,7 +2143,7 @@ export function CourtCard({ court, onBook }: Props) {
 >
 > `Text` không hỗ trợ HTML `<strong>` bên trong qua prop children kiểu string — `children` là `ReactNode` nên `<strong>` bên trong hoạt động.
 
-- [ ] **Step 2: Viết `CourtCard.css` mới (thay toàn bộ)**
+- [x] **Step 2: Viết `CourtCard.css` mới (thay toàn bộ)**
 
 ```css
 /* ============================================================
@@ -2199,7 +2199,7 @@ export function CourtCard({ court, onBook }: Props) {
 }
 ```
 
-- [ ] **Step 3: Đồng bộ `CourtDiscovery.tsx`**
+- [x] **Step 3: Đồng bộ `CourtDiscovery.tsx`**
 
 Giữ nguyên toàn bộ logic (`useMemo`, filter, phân trang, `handleBook`, `handleFilterChange`, toast). Chỉ đổi phần trình bày:
 - Tiêu đề kết quả: `<h2 className="cd__results-title">` → `<Heading level={2}>`
@@ -2209,7 +2209,7 @@ Giữ nguyên toàn bộ logic (`useMemo`, filter, phân trang, `handleBook`, `h
 
 Không thay đổi `QuickSearchBar`, `FilterPanel`, `Pagination`, `MapPanel` trong task này — chúng đã được bọc `@layer app` ở Task 1 Step 7.
 
-- [ ] **Step 4: Đồng bộ `CourtDiscovery.css`**
+- [x] **Step 4: Đồng bộ `CourtDiscovery.css`**
 
 Thay các giá trị hardcode:
 - `background: #f8f9fc` → `var(--surface-1)`
@@ -2218,7 +2218,7 @@ Thay các giá trị hardcode:
 - `color: #0f172a` → `var(--ink-0)`
 - giữ `transition: ... var(--dur-fast) var(--ease-out)` (token đã có).
 
-- [ ] **Step 5: Verify + commit**
+- [x] **Step 5: Verify + commit**
 
 ```powershell
 cd frontend
@@ -2251,7 +2251,7 @@ git commit -m "feat(frontend): đồng bộ trang tìm sân sang component Astry
 
 > Giữ nguyên **toàn bộ logic auth**: tab login/register, validate, OTP, social buttons, submit. Chỉ đổi lớp trình bày.
 
-- [ ] **Step 1: Đồng bộ `AuthPage.tsx`**
+- [x] **Step 1: Đồng bộ `AuthPage.tsx`**
 
 - Form card: `<div className="auth__card">` → `<Card className="auth__card">`
 - Tiêu đề: `<h1 className="auth__title">` → `<Heading level={1}>`
@@ -2265,7 +2265,7 @@ git commit -m "feat(frontend): đồng bộ trang tìm sân sang component Astry
 
 > `Button` của Astryx có prop `type?: 'button' | 'submit' | 'reset'` và `isDisabled?: boolean` → dùng được cho form submit.
 
-- [ ] **Step 2: Đồng bộ `AuthLayout.css`**
+- [x] **Step 2: Đồng bộ `AuthLayout.css`**
 
 Thay hardcode:
 - `background: var(--surface-1)` giữ.
@@ -2275,7 +2275,7 @@ Thay hardcode:
 - `.auth__submit { background: var(--cta-0) }` — giữ, token đã đạt AA sau Task 1.
 - Gradient nền `.auth` dùng `rgba(5,150,105,.08)` / `rgba(6,182,212,.08)` → giữ (rất nhạt, không gây vấn đề contrast).
 
-- [ ] **Step 3: `index.html` — meta + OG + theme-color + canonical**
+- [x] **Step 3: `index.html` — meta + OG + theme-color + canonical**
 
 Đọc file hiện tại trước. Thêm vào `<head>`:
 ```html
@@ -2299,7 +2299,7 @@ Thay hardcode:
 - Bỏ `theme-color` cũ (`#0d0e10`) nếu có — trang giờ nền sáng.
 - Giữ `<title>` và `lang="vi"`.
 
-- [ ] **Step 4: Verify + commit**
+- [x] **Step 4: Verify + commit**
 
 ```powershell
 cd frontend
@@ -2328,7 +2328,7 @@ git commit -m "feat(frontend): đồng bộ trang đăng nhập + meta OG và ca
 - Consumes: tất cả task trước.
 - Produces: không.
 
-- [ ] **Step 1: Type-check + build + doctor**
+- [x] **Step 1: Type-check + build + doctor**
 
 ```powershell
 cd frontend
@@ -2338,7 +2338,7 @@ npx astryx doctor
 ```
 Expected: tsc exit 0, build thành công, `astryx doctor` **không có `fail`**.
 
-- [ ] **Step 2: Chạy audit `consistency.mjs`**
+- [x] **Step 2: Chạy audit `consistency.mjs`**
 
 Chrome có sẵn tại `C:\Program Files\Google\Chrome\Application\chrome.exe`. Cần `npm run dev` đang chạy ở terminal khác.
 
@@ -2353,7 +2353,7 @@ Expected: báo cáo với **0 FAIL** ngoài các FAIL đã được liệt kê l
 
 > Nếu script không tồn tại ở đường dẫn trên, kiểm tra `.agents/skills/design-taste-frontend/scripts/` trước khi chạy.
 
-- [ ] **Step 3: Kiểm tra thủ công các điểm chưa có test tự động**
+- [x] **Step 3: Kiểm tra thủ công các điểm chưa có test tự động**
 
 Mở `http://localhost:5173/` và kiểm tra lần lượt:
 - Hero không còn slider (đợi 6 giây, ảnh không đổi).
@@ -2365,7 +2365,7 @@ Mở `http://localhost:5173/` và kiểm tra lần lượt:
 - Anchor `#bang-gia`, `#faq`, `#dieu-khoan`, `#chinh-sach` nhảy đúng vị trí, không bị header sticky che.
 - DevTools → Layers: rule cũ nằm trong layer `app`, không có rule unlayered đè lên component Astryx.
 
-- [ ] **Step 4: Cập nhật `README.md`**
+- [x] **Step 4: Cập nhật `README.md`**
 
 Trong mục **"📈 Tiến trình dự án"**: tìm hạng mục liên quan giao diện ở giai đoạn 3 (Tìm & đặt sân) và đánh `✅` cho "Trang chủ" nếu đã ở trạng thái xong.
 
@@ -2376,7 +2376,7 @@ Trong mục **"🚀 Công nghệ sử dụng"**, thêm vào mục frontend:
 
 Không thêm mục vào "🌐 API Endpoints" — không có endpoint mới.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add README.md
