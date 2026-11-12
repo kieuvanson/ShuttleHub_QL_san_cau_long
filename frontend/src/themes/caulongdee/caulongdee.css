@@ -422,6 +422,10 @@
     line-height: var(--text-display-3-leading);
   }
 
+  .astryx-text[data-color="teal"] {
+    color: var(--cl-teal);
+  }
+
   .astryx-item[data-selected="selected"] {
     --color-text-secondary: light-dark(#474747, #c6c6c6);
   }

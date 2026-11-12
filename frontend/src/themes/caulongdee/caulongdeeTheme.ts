@@ -52,6 +52,11 @@ export const caulongdeeTheme = defineTheme({
   },
 
   components: {
+    // Màu nhấn teal của brand dùng cho điểm đánh giá, khung giờ trống,
+    // và các nhãn "số liệu" — cam accent không đủ tương phản trên nền trắng.
+    text: {
+      'color:teal': {color: 'var(--cl-teal)'},
+    },
     button: {
       base: {
         borderRadius: 'var(--radius-full)',
