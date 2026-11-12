@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react';
+import { Heading, Text } from '@astryxdesign/core/Text';
+import { Button } from '@astryxdesign/core/Button';
 import { BookingHeader } from '../components/BookingHeader';
 import { QuickSearchBar } from '../components/QuickSearchBar';
 import { FilterPanel, FilterState, DEFAULT_FILTER } from '../components/FilterPanel';

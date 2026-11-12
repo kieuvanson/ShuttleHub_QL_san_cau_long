@@ -62,8 +62,8 @@
 
 /* === Results (list sân, full width) === */
 .cd__results {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: var(--surface-2);
+  border: var(--line);
   border-radius: var(--r-md);
   padding: var(--s-5);
   min-width: 0;
@@ -72,7 +72,7 @@
 .cd__results-head {
   margin-bottom: var(--s-4);
   padding-bottom: var(--s-3);
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: var(--line);
 }
 
 .cd__results-title {
@@ -107,7 +107,7 @@
 .cd__empty {
   padding: var(--s-12) var(--s-4);
   text-align: center;
-  border: 1px dashed #e5e7eb;
+  border: 1px dashed var(--line);
   border-radius: var(--r-md);
   background: var(--surface-1);
 }
@@ -125,23 +125,10 @@
   font-size: 13px;
 }
 
-.cd__empty-cta {
-  padding: 10px 20px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #ffffff;
-  background: var(--cta-0);
-  border-radius: var(--r-sm);
-  transition: background var(--dur-fast) var(--ease-out);
-}
-.cd__empty-cta:hover {
-  background: var(--cta-1);
-}
-
 /* === Map (ở dưới cùng) === */
 .cd__map {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: var(--surface-2);
+  border: var(--line);
   border-radius: var(--r-md);
   padding: var(--s-5);
   display: flex;
