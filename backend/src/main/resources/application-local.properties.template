@@ -13,3 +13,16 @@
 # Provider SMS: mock → in OTP ra console log, KHÔNG gửi tin thật, không tốn tiền.
 # Nhờ vậy test được trọn luồng đăng ký mà không mất tiền SMS.
 app.sms.provider=mock
+
+# ----- OAuth2 credential (Facebook) -----
+# Lấy từ Meta for Developers → Cài đặt ứng dụng → Thông tin cơ bản.
+# ⚠️ Không commit file thật lên git — chỉ copy file mẫu này.
+# Redirect URI phải khớp: http://localhost:8080/login/oauth2/code/facebook
+app.oauth.facebook.client-id=
+app.oauth.facebook.client-secret=
+
+# ----- OAuth2 credential (Google) -----
+# Google Cloud Console → Credentials → OAuth 2.0 Client ID (Web).
+# Redirect URI: http://localhost:8080/login/oauth2/code/google
+app.oauth.google.client-id=
+app.oauth.google.client-secret=

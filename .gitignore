@@ -62,12 +62,18 @@ bin/
 /nbdist/
 /.nb-gradle/
 
-# Application properties (chứa password - KHÔNG đẩy lên)
+# Application properties (chứa password/secret - KHÔNG đẩy lên)
+# ⚠️ Pattern phải có tiền tố "backend/" — nếu không sẽ KHÔNG khớp vì
+# đường dẫn thật là backend/src/main/resources/... (đã commit nhầm file
+# này lúc đầu, nên chỉ dùng gitignore KHÔNG đủ — phải git rm --cached).
 # Bản thật: src/main/resources/application.properties  (gitignore)
 # Bản mẫu để copy: application.properties.template  (commit được)
 src/main/resources/application.properties
 src/main/resources/application-local.properties
 src/main/resources/application-prod.properties
+backend/src/main/resources/application.properties
+backend/src/main/resources/application-local.properties
+backend/src/main/resources/application-prod.properties
 .env
 .env.local
 
@@ -82,3 +88,6 @@ backend/target/tomcat-sessions/
 
 # Frontend build
 frontend/dist/
+
+# Temp runtime (taste-skill audit cache + chrome profile)
+.taste-skill/
