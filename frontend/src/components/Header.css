@@ -9,7 +9,7 @@
   z-index: 50;
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: saturate(140%) blur(10px);
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--line);
 }
 
 .hdr__inner {
@@ -31,6 +31,8 @@
   flex: 0 0 auto;
   color: inherit;
   text-decoration: none;
+  /* Tap target ≥ 44px */
+  min-height: 44px;
 }
 
 .hdr__logo {
@@ -55,12 +57,12 @@
   letter-spacing: -0.015em;
   white-space: nowrap;
   /* Cam đậm → cam nhạt, nổi trên nền trắng */
-  background: linear-gradient(135deg, #ea580c 0%, #f97316 50%, #fb923c 100%);
+  background: linear-gradient(135deg, #c2410c 0%, #ea580c 50%, #f97316 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
-  filter: drop-shadow(0 1px 0 rgba(234, 88, 12, 0.18));
+  filter: drop-shadow(0 1px 0 rgba(194, 65, 12, 0.18));
 }
 
 /* === Nav === */
@@ -78,11 +80,15 @@
   font-weight: 500;
   color: var(--ink-1);
   white-space: nowrap;
+  /* Tap target ≥ 44px trên điện thoại */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   transition: color var(--dur-fast) var(--ease-out);
 }
 
 .hdr__navlink:hover {
-  color: #085041;
+  color: var(--cl-teal-hover);
 }
 
 /* === Actions === */
@@ -100,11 +106,15 @@
   padding: 8px 14px;
   white-space: nowrap;
   border-radius: var(--r-sm);
+  /* Tap target ≥ 44px trên điện thoại */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   transition: color var(--dur-fast) var(--ease-out);
 }
 
 .hdr__login:hover {
-  color: #085041;
+  color: var(--cl-teal-hover);
 }
 
 .hdr__signup {
@@ -115,6 +125,10 @@
   padding: 8px 16px;
   white-space: nowrap;
   border-radius: var(--r-sm);
+  /* Tap target ≥ 44px trên điện thoại */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   transition: background var(--dur-fast) var(--ease-out);
 }
 
@@ -136,7 +150,7 @@
   font-weight: 600;
   color: var(--ink-1, inherit);
   background: transparent;
-  border: 1px solid var(--line-1, rgba(15, 23, 42, 0.12));
+  border: 1px solid var(--line);
   border-radius: var(--r-sm);
   cursor: pointer;
   white-space: nowrap;
@@ -161,8 +175,8 @@
   min-width: 220px;
   padding: 6px;
   background: #fff;
-  border: 1px solid rgba(15, 23, 42, 0.1);
-  border-radius: var(--r-md, 12px);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
   box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14);
 }
 
@@ -197,7 +211,7 @@
   color: #dc2626;
   background: transparent;
   border: 0;
-  border-radius: var(--r-sm, 8px);
+  border-radius: var(--r-sm);
   cursor: pointer;
   text-align: left;
 }
@@ -219,7 +233,12 @@
   .hdr__wordmark {
     font-size: 20px;
   }
+  /* Giữ lại link chính "Tìm sân cầu lông" trên điện thoại — đây là hành
+     động chính của sản phẩm, không được bỏ mất trên mobile. */
   .hdr__nav {
+    gap: var(--s-4);
+  }
+  .hdr__navlink--secondary {
     display: none;
   }
   .hdr__login {
@@ -230,6 +249,10 @@
 @media (max-width: 380px) {
   .hdr__wordmark {
     display: none; /* rất nhỏ thì ẩn wordmark, chỉ giữ logo */
+  }
+  /* Ở màn rất hẹp, link "Bảng giá" cũng ẩn — giữ lại "Tìm sân" là đủ */
+  .hdr__navlink:not(:first-child) {
+    display: none;
   }
 }
 }

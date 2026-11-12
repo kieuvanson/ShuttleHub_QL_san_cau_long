@@ -11,6 +11,8 @@ import './Layout.css';
 export function Layout() {
   return (
     <div className="layout">
+      {/* Skip link — cho phép bàn phím nhảy thẳng tới nội dung chính */}
+      <a className="skip-link" href="#main">Bỏ qua tới nội dung</a>
       <Header />
       <main className="layout__main" id="main">
         <Outlet />

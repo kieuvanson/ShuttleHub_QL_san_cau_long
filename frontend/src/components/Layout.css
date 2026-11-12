@@ -14,4 +14,30 @@
   flex: 1;
   width: 100%;
 }
+
+/* Skip link — ẩn cho tới khi được focus (WCAG 2.4.1 Bypass Blocks) */
+.skip-link {
+  position: absolute;
+  left: var(--s-4);
+  top: var(--s-2);
+  z-index: 100;
+  padding: var(--s-2) var(--s-4);
+  background: var(--surface-2);
+  color: var(--ink-0);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  /* Tap target ≥ 44px */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  transform: translateY(-200%);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
 }

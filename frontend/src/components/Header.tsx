@@ -29,8 +29,10 @@ export function Header() {
 
         <nav className="hdr__nav" aria-label="Chính">
           <Link to="/tim-san" className="hdr__navlink">Tìm sân cầu lông</Link>
-          <a href="#" className="hdr__navlink">Bảng giá</a>
-          <a href="#" className="hdr__navlink">Hỗ trợ</a>
+          {/* Điều hướng về trang chủ rồi cuộn tới anchor — section đích
+              được dựng ở các task sau (PricingSection / FaqSection). */}
+          <Link to="/#bang-gia" className="hdr__navlink">Bảng giá</Link>
+          <Link to="/#faq" className="hdr__navlink hdr__navlink--secondary">Hỗ trợ</Link>
         </nav>
 
         <div className="hdr__actions">
