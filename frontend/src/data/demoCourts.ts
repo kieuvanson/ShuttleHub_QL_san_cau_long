@@ -16,6 +16,7 @@ export type Court = {
   nextAvailableDate: string; // ISO
   courtsCount: number; // số sân trong cụm
   amenities: string[];
+  image?: string; // ảnh minh hoạ trong /img; undefined ⇒ dùng imageGradient
   imageGradient: [string, string]; // fallback khi chưa có ảnh thật
   isNew?: boolean;
   isHot?: boolean;
@@ -24,11 +25,11 @@ export type Court = {
 
 export const AREAS = [
   { id: 'all', label: 'Tất cả khu vực', count: 1248 },
-  { id: 'hanoi', label: 'Hà Nội', count: 412 },
-  { id: 'hcm', label: 'TP. Hồ Chí Minh', count: 538 },
-  { id: 'danang', label: 'Đà Nẵng', count: 156 },
-  { id: 'haiphong', label: 'Hải Phòng', count: 89 },
-  { id: 'cantho', label: 'Cần Thơ', count: 53 },
+  { id: 'hanoi', label: 'Hà Nội', count: 412, image: '/img/city-hanoi.jpg' },
+  { id: 'hcm', label: 'TP. Hồ Chí Minh', count: 538, image: '/img/city-hcm.jpg' },
+  { id: 'danang', label: 'Đà Nẵng', count: 156, image: '/img/city-danang.jpg' },
+  { id: 'haiphong', label: 'Hải Phòng', count: 89, image: '/img/city-haiphong.jpg' },
+  { id: 'cantho', label: 'Cần Thơ', count: 53, image: '/img/city-cantho.jpg' },
 ] as const;
 
 export const DEMO_COURTS: Court[] = [
@@ -43,6 +44,7 @@ export const DEMO_COURTS: Court[] = [
     nextAvailableDate: '2026-10-11',
     courtsCount: 6,
     amenities: ['Máy lạnh', 'Đỗ xe', 'Cho thuê vợt'],
+    image: '/img/court-01.jpg',
     imageGradient: ['#1a2a3a', '#0d1825'],
   },
   {
@@ -56,6 +58,7 @@ export const DEMO_COURTS: Court[] = [
     nextAvailableDate: '2026-10-11',
     courtsCount: 4,
     amenities: ['Máy lạnh', 'Nước uống'],
+    image: '/img/court-02.jpg',
     imageGradient: ['#2a1a2e', '#180d1f'],
   },
   {
@@ -69,6 +72,7 @@ export const DEMO_COURTS: Court[] = [
     nextAvailableDate: '2026-10-11',
     courtsCount: 8,
     amenities: ['Máy lạnh', 'Đỗ xe', 'Phòng thay đồ', 'Căng-tin'],
+    image: '/img/court-03.jpg',
     imageGradient: ['#1a2e22', '#0d1f15'],
   },
   {
@@ -82,6 +86,7 @@ export const DEMO_COURTS: Court[] = [
     nextAvailableDate: '2026-10-11',
     courtsCount: 3,
     amenities: ['Đỗ xe'],
+    image: '/img/court-04.jpg',
     imageGradient: ['#2e2a1a', '#1f180d'],
   },
   {
@@ -95,6 +100,7 @@ export const DEMO_COURTS: Court[] = [
     nextAvailableDate: '2026-10-12',
     courtsCount: 5,
     amenities: ['Máy lạnh', 'View biển'],
+    image: '/img/court-02.jpg',
     imageGradient: ['#1a2630', '#0d1820'],
     isHot: true,
   },
@@ -109,6 +115,7 @@ export const DEMO_COURTS: Court[] = [
     nextAvailableDate: '2026-10-11',
     courtsCount: 4,
     amenities: ['Đỗ xe', 'Nước uống'],
+    image: '/img/court-03.jpg',
     imageGradient: ['#2a1f2e', '#1a0d1f'],
     isNew: true,
   },
@@ -123,6 +130,7 @@ export const DEMO_COURTS: Court[] = [
     nextAvailableDate: '2026-10-11',
     courtsCount: 6,
     amenities: ['Máy lạnh', 'Đỗ xe', 'Cho thuê vợt', 'Căng-tin'],
+    image: '/img/court-04.jpg',
     imageGradient: ['#1e2a30', '#0d1820'],
   },
   {
@@ -136,6 +144,7 @@ export const DEMO_COURTS: Court[] = [
     nextAvailableDate: '2026-10-11',
     courtsCount: 7,
     amenities: ['Máy lạnh', 'Đỗ xe', 'Phòng thay đồ', 'Cho thuê vợt', 'Căng-tin'],
+    image: '/img/court-01.jpg',
     imageGradient: ['#2a1a2e', '#1a0d1f'],
     isHot: true,
   },
