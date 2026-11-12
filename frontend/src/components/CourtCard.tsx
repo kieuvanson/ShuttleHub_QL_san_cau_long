@@ -1,5 +1,11 @@
+import { Card } from '@astryxdesign/core/Card';
+import { Badge } from '@astryxdesign/core/Badge';
+import { VStack } from '@astryxdesign/core/VStack';
+import { HStack } from '@astryxdesign/core/HStack';
+import { Heading, Text } from '@astryxdesign/core/Text';
+import { Button } from '@astryxdesign/core/Button';
+import { AspectRatio } from '@astryxdesign/core/AspectRatio';
 import { Court, formatPrice } from '../data/demoCourts';
-import { Star, MapPin, Check, ArrowRight, Zap, Flame, Sparkles, Clock, Users } from 'lucide-react';
 import './CourtCard.css';
 
 type Props = {
@@ -13,107 +19,63 @@ export function CourtCard({ court, onBook }: Props) {
     return h >= 5 && h <= 7;
   })();
 
-  const ratingLabel = court.rating >= 4.7 ? 'Tuyệt vời' : court.rating >= 4.4 ? 'Rất tốt' : 'Tốt';
-
   return (
-    <article className="card">
-      {/* Media — bên trái */}
-      <div
-        className="card__media"
-        style={{
-          background: `linear-gradient(135deg, ${court.imageGradient[0]} 0%, ${court.imageGradient[1]} 100%)`,
-        }}
-        aria-hidden="true"
-      >
-        <svg className="card__floor" viewBox="0 0 320 180" preserveAspectRatio="none">
-          <line x1="160" y1="20" x2="160" y2="160" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
-          <rect x="40" y="20" width="240" height="140" fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="1.5" />
-          <line x1="40" y1="90" x2="280" y2="90" stroke="rgba(255,255,255,0.18)" strokeWidth="1" />
-        </svg>
+    <Card className="card">
+      <AspectRatio ratio={16 / 10} fit="cover" className="card__media">
+        {court.image ? (
+          <img
+            src={court.image}
+            alt={`Sân ${court.name}`}
+            width={960}
+            height={600}
+            loading="lazy"
+          />
+        ) : (
+          <div
+            aria-hidden="true"
+            style={{
+              width: '100%',
+              height: '100%',
+              background: `linear-gradient(135deg, ${court.imageGradient[0]} 0%, ${court.imageGradient[1]} 100%)`,
+            }}
+          />
+        )}
+      </AspectRatio>
 
-        <div className="card__media-tags">
-          {court.isHot && (
-            <span className="card__tag card__tag--hot">
-              <Flame size={11} strokeWidth={2.5} />
-              Hot
-            </span>
-          )}
-          {court.isNew && (
-            <span className="card__tag card__tag--new">
-              <Sparkles size={11} strokeWidth={2.5} />
-              Mới
-            </span>
-          )}
-          {isGoldenHour && (
-            <span className="card__tag card__tag--gold">
-              <Zap size={11} strokeWidth={2.5} />
-              Giờ vàng
-            </span>
-          )}
-        </div>
+      <VStack gap={3} className="card__body">
+        <VStack gap={1}>
+          <Heading level={3} maxLines={1}>{court.name}</Heading>
+          <Text type="supporting" maxLines={1}>{court.district}</Text>
+        </VStack>
 
-        <div className="card__media-rating">
-          <Star size={13} strokeWidth={0} fill="#facc15" />
-          <strong>{court.rating.toFixed(1)}</strong>
-        </div>
-      </div>
+        <HStack gap={2} align="start">
+          <Badge variant="teal" label={`${court.rating.toFixed(1)}★`} />
+          {court.isHot && <Badge variant="orange" label="Hot" />}
+          {court.isNew && <Badge variant="blue" label="Mới" />}
+          {isGoldenHour && <Badge variant="yellow" label="Giờ vàng" />}
+        </HStack>
 
-      {/* Body — bên phải */}
-      <div className="card__body">
-        <div className="card__head">
-          <h3 className="card__name">{court.name}</h3>
-          <div className="card__loc">
-            <span className="card__loc-icon"><MapPin size={13} strokeWidth={2.2} /></span>
-            <span className="card__loc-text">{court.district}</span>
-            <span className="card__loc-sep">·</span>
-            <span className="card__rating-chip">
-              <span className="card__rating-text">{ratingLabel}</span>
-              <strong>{court.rating.toFixed(1)}</strong>
-            </span>
-          </div>
-        </div>
+        <HStack gap={3} justify="between" className="card__meta">
+          <Text type="supporting"><strong>{court.courtsCount}</strong> sân</Text>
+          <Text type="supporting">Trống <strong>{court.nextAvailable}</strong></Text>
+        </HStack>
 
-        <div className="card__meta">
-          <div className="card__meta-item">
-            <span className="card__meta-icon"><Users size={13} strokeWidth={2.2} /></span>
-            <span><strong>{court.courtsCount}</strong> sân</span>
-          </div>
-          <div className="card__meta-item">
-            <span className="card__meta-icon"><Clock size={13} strokeWidth={2.2} /></span>
-            <span>Trống <strong>{court.nextAvailable}</strong></span>
-          </div>
-        </div>
+        <Text type="supporting" maxLines={2}>
+          {court.amenities.slice(0, 3).join(' · ')}
+        </Text>
 
-        <div className="card__amenities">
-          {court.amenities.slice(0, 3).map((a) => (
-            <span key={a} className="card__amenity">
-              <Check size={11} strokeWidth={3} />
-              {a}
-            </span>
-          ))}
-          {court.amenities.length > 3 && (
-            <span className="card__amenity card__amenity--more">
-              +{court.amenities.length - 3}
-            </span>
-          )}
-        </div>
-
-        <div className="card__foot">
-          <div className="card__price">
-            <span className="card__price-value">{formatPrice(court.priceFrom)}</span>
-            <span className="card__price-unit">/giờ</span>
-          </div>
-          <button
-            type="button"
-            className="card__cta"
+        <HStack gap={3} justify="between" className="card__foot">
+          <VStack gap={0}>
+            <Text type="body" weight="bold">{formatPrice(court.priceFrom)}</Text>
+            <Text type="supporting">/giờ</Text>
+          </VStack>
+          <Button
+            label="Đặt sân"
+            variant="primary"
             onClick={() => onBook(court)}
-            aria-label={`Đặt sân ${court.name}`}
-          >
-            <span>Đặt sân</span>
-            <ArrowRight size={16} strokeWidth={2.5} />
-          </button>
-        </div>
-      </div>
-    </article>
+          />
+        </HStack>
+      </VStack>
+    </Card>
   );
 }

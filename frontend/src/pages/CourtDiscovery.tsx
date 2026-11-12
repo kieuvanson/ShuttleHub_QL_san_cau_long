@@ -113,26 +113,30 @@ export function CourtDiscovery() {
           {/* List sân — full width */}
           <section className="cd__results">
             <div className="cd__results-head">
-              <h2 className="cd__results-title">Sân cầu lông phù hợp trên Cầu Lông dee</h2>
-              <p className="cd__results-sub">
+              <Heading level={2} className="cd__results-title">
+                Sân cầu lông phù hợp trên Cầu Lông dee
+              </Heading>
+              <Text type="supporting" className="cd__results-sub">
                 {filtered.length} sân • Cập nhật {new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
-              </p>
+              </Text>
             </div>
 
             {pageItems.length === 0 ? (
               <div className="cd__empty" role="status">
-                <p className="cd__empty-title">Chưa có sân nào phù hợp</p>
-                <p className="cd__empty-sub">Thử điều chỉnh bộ lọc hoặc chọn khu vực khác.</p>
-                <button
-                  type="button"
-                  className="cd__empty-cta"
+                <Heading level={3} className="cd__empty-title">
+                  Chưa có sân nào phù hợp
+                </Heading>
+                <Text type="supporting" className="cd__empty-sub">
+                  Thử điều chỉnh bộ lọc hoặc chọn khu vực khác.
+                </Text>
+                <Button
+                  label="Xem tất cả sân"
+                  variant="primary"
                   onClick={() => {
                     setCity('all');
                     setFilter(DEFAULT_FILTER);
                   }}
-                >
-                  Xem tất cả sân
-                </button>
+                />
               </div>
             ) : (
               <ul className="cd__list">
@@ -150,10 +154,12 @@ export function CourtDiscovery() {
           {/* Bản đồ — đặt ở DƯỚI cùng, full width */}
           <section className="cd__map" aria-label="Bản đồ sân">
             <div className="cd__map-head">
-              <h2 className="cd__map-title">Bản đồ sân — Cầu Lông dee</h2>
-              <p className="cd__map-sub">
+              <Heading level={2} className="cd__map-title">
+                Bản đồ sân — Cầu Lông dee
+              </Heading>
+              <Text type="supporting" className="cd__map-sub">
                 Nhấp vào pin để xem chi tiết sân.
-              </p>
+              </Text>
             </div>
             <MapPanel
               courts={filtered}
