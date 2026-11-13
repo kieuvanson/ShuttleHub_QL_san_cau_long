@@ -25,12 +25,20 @@
 .oauth-cb__card {
   width: 100%;
   max-width: 440px;
-  background: var(--surface-2);
-  border: var(--line);
-  border-radius: var(--r-lg);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.1);
+}
+
+/* Padding nằm ở wrapper vì `Card` của Astryx áp padding bằng StyleX,
+   thắng mọi rule trong `@layer app`. */
+.oauth-cb__body {
   padding: var(--s-10) var(--s-8);
   text-align: center;
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.1);
+}
+
+@media (max-width: 720px) {
+  .oauth-cb__body {
+    padding: var(--s-6) var(--s-4);
+  }
 }
 
 .oauth-cb__icon {
@@ -61,38 +69,15 @@
 }
 
 .oauth-cb__title {
-  font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 800;
-  color: var(--ink-0);
   margin: 0 0 var(--s-2);
 }
 
 .oauth-cb__text {
-  font-size: 14px;
-  color: var(--ink-2);
-  line-height: 1.55;
   margin: 0 0 var(--s-6);
 }
 
-.oauth-cb__btn {
-  width: 100%;
-  padding: 13px var(--s-6);
-  font-family: var(--font-body);
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--cta-ink);
-  background: var(--cta-0);
-  border: none;
-  border-radius: var(--r-md);
-  cursor: pointer;
-  transition:
-    background var(--dur-fast) var(--ease-out),
-    transform var(--dur-fast) var(--ease-out);
-}
-
-.oauth-cb__btn:hover {
-  background: var(--cta-1);
-  transform: translateY(-1px);
+/* Vùng chạm tối thiểu 44px (WCAG 2.2). */
+.oauth-cb__body .astryx-button {
+  min-height: 44px;
 }
 }

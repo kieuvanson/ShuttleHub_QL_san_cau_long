@@ -2,6 +2,9 @@ import { FormEvent, useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
+import { Card } from '@astryxdesign/core/Card';
+import { Heading, Text } from '@astryxdesign/core/Text';
+import { Button } from '@astryxdesign/core/Button';
 import { OtpInput } from '../components/OtpInput';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../api/auth';
@@ -125,114 +128,119 @@ export function FacebookCompletePage() {
   return (
     <section className="fb-complete">
       <motion.div
-        className="fb-complete__card"
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
       >
-        <header className="fb-complete__head">
-          <div className="fb-complete__logo" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="22" height="22">
-              <path
-                fill="#1877F2"
-                d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
-              />
-            </svg>
-          </div>
-          <h1 className="fb-complete__title">Hoàn thiện tài khoản</h1>
-          <p className="fb-complete__sub">
-            Để bảo vệ tài khoản của bạn, hãy xác nhận email và số điện thoại.
-            Mã xác nhận sẽ được gửi qua tin nhắn SMS.
-          </p>
-        </header>
+        <Card className="fb-complete__card" padding={0}>
+          <div className="fb-complete__body">
+            <header className="fb-complete__head">
+              <div className="fb-complete__logo" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22">
+                  <path
+                    fill="#1877F2"
+                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
+                  />
+                </svg>
+              </div>
+              <Heading level={1} className="fb-complete__title">
+                Hoàn thiện tài khoản
+              </Heading>
+              <Text type="supporting" className="fb-complete__sub">
+                Để bảo vệ tài khoản của bạn, hãy xác nhận email và số điện thoại.
+                Mã xác nhận sẽ được gửi qua tin nhắn SMS.
+              </Text>
+            </header>
 
-        <form className="fb-complete__form" onSubmit={handleSubmit} noValidate>
-          <div className="fb-complete__field">
-            <label className="fb-complete__label" htmlFor="fb-email">Email</label>
-            <input
-              id="fb-email"
-              type="email"
-              className={`fb-complete__input ${errors.email ? 'fb-complete__input--error' : ''}`}
-              placeholder="ban@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
-            />
-            {errors.email && (
-              <span className="fb-complete__err">{errors.email}</span>
-            )}
-          </div>
+            <form className="fb-complete__form" onSubmit={handleSubmit} noValidate>
+              <div className="fb-complete__field">
+                <label className="fb-complete__label" htmlFor="fb-email">Email</label>
+                <input
+                  id="fb-email"
+                  type="email"
+                  className={`fb-complete__input ${errors.email ? 'fb-complete__input--error' : ''}`}
+                  placeholder="ban@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
+                />
+                {errors.email && (
+                  <span className="fb-complete__err">{errors.email}</span>
+                )}
+              </div>
 
-          <div className="fb-complete__field">
-            <label className="fb-complete__label" htmlFor="fb-phone">Số điện thoại</label>
-            <div className="fb-complete__phone-wrap">
-              <input
-                id="fb-phone"
-                type="tel"
-                className={`fb-complete__input ${errors.phone ? 'fb-complete__input--error' : ''}`}
-                placeholder="0912345678"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                autoComplete="tel"
-              />
-              <button
-                type="button"
-                className="fb-complete__send-otp"
-                onClick={handleSendOtp}
-                disabled={otpSending || (otpSent && resendIn > 0)}
-              >
-                {otpSending
-                  ? 'Đang gửi…'
-                  : otpSent
-                    ? (resendIn > 0 ? `Gửi lại (${resendIn}s)` : 'Gửi lại')
-                    : 'Gửi mã'}
-              </button>
-            </div>
-            {errors.phone && (
-              <span className="fb-complete__err">{errors.phone}</span>
-            )}
-          </div>
-
-          {otpSent && (
-            <div className="fb-complete__field">
-              <label className="fb-complete__label">Mã xác nhận</label>
-              <OtpInput
-                value={otp}
-                onChange={setOtp}
-                length={OTP_LENGTH}
-                autoFocus
-                error={errors.otp}
-              />
-              {devOtp && (
-                <div className="fb-complete__dev">
-                  <span className="fb-complete__dev-label">Mã OTP (dev):</span>
+              <div className="fb-complete__field">
+                <label className="fb-complete__label" htmlFor="fb-phone">Số điện thoại</label>
+                <div className="fb-complete__phone-wrap">
+                  <input
+                    id="fb-phone"
+                    type="tel"
+                    className={`fb-complete__input ${errors.phone ? 'fb-complete__input--error' : ''}`}
+                    placeholder="0912345678"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    autoComplete="tel"
+                  />
                   <button
                     type="button"
-                    className="fb-complete__dev-code"
-                    onClick={() => setOtp(devOtp)}
+                    className="fb-complete__send-otp"
+                    onClick={handleSendOtp}
+                    disabled={otpSending || (otpSent && resendIn > 0)}
                   >
-                    {devOtp}
+                    {otpSending
+                      ? 'Đang gửi…'
+                      : otpSent
+                        ? (resendIn > 0 ? `Gửi lại (${resendIn}s)` : 'Gửi lại')
+                        : 'Gửi mã'}
                   </button>
                 </div>
+                {errors.phone && (
+                  <span className="fb-complete__err">{errors.phone}</span>
+                )}
+              </div>
+
+              {otpSent && (
+                <div className="fb-complete__field">
+                  <label className="fb-complete__label">Mã xác nhận</label>
+                  <OtpInput
+                    value={otp}
+                    onChange={setOtp}
+                    length={OTP_LENGTH}
+                    autoFocus
+                    error={errors.otp}
+                  />
+                  {devOtp && (
+                    <div className="fb-complete__dev">
+                      <span className="fb-complete__dev-label">Mã OTP (dev):</span>
+                      <button
+                        type="button"
+                        className="fb-complete__dev-code"
+                        onClick={() => setOtp(devOtp)}
+                      >
+                        {devOtp}
+                      </button>
+                    </div>
+                  )}
+                </div>
               )}
-            </div>
-          )}
 
-          {errors.form && (
-            <div className="fb-complete__alert" role="alert">{errors.form}</div>
-          )}
+              {errors.form && (
+                <div className="fb-complete__alert" role="alert">{errors.form}</div>
+              )}
 
-          <button type="submit" className="fb-complete__submit" disabled={submitting}>
-            {submitting ? (
-              <>
-                <Loader2 size={16} className="fb-complete__spinner" />
-                Đang xử lý…
-              </>
-            ) : (
-              'Hoàn tất đăng nhập'
-            )}
-          </button>
-        </form>
+              <Button
+                type="submit"
+                label={submitting ? 'Đang xử lý…' : 'Hoàn tất đăng nhập'}
+                variant="primary"
+                width="100%"
+                isDisabled={submitting}
+                isLoading={submitting}
+                icon={submitting ? <Loader2 size={16} className="fb-complete__spinner" /> : undefined}
+                className="fb-complete__submit"
+              />
+            </form>
+          </div>
+        </Card>
       </motion.div>
     </section>
   );

@@ -1,5 +1,5 @@
 /* ============================================================
-   CitiesSection — ảnh 3:2 mỗi thẻ, tag được phép xuống dòng.
+   CitiesSection — ảnh thật, tag được phép xuống dòng.
    ============================================================ */
 
 @layer app {
@@ -50,6 +50,67 @@
   /* Tag phải xuống dòng được ở viewport hẹp — bỏ nowrap */
   white-space: normal;
   overflow-wrap: break-word;
+}
+
+/* === Grid bento 6 cột ===
+   5 thẻ, mọi hàng đều lấp đầy:
+     hàng 1 → s0 (2) + s1 (2) + s2 (2) = 6
+     hàng 2 → s3 (3) + s4 (3) = 6
+   Không hàng nào để trống hơn 40% (check `row-gap` của skill taste-skill).
+
+   `!important` là bắt buộc: Astryx đặt `--x-gridTemplateColumns` bằng inline
+   style, mà inline style thắng mọi rule trong `@layer app`. */
+.cities__grid {
+  --x-gridTemplateColumns: repeat(6, minmax(0, 1fr)) !important;
+}
+
+/* Span theo bố cục 6 cột ở desktop (đặt TRƯỚC media query để media query
+   có thể ghi đè bằng rule cùng độ ưu tiên) */
+.cities__card--s0 { grid-column: span 2; }
+.cities__card--s1 { grid-column: span 2; }
+.cities__card--s2 { grid-column: span 2; }
+.cities__card--s3 { grid-column: span 3; }
+.cities__card--s4 { grid-column: span 3; }
+
+/* 3 cột: s0 (2) + s1 (2) không vừa → mọi thẻ 1 cột, 3 thẻ mỗi hàng. */
+@media (max-width: 1199px) {
+  .cities__grid {
+    --x-gridTemplateColumns: repeat(3, minmax(0, 1fr)) !important;
+  }
+  .cities__card--s0,
+  .cities__card--s1,
+  .cities__card--s2,
+  .cities__card--s3,
+  .cities__card--s4 {
+    grid-column: span 1;
+  }
+}
+
+/* 2 cột ở 768–899px sẽ để hàng cuối lẻ 1 thẻ rộng 2 cột → check `row-gap`
+   báo "stretched alone across the last row", và ảnh dọc (tỉ lệ 3/4) bị
+   phóng to gấp 1.6 lần (check `photo-upscale`).
+   Giữ 3 cột xuống tới 560px: hàng 1 có 3 thẻ, hàng 2 có 2 thẻ (hàng lấp
+   đầy 2/3, không vượt ngưỡng 40% trống của check `row-gap`). */
+@media (max-width: 560px) {
+  .cities__grid {
+    --x-gridTemplateColumns: minmax(0, 1fr) !important;
+  }
+  .cities__card--s4 {
+    grid-column: span 1;
+  }
+}
+
+/* Thẻ rộng 3 cột nên ảnh cao hơn để cân với chiều ngang */
+.cities__card--s3 .cities__media,
+.cities__card--s4 .cities__media {
+  aspect-ratio: 16 / 7;
+}
+
+@media (max-width: 1199px) {
+  .cities__card--s3 .cities__media,
+  .cities__card--s4 .cities__media {
+    aspect-ratio: auto;
+  }
 }
 
 @media (hover: hover) and (pointer: fine) {

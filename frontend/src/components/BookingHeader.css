@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    BookingHeader — slideshow kiểu slide carousel:
    ảnh trượt ngang (zoom + blur khi inactive), chuyển nhanh.
    ============================================================ */
@@ -82,7 +82,7 @@
 }
 
 .bh__dot--active {
-  background: #ffffff;
+  background: var(--surface-2);
   width: 22px;
 }
 

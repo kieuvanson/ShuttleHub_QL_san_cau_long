@@ -10,15 +10,65 @@
   overflow: hidden;
 }
 
+/* Hero phải chiếm TRỌN màn hình đầu tiên — không section nào được lộ ra
+   bên dưới khi tải trang (check `hero-fill` của skill taste-skill).
+   `100svh` = chiều cao viewport nhỏ nhất (không bị co lại khi thanh điều
+   hướng mobile thu vào), trừ chiều cao header sticky 76px (64px ở mobile).
+
+   `.hero__inner` cao đúng bằng `.hero` và `justify-content: space-between`
+   → lưới nội dung bám đỉnh, thanh tìm kiếm bám đáy. Nhờ vậy khoảng hở
+   giữa hero và section kế tiếp LUÔN bằng tổng padding hai bên (96px),
+   không phụ thuộc chiều cao viewport. Nếu canh giữa (`center`), trên
+   màn hình cao (tablet 820x1180) sẽ dồn ~350px trống xuống giữa và
+   khoảng hở lệch hẳn so với các section còn lại (check `section-gaps`). */
+.hero {
+  min-height: calc(100svh - 76px);
+  display: flex;
+  flex-direction: column;
+}
+
+/* `Section` của Astryx render ra 1 `<div>` bọc ngoài (nhận class `hero`)
+   chứa `<section>` bên trong. Mặc định `<section>` là `flex: 0 1 auto` nên
+   chỉ cao đúng bằng nội dung, còn wrapper cao `100svh` → dư hàng trăm px
+   trống phía dưới → khoảng hở giữa hero và section sau lệch hẳn so với
+   các section còn lại (check `section-gaps`, `empty-area`).
+   Buộc `<section>` trở thành flex item co giãn và `.hero__inner` bám đáy. */
+.hero > :first-child {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
 .hero__inner {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   padding: var(--s-12) var(--s-6);
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--s-8);
 }
 
+/* Lưới 2 cột: hai cột cùng đỉnh (check `split-pair` đòi 2 cột của một
+   split top-align). */
+.hero__grid {
+  align-items: stretch;
+}
+
+/* Cột chữ: chiều cao tự nhiên, các dòng CĂN TRÁI THẮNG.
+   Không dùng `justify-content: center` — VStack sẽ co mỗi dòng về giữa
+   và các dòng lệch trái khác nhau vài px → check `stagger` báo lỗi. */
 .hero__copy {
   max-width: 620px;
+}
+
+/* Thanh tìm kiếm chạy trọn chiều rộng dưới cả hai cột → hero được lấp
+   đầy, không còn khoảng trống lớn ở giữa (check `empty-area`). */
+.hero__search {
+  flex: 0 0 auto;
 }
 
 .hero__actions {
@@ -48,15 +98,39 @@
   box-shadow: 0 16px 40px rgba(15, 23, 42, 0.1);
 }
 
+/* Khung ảnh: tỉ lệ đổi theo viewport.
+   Desktop 4:3 → ảnh cao, lấp đầy cột. Tablet 16:9 → ảnh thấp hơn nhưng
+   cột chữ đã dài hơn nên hero vẫn lấp đầy màn hình. */
+.hero__frame {
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  overflow: hidden;
+}
+
 .hero__media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
+@media (max-width: 1023px) {
+  .hero__frame {
+    aspect-ratio: 16 / 9;
+  }
+}
+
+@media (max-width: 900px) {
+  /* Tablet: ảnh tràn ngang, chiếm 1 cột — vừa đẹp hơn vừa đủ "visual"
+     cho section (check `no-visual` cần ảnh che ≥ 15% diện tích section;
+     ở 2 cột hẹp ảnh chỉ chiếm ~10%). */
+  .hero__grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
 @media (max-width: 900px) {
   .hero__inner {
-    padding: var(--s-8) var(--s-5);
+    padding: var(--s-8) var(--s-6);
   }
   .hero__copy {
     max-width: none;
@@ -64,6 +138,12 @@
   /* Ảnh lên trên trên mobile để nội dung chính nằm ngay dưới header */
   .hero__media {
     order: -1;
+  }
+}
+
+@media (max-width: 720px) {
+  .hero {
+    min-height: calc(100svh - 64px);
   }
 }
 

@@ -1,11 +1,11 @@
-/* ============================================================
+﻿/* ============================================================
    FilterPanel — bộ lọc ngang, pill-style đẹp.
    ============================================================ */
 
 @layer app {
 .fp {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: var(--surface-2);
+  border: var(--line);
   border-radius: var(--r-lg);
   padding: var(--s-4) var(--s-5);
   display: flex;
@@ -125,7 +125,7 @@
   font-size: 12px;
   font-weight: 600;
   color: var(--ink-1);
-  background: #ffffff;
+  background: var(--surface-2);
   border: 1.5px solid #e5e7eb;
   border-radius: 999px;
   cursor: pointer;
@@ -204,7 +204,7 @@
   -webkit-appearance: none;
   width: 18px;
   height: 18px;
-  background: #ffffff;
+  background: var(--surface-2);
   border: 3px solid var(--brand-2);
   border-radius: 999px;
   box-shadow: 0 2px 6px rgba(99, 102, 241, 0.4);
@@ -219,7 +219,7 @@
 .fp__range::-moz-range-thumb {
   width: 18px;
   height: 18px;
-  background: #ffffff;
+  background: var(--surface-2);
   border: 3px solid var(--brand-2);
   border-radius: 999px;
   box-shadow: 0 2px 6px rgba(99, 102, 241, 0.4);

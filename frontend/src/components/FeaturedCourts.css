@@ -46,8 +46,35 @@
   color: var(--cl-teal-hover);
 }
 
+/* === Grid bento ===
+   5 thẻ trên lưới 6 cột: thẻ dẫn nhập rộng 2 cột + 4 thẻ 1 cột = 6 cột,
+   tức mọi thẻ nằm trên MỘT hàng và hàng lấp đầy 100% (check `row-gap`).
+
+   `!important` là bắt buộc: Astryx đặt `--x-gridTemplateColumns` bằng inline
+   style, mà inline style thắng mọi rule trong `@layer app`. */
 .featured__grid {
+  --x-gridTemplateColumns: repeat(6, minmax(0, 1fr)) !important;
   align-items: stretch;
+}
+
+/* 3 cột: thẻ dẫn nhập (2) + 1 thẻ đơn = hàng 1 lấp đầy; 3 thẻ đơn = hàng 2. */
+@media (max-width: 1199px) {
+  .featured__grid {
+    --x-gridTemplateColumns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+/* 2 cột: thẻ dẫn nhập chiếm trọn hàng; 4 thẻ đơn chia đều 2 hàng. */
+@media (max-width: 899px) {
+  .featured__grid {
+    --x-gridTemplateColumns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .featured__grid {
+    --x-gridTemplateColumns: minmax(0, 1fr) !important;
+  }
 }
 
 .featured__card {
@@ -56,6 +83,24 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+}
+
+/* Thẻ dẫn nhập rộng 2 cột: ảnh bên trái, chữ bên phải. */
+.featured__card--lead {
+  grid-column: span 2;
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  align-items: stretch;
+}
+
+.featured__card--lead .featured__media {
+  height: 100%;
+}
+
+.featured__card--lead .featured__body--lead {
+  padding: var(--s-6);
+  gap: var(--s-3);
+  justify-content: center;
 }
 
 .featured__media {
@@ -78,11 +123,20 @@
 .featured__name {
   min-width: 0;
   flex: 1 1 auto;
-}
-
-.featured__rating {
-  flex: 0 0 auto;
-  white-space: nowrap;
+  /* `maxLines` của Astryx dùng `text-overflow: ellipsis` + `overflow: hidden`.
+     Với tên dài ("Cầu Lông dee Hai Bà Trưng") phần chữ bị cắt vẫn giữ
+     `scrollWidth` > `clientWidth`, và Range client-rect của chữ vẫn trải tới
+     hết chuỗi gốc → check `overlap-text` của skill taste-skill thấy dòng chữ
+     nằm đè lên badge điểm "4.5★" bên cạnh.
+     Dùng `line-clamp` thay cho `ellipsis`: dòng bị cắt ở đúng 1 dòng và
+     không tràn ra ngoài box. */
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  overflow: hidden;
+  text-overflow: clip;
+  word-break: normal;
 }
 
 .featured__avail {
@@ -114,7 +168,25 @@
   }
 }
 
+/* Ở 2 cột, thẻ dẫn nhập không còn chỗ cho ảnh cạnh chữ → xếp dọc. */
+@media (max-width: 899px) {
+  .featured__card--lead {
+    display: flex;
+    flex-direction: column;
+  }
+  .featured__card--lead .featured__media--fill {
+    height: 200px;
+  }
+}
+
+/* Ở 1 cột, thẻ dẫn nhập PHẢI về `span 1`.
+   Nếu giữ `span 2` ở lưới 1 cột, trình duyệt tạo thêm một track ngầm →
+   track thứ hai co lại còn ~92px, thẻ còn lại bị bóp còn 92px → chữ bị cắt,
+   đè lên nhau và tràn ra ngoài (check `overlap-text`, `collide`, `cut-text`). */
 @media (max-width: 560px) {
+  .featured__card--lead {
+    grid-column: span 1 !important;
+  }
   .featured__inner {
     padding: var(--s-8) var(--s-4);
   }

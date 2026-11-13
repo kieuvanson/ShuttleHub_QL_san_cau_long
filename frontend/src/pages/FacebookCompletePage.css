@@ -25,15 +25,17 @@
 .fb-complete__card {
   width: 100%;
   max-width: 480px;
-  background: var(--surface-2);
-  border: var(--line);
-  border-radius: var(--r-lg);
-  padding: var(--s-10) var(--s-8);
   box-shadow: 0 12px 32px rgba(15, 23, 42, 0.1);
 }
 
+/* Padding nằm ở wrapper vì `Card` của Astryx áp padding bằng StyleX,
+   thắng mọi rule trong `@layer app`. */
+.fb-complete__body {
+  padding: var(--s-10) var(--s-8);
+}
+
 @media (max-width: 520px) {
-  .fb-complete__card {
+  .fb-complete__body {
     padding: var(--s-6) var(--s-4);
   }
 }
@@ -55,17 +57,10 @@
 }
 
 .fb-complete__title {
-  font-family: var(--font-display);
-  font-size: 24px;
-  font-weight: 800;
-  color: var(--ink-0);
   margin: 0 0 var(--s-2);
 }
 
 .fb-complete__sub {
-  font-size: 14px;
-  color: var(--ink-2);
-  line-height: 1.55;
   margin: 0;
 }
 
@@ -94,7 +89,7 @@
   font-size: 15px;
   color: var(--ink-0);
   background: var(--surface-0);
-  border: 1px solid #e5e7eb;
+  border: var(--line);
   border-radius: var(--r-md);
   outline: none;
   transition:
@@ -213,36 +208,15 @@
   line-height: 1.45;
 }
 
-/* === Submit === */
+/* === Submit — dùng Button của Astryx === */
 .fb-complete__submit {
-  width: 100%;
-  padding: 14px var(--s-6);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-family: var(--font-body);
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--cta-ink);
-  background: var(--cta-0);
-  border: none;
-  border-radius: var(--r-md);
-  cursor: pointer;
-  transition:
-    background var(--dur-fast) var(--ease-out),
-    transform var(--dur-fast) var(--ease-out);
+  margin-top: var(--s-2);
 }
 
-.fb-complete__submit:hover:not(:disabled) {
-  background: var(--cta-1);
-  transform: translateY(-1px);
-}
-
-.fb-complete__submit:disabled {
-  background: var(--off);
-  cursor: not-allowed;
-  transform: none;
+/* Vùng chạm tối thiểu 44px (WCAG 2.2). */
+.fb-complete__submit,
+.fb-complete__send-otp {
+  min-height: 44px;
 }
 
 .fb-complete__spinner {
