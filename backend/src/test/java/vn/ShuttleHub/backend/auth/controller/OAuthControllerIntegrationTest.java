@@ -283,6 +283,16 @@ class OAuthControllerIntegrationTest {
     }
 
     @Test
+    @DisplayName("Endpoint không tồn tại → 404, KHÔNG phải 500")
+    void unknownEndpoint_returns404() throws Exception {
+        mockMvc.perform(post("/api/auth/oauth/facebook/complete")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(404));
+    }
+
+    @Test
     @DisplayName("oauth_accounts liên kết đúng user + provider + providerUserId")
     void oauthAccount_linkedCorrectly() throws Exception {
         User u = createUser("linkcheck");

@@ -87,9 +87,11 @@ export OAUTH_FRONTEND_REDIRECT_URI=http://localhost:5173
 > Google/Facebook tự ẩn khỏi trang đăng nhập (backend trả danh sách provider
 > rỗng qua `GET /api/auth/oauth/providers`).
 >
-> ⚠️ Với **Facebook**, Meta chỉ cấp `email` khi user đã cấp quyền `email`
-> và **không có** cờ `email_verified` → app bắt user hoàn thiện hồ sơ
-> (email + SĐT + OTP) thay vì tự động gộp vào tài khoản đã có.
+> ⚠️ Với **Facebook**: Meta chỉ cấp `email` khi user đã cấp quyền `email`.
+> Nếu **có** email → app tạo tài khoản và đăng nhập vào thẳng, không hỏi
+> thêm gì. Nếu **không có** email → app bắt user **xác minh số điện thoại
+> bằng mã OTP** rồi mới tạo tài khoản (email tạm `@facebook.local`); user
+> tự đổi sang email thật ở trang `/tai-khoan`.
 
 ---
 
@@ -115,7 +117,7 @@ QL_san_cau_long/
         ├── components/          # UI dùng chung
         ├── context/             # AuthContext.tsx
         ├── pages/               # Home · AuthPage · CourtDiscovery
-        │                        # OAuthCallbackPage · FacebookCompletePage
+        │                        # OAuthCallbackPage · FacebookPhoneVerifyPage · AccountPage
         ├── styles/              # tokens.css
         └── utils/               # phone.ts — chuẩn hoá SĐT (khớp backend)
 ```
@@ -134,6 +136,7 @@ Tất cả response có shape `{ code, message, data }`.
 | POST | `/api/auth/refresh` | Public | Cấp access token mới (rotation) |
 | GET | `/api/auth/me` | Bearer | Thông tin user hiện tại |
 | POST | `/api/auth/logout` | Bearer | Vô hiệu hoá toàn bộ refresh token |
+| PUT | `/api/auth/profile` | Bearer | Cập nhật email / SĐT · đổi SĐT cần OTP · 409 khi trùng |
 
 **OAuth2 (Google / Facebook)**
 
@@ -142,9 +145,9 @@ Tất cả response có shape `{ code, message, data }`.
 | GET | `/oauth2/authorization/{provider}` | Public | Bắt đầu luồng OAuth (redirect tới Google/Facebook) |
 | GET | `/login/oauth2/code/{provider}` | Public | Callback từ provider (Spring Security xử lý) |
 | GET | `/api/auth/oauth/providers` | Public | Danh sách provider đang bật (có client-id hợp lệ) |
-| GET | `/api/auth/oauth/ticket/{ticket}` | Public | Trạng thái ticket: `READY` hoặc `NEEDS_PROFILE` |
+| GET | `/api/auth/oauth/ticket/{ticket}` | Public | Trạng thái ticket: `READY` hoặc `NEEDS_PHONE` |
 | POST | `/api/auth/oauth/exchange` | Public | Đổi ticket (1 lần, TTL 60s) lấy access + refresh token |
-| POST | `/api/auth/oauth/facebook/complete` | Public | Hoàn thiện hồ sơ Facebook (email + SĐT + OTP) |
+| POST | `/api/auth/oauth/phone/verify` | Public | Xác minh SĐT bằng OTP (Facebook không trả email) · 409 khi SĐT đã đăng ký |
 
 > ⚠️ **JWT không bao giờ đi trong URL.** Sau khi provider redirect về, backend
 > sinh một *ticket* dùng-một-lần (32 byte random, hết hạn 60 giây, không chứa
@@ -154,9 +157,15 @@ Tất cả response có shape `{ code, message, data }`.
 >
 > **Quy tắc gộp tài khoản:** chỉ provider có `email_verified=true` (Google) mới
 > được tự động gộp vào tài khoản đã tồn tại. Facebook không có cờ này → nếu
-> email trùng sẽ trả `409`, nếu email mới thì yêu cầu hoàn thiện hồ sơ.
-> Tài khoản OAuth có mật khẩu = hash BCrypt của chuỗi random 32 byte → không
-> ai đăng nhập được bằng mật khẩu.
+> email trùng sẽ trả `409`, nếu email **mới** thì tạo tài khoản ngay và vào
+> thẳng app (không ép hoàn thiện hồ sơ). Tài khoản OAuth có mật khẩu = hash
+> BCrypt của chuỗi random 32 byte → không ai đăng nhập được bằng mật khẩu.
+>
+> ⚠️ **Facebook không chia sẻ email** (user chưa cấp quyền `email`) → app
+> **không** bắt user tự khai email (tránh chiếm email người khác), mà bắt
+> **xác minh SĐT bằng OTP**. Tài khoản được tạo với email tạm
+> `fb_<providerUserId>_<hash>@facebook.local`; user tự đổi sang email thật ở
+> trang `/tai-khoan` (đổi email cũng cần SĐT + OTP nếu chưa có SĐT).
 
 > Endpoint mới ngoài `/api/auth/**` đều phải có JWT — không dùng `permitAll`.
 >
@@ -199,10 +208,11 @@ Tất cả response có shape `{ code, message, data }`.
 | 1.15 | JWT filter chặn user bị khoá (`isActive=false`) dùng token cũ | ✅ |
 | 1.16 | Job `@Scheduled` dọn refresh token hết hạn (03:00 hằng ngày) | ✅ |
 | 1.17 | Đăng nhập Google (OIDC) — ticket 1 lần, không lộ JWT trong URL | ✅ |
-| 1.18 | Đăng nhập Facebook (Graph API) + hoàn thiện hồ sơ (email + SĐT + OTP) | ✅ |
+| 1.18 | Đăng nhập Facebook (Graph API) — có email thì vào thẳng app, không có email thì verify SĐT bằng OTP | ✅ |
 | 1.19 | Tự động gộp tài khoản chỉ khi `email_verified=true` (Google) | ✅ |
 | 1.20 | Bảng `oauth_accounts` + `oauth_tickets` (migration V7, V8) | ✅ |
 | 1.21 | Nút social tự ẩn khi chưa cấu hình credential | ✅ |
+| 1.22 | Trang cá nhân `/tai-khoan` — cập nhật email + SĐT (OTP) | ✅ |
 
 ### Giai đoạn 2 — Quản lý sân (Chủ sân)
 

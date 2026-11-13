@@ -94,6 +94,22 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Endpoint không tồn tại → 404.
+     *
+     * ⚠️ Vì sao cần handler riêng?
+     *   `NoResourceFoundException` là exception của Spring MVC, rơi vào
+     *   handler 500 → client nhận "Đã xảy ra lỗi" cho một URL sai đơn giản.
+     *   404 nói rõ "URL này không có" — quan trọng khi client gọi endpoint
+     *   đã bị đổi tên/xoá (ví dụ /oauth/facebook/complete → /oauth/phone/verify).
+     */
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleNotFound(
+            org.springframework.web.servlet.resource.NoResourceFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(ApiResponse.error(404, "Không tìm thấy endpoint này."));
+    }
+
+    /**
      * Lỗi 500: KHÔNG trả message gốc cho client.
      *
      * ⚠️ `ex.getMessage()` có thể chứa thông tin nhạy cảm:
