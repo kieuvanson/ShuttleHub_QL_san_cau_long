@@ -71,19 +71,45 @@ export function AuthPage() {
    */
   const [providers, setProviders] = useState<string[]>([]);
 
+  /**
+   * Lỗi khi hỏi danh sách provider.
+   *
+   * ⚠️ Phân biệt 2 tình huống:
+   *   - Backend SỐNG, chỉ provider chưa cấu hình → `providers = []`,
+   *     nút social ẩn (đúng, không phải lỗi).
+   *   - Backend KHÔNG chạy / lỗi mạng → không được coi là "không có
+   *     provider", vì nếu vậy nút sẽ ẩn vĩnh viễn trong tab đó và
+   *     user phải F5 mới thấy (hay xảy ra lúc backend vừa restart).
+   *     → hiện cảnh báo + tự thử lại sau 5 giây.
+   */
+  const [providersError, setProvidersError] = useState<string | null>(null);
+
   useEffect(() => {
     let cancelled = false;
-    authApi
-      .oauthProviders()
-      .then((res) => {
-        if (!cancelled) setProviders(res?.providers ?? []);
-      })
-      .catch(() => {
-        // Backend lỗi → coi như không có provider social nào.
-        if (!cancelled) setProviders([]);
-      });
+    let timer: number | undefined;
+
+    const load = async () => {
+      try {
+        const res = await authApi.oauthProviders();
+        if (cancelled) return;
+        setProviders(res?.providers ?? []);
+        setProvidersError(null);
+      } catch (err) {
+        if (cancelled) return;
+        // Giữ `providers` cũ (nếu có) và báo lỗi thay vì ẩn nút vĩnh viễn.
+        setProvidersError(
+          err instanceof ApiError
+            ? err.message
+            : 'Không kết nối được tới máy chủ. Nút đăng nhập Google/Facebook có thể không hoạt động.',
+        );
+        timer = window.setTimeout(load, 5000);
+      }
+    };
+
+    void load();
     return () => {
       cancelled = true;
+      if (timer) window.clearTimeout(timer);
     };
   }, []);
 
@@ -538,6 +564,22 @@ export function AuthPage() {
                   className="auth__submit"
                 />
               </form>
+
+              {/* Cảnh báo: không hỏi được danh sách provider (backend lỗi / chưa chạy).
+                  Hiện nút "Thử lại" thay vì im lặng ẩn nút social — user không
+                  bị bỏ lỡ một tính năng chỉ vì backend restart lúc mở trang. */}
+              {providersError && (
+                <div className="auth__alert auth__alert--warn" role="alert">
+                  <span>{providersError}</span>
+                  <button
+                    type="button"
+                    className="auth__retry"
+                    onClick={() => window.location.reload()}
+                  >
+                    Thử lại
+                  </button>
+                </div>
+              )}
 
               {/* Divider "Hoặc" */}
               {hasSocial && (

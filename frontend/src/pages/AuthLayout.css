@@ -210,6 +210,35 @@
   line-height: 1.45;
 }
 
+/* Cảnh báo nhẹ (màu hổ phách) + nút "Thử lại" — dùng khi không hỏi được
+   danh sách provider OAuth (backend đang restart / lỗi mạng). */
+.auth__alert--warn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: rgba(217, 119, 6, 0.08);
+  border-color: rgba(217, 119, 6, 0.3);
+  color: #b45309;
+}
+
+.auth__retry {
+  flex: 0 0 auto;
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid currentColor;
+  background: transparent;
+  color: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 32px;
+}
+
+.auth__retry:hover {
+  background: rgba(217, 119, 6, 0.12);
+}
+
 /* === Mã OTP dev (mock mode) === */
 .otp-dev {
   display: flex;
