@@ -69,7 +69,12 @@ app.otp.max-registrations-per-phone-per-day=3
 app.auth.max-logins-per-hour-per-ip=10
 
 # CORS
-app.cors.allowed-origins=http://localhost:5173,http://localhost:3000
+# ⚠️ Vite tự nhảy port khi 5173 bị chiếm (5173 → 5174 → …). Nếu chỉ cho
+#    phép đúng 5173, mở 2 tab `npm run dev` sẽ khiến tab thứ 2 bị chặn
+#    CORS ("No 'Access-Control-Allow-Origin' header") dù app chạy hoàn toàn
+#    bình thường. Vì vậy ta cho phép dải port dev của Vite.
+#    Đổi danh sách này khi deploy thật (chỉ nên giữ domain thật).
+app.cors.allowed-origins=http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:5176,http://localhost:3000
 
 # ----- OAuth2 (Google / Facebook) -----
 # Lấy client-id / client-secret từ:
