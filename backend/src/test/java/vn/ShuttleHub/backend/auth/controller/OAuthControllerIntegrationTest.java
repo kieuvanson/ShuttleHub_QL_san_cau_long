@@ -173,7 +173,7 @@ class OAuthControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("Ticket NEEDS_PROFILE (chưa có user) → GET status trả NEEDS_PROFILE, exchange bị chặn")
+    @DisplayName("Ticket NEEDS_PHONE (chưa có user) → GET status trả NEEDS_PHONE, exchange bị chặn")
     void exchange_pendingTicket_blocked() throws Exception {
         String ticket = "it-test-pending-" + System.nanoTime();
         ticketRepo.save(OAuthTicket.builder()
@@ -184,11 +184,11 @@ class OAuthControllerIntegrationTest {
 
         mockMvc.perform(get("/api/auth/oauth/ticket/" + ticket))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.status").value("NEEDS_PROFILE"))
+                .andExpect(jsonPath("$.data.status").value("NEEDS_PHONE"))
                 .andExpect(jsonPath("$.data.fullName").value("Nguyen Van B"));
 
         mockMvc.perform(post("/api/auth/oauth/exchange")
-                .contentType(MediaType.APPLICATION_JSON).content(ticketPayload(ticket)))
+                        .contentType(MediaType.APPLICATION_JSON).content(ticketPayload(ticket)))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -209,8 +209,8 @@ class OAuthControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("Hoàn thiện hồ sơ Facebook: OTP sai → 401 trước, KHÔNG tạo user")
-    void facebookComplete_wrongOtp_unauthorized() throws Exception {
+    @DisplayName("Verify SĐT: OTP sai → 401 trước, KHÔNG tạo user")
+    void phoneVerify_wrongOtp_unauthorized() throws Exception {
         String ticket = "it-test-fb-otp-" + System.nanoTime();
         ticketRepo.save(OAuthTicket.builder()
                 .ticket(ticket).userId(null).provider("facebook")
@@ -218,59 +218,22 @@ class OAuthControllerIntegrationTest {
                 .expiresAt(LocalDateTime.now().plusSeconds(60)).used(false)
                 .createdAt(LocalDateTime.now()).build());
 
-        String email = "newfb_" + System.nanoTime() + "@x.com";
-        // OTP không tồn tại → OtpInvalidException → 401.
-        mockMvc.perform(post("/api/auth/oauth/facebook/complete")
+        String phone = "849" + Math.abs(System.nanoTime() % 100000000L);
+        mockMvc.perform(post("/api/auth/oauth/phone/verify")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
                                 "ticket", ticket,
-                                "email", email,
-                                "phone", "84912345678",
+                                "phone", phone,
                                 "otp", "000000"))))
                 .andExpect(status().isUnauthorized());
 
-        // Không được tạo user nào.
-        assertTrue(userRepo.findByEmail(email).isEmpty());
+        assertTrue(userRepo.findByPhoneNumber(phone).isEmpty());
     }
 
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    @DisplayName("Hoàn thiện hồ sơ Facebook: email trùng (OTP hợp lệ) → 409, KHÔNG tạo user")
-    void facebookComplete_duplicateEmail_conflict() throws Exception {
-        User victim = createUser("victim");
-        String ticket = "it-test-fb-dup-" + System.nanoTime();
-        ticketRepo.save(OAuthTicket.builder()
-                .ticket(ticket).userId(null).provider("facebook")
-                .providerUserId("fb-" + ticket).fullName("A")
-                .expiresAt(LocalDateTime.now().plusSeconds(60)).used(false)
-                .createdAt(LocalDateTime.now()).build());
-
-        String phone = "849" + Math.abs(System.nanoTime() % 100000000L);
-        // Tạo OTP hợp lệ để vượt qua bước verify, đẩy lỗi 409 vào tầng nghiệp vụ.
-        otpRepo.save(OtpCode.builder()
-                .phone(phone)
-                .codeHash(passwordEncoder.encode("123456"))
-                .used(false)
-                .expiresAt(LocalDateTime.now().plusSeconds(300))
-                .attemptCount(0)
-                .createdAt(LocalDateTime.now())
-                .build());
-
-        mockMvc.perform(post("/api/auth/oauth/facebook/complete")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(Map.of(
-                                "ticket", ticket,
-                                "email", victim.getEmail(),
-                                "phone", phone,
-                                "otp", "123456"))))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.code").value(409));
-    }
-
-    @Test
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    @DisplayName("Hoàn thiện hồ sơ Facebook: hợp lệ → tạo user + link oauth_account + ticket thành READY")
-    void facebookComplete_happyPath_upgradesTicket() throws Exception {
+    @DisplayName("Verify SĐT: hợp lệ → tạo user + email tạm + link oauth_account + ticket thành READY")
+    void phoneVerify_happyPath_upgradesTicket() throws Exception {
         String ticket = "it-test-fb-ok-" + System.nanoTime();
         ticketRepo.save(OAuthTicket.builder()
                 .ticket(ticket).userId(null).provider("facebook")
@@ -279,7 +242,6 @@ class OAuthControllerIntegrationTest {
                 .createdAt(LocalDateTime.now()).build());
 
         String phone = "848" + Math.abs(System.nanoTime() % 100000000L);
-        String email = "fbok_" + System.nanoTime() + "@x.com";
         otpRepo.save(OtpCode.builder()
                 .phone(phone)
                 .codeHash(passwordEncoder.encode("123456"))
@@ -289,19 +251,19 @@ class OAuthControllerIntegrationTest {
                 .createdAt(LocalDateTime.now())
                 .build());
 
-        mockMvc.perform(post("/api/auth/oauth/facebook/complete")
+        mockMvc.perform(post("/api/auth/oauth/phone/verify")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
                                 "ticket", ticket,
-                                "email", email,
                                 "phone", phone,
                                 "otp", "123456"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.userId").isNotEmpty());
 
-        // User đã tạo với email chuẩn hoá
-        User created = userRepo.findByEmail(email).orElseThrow();
+        // User đã tạo với SĐT chuẩn hoá + email tạm
+        User created = userRepo.findByPhoneNumber(phone).orElseThrow();
         assertEquals(phone, created.getPhoneNumber());
+        assertTrue(created.getEmail().endsWith("@facebook.local"));
 
         // oauth_account đã link đúng provider + providerUserId
         var link = accountRepo.findByProviderAndProviderUserId("facebook", "fb-ok-" + ticket);
@@ -317,7 +279,7 @@ class OAuthControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON).content(ticketPayload(ticket)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.accessToken").isNotEmpty())
-                .andExpect(jsonPath("$.data.user.email").value(email));
+                .andExpect(jsonPath("$.data.user.email").value(created.getEmail()));
     }
 
     @Test

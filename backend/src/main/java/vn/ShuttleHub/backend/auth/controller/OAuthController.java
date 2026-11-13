@@ -78,7 +78,7 @@ public class OAuthController {
         OAuthTicket t = ticketService.peek(ticket);
         String status = t.getUserId() != null
                 ? OAuthTicketStatus.READY
-                : OAuthTicketStatus.NEEDS_PROFILE;
+                : OAuthTicketStatus.NEEDS_PHONE;
         return ResponseEntity.ok(ApiResponse.success("OK",
                 new OAuthTicketStatus(status, t.getProvider(), t.getFullName())));
     }
