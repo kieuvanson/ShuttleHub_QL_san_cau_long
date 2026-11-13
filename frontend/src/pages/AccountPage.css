@@ -1,0 +1,298 @@
+/* ============================================================
+   AccountPage — trang cá nhân: xem thông tin + cập nhật email / SĐT.
+   ============================================================ */
+
+@layer app {
+.account {
+  min-height: calc(100vh - 76px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-1);
+  padding: var(--s-8) var(--s-4);
+  background-image:
+    radial-gradient(circle at 0% 0%, rgba(13, 148, 136, 0.07), transparent 40%),
+    radial-gradient(circle at 100% 100%, rgba(24, 119, 242, 0.06), transparent 40%);
+}
+
+@media (max-width: 720px) {
+  .account {
+    min-height: calc(100vh - 64px);
+    padding: var(--s-4) var(--s-3);
+  }
+}
+
+.account__card {
+  width: 100%;
+  max-width: 560px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.1);
+}
+
+/* Padding nằm ở wrapper vì `Card` của Astryx áp padding bằng StyleX,
+   thắng mọi rule trong `@layer app`. */
+.account__body {
+  padding: var(--s-10) var(--s-8);
+}
+
+@media (max-width: 520px) {
+  .account__body {
+    padding: var(--s-6) var(--s-4);
+  }
+}
+
+.account__head {
+  text-align: center;
+  margin-bottom: var(--s-6);
+}
+
+.account__icon {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto var(--s-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(13, 148, 136, 0.1);
+  color: var(--brand-2);
+}
+
+.account__title {
+  margin: 0 0 var(--s-2);
+}
+
+.account__sub {
+  margin: 0;
+}
+
+/* === Bảng thông tin hiện tại === */
+.account__section {
+  display: flex;
+  flex-direction: column;
+  border: var(--line);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  margin-bottom: var(--s-6);
+}
+
+.account__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding: 12px 14px;
+  font-size: 14px;
+}
+
+.account__row + .account__row {
+  border-top: var(--line);
+}
+
+.account__row-label {
+  color: var(--ink-2);
+  font-weight: 500;
+  flex: 0 0 auto;
+}
+
+.account__row-value {
+  color: var(--ink-0);
+  font-weight: 600;
+  text-align: right;
+  word-break: break-word;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.account__badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.01em;
+}
+
+.account__badge--warn {
+  color: #92400e;
+  background: rgba(245, 158, 11, 0.14);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+/* === Form cập nhật === */
+.account__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+.account__form-title {
+  margin: 0;
+}
+
+.account__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.account__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-1);
+}
+
+.account__input {
+  width: 100%;
+  padding: 12px 14px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--ink-0);
+  background: var(--surface-0);
+  border: var(--line);
+  border-radius: var(--r-md);
+  outline: none;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.account__input::placeholder {
+  color: var(--ink-3);
+}
+
+.account__input:focus {
+  border-color: var(--brand-2);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+}
+
+.account__input--error {
+  border-color: #dc2626;
+}
+
+.account__input--error:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+
+.account__err {
+  font-size: 12px;
+  color: #dc2626;
+  font-weight: 500;
+}
+
+/* === SĐT + nút gửi OTP === */
+.account__phone-wrap {
+  display: flex;
+  gap: var(--s-2);
+}
+
+.account__phone-wrap .account__input {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.account__send-otp {
+  flex: 0 0 auto;
+  padding: 0 14px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--brand-2);
+  background: rgba(13, 148, 136, 0.08);
+  border: 1px solid rgba(13, 148, 136, 0.25);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.account__send-otp:hover:not(:disabled) {
+  background: var(--brand-2);
+  color: #fff;
+}
+
+.account__send-otp:disabled {
+  color: var(--ink-3);
+  background: var(--surface-3);
+  border-color: var(--surface-3);
+  cursor: not-allowed;
+}
+
+/* === Mã OTP dev (mock mode) === */
+.account__dev {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px dashed rgba(245, 158, 11, 0.5);
+}
+
+.account__dev-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #92400e;
+}
+
+.account__dev-code {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: #b45309;
+  background: transparent;
+  border: 0;
+  padding: 2px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.account__dev-code:hover {
+  background: rgba(180, 83, 9, 0.12);
+}
+
+/* === Thông báo === */
+.account__alert {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.account__alert--ok {
+  background: rgba(13, 148, 136, 0.08);
+  border-color: rgba(13, 148, 136, 0.28);
+  color: var(--brand-2);
+}
+
+/* === Submit === */
+.account__submit {
+  margin-top: var(--s-2);
+}
+
+/* Vùng chạm tối thiểu 44px (WCAG 2.2). */
+.account__submit,
+.account__send-otp {
+  min-height: 44px;
+}
+
+.account__spinner {
+  animation: account-spin 0.9s linear infinite;
+}
+
+@keyframes account-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+}

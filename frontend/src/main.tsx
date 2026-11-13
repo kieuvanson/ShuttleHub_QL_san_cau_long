@@ -28,7 +28,8 @@ import { Home } from './pages/Home';
 import { CourtDiscovery } from './pages/CourtDiscovery';
 import { AuthPage } from './pages/AuthPage';
 import { OAuthCallbackPage } from './pages/OAuthCallbackPage';
-import { FacebookCompletePage } from './pages/FacebookCompletePage';
+import { FacebookPhoneVerifyPage } from './pages/FacebookPhoneVerifyPage';
+import { AccountPage } from './pages/AccountPage';
 import { AuthProvider } from './context/AuthContext';
 
 createRoot(document.getElementById('root')!).render(
@@ -47,7 +48,10 @@ createRoot(document.getElementById('root')!).render(
                 <Route path="/dang-ky" element={<AuthPage />} />
                 {/* OAuth: backend redirect về kèm ticket (không có JWT trong URL) */}
                 <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
-                <Route path="/oauth/facebook" element={<FacebookCompletePage />} />
+                {/* Facebook không chia sẻ email → verify SĐT bằng OTP */}
+                <Route path="/oauth/facebook" element={<FacebookPhoneVerifyPage />} />
+                {/* Trang cá nhân — cập nhật email / SĐT */}
+                <Route path="/tai-khoan" element={<AccountPage />} />
                 <Route path="*" element={<Home />} />
               </Route>
             </Routes>

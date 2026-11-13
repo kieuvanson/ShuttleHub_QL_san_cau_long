@@ -34,9 +34,21 @@ export interface OAuthProviders {
 
 /** Trạng thái ticket sau OAuth callback */
 export interface OAuthTicketStatus {
-  status: 'READY' | 'NEEDS_PROFILE';
+  status: 'READY' | 'NEEDS_PHONE';
   provider: string;
   fullName: string | null;
+}
+
+/**
+ * Payload cập nhật hồ sơ (email / SĐT / OTP).
+ *
+ * ⚠️ Mọi trường đều tuỳ chọn — user chỉ gửi những gì muốn đổi.
+ * Đổi SĐT thì BẮT BUỘC kèm `otp` hợp lệ.
+ */
+export interface ProfileUpdatePayload {
+  email?: string;
+  phone?: string;
+  otp?: string;
 }
 
 /** Lỗi API đã chuẩn hoá để UI hiển thị */

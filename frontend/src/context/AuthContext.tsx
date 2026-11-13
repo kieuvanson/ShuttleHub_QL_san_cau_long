@@ -10,7 +10,7 @@ import {
 import { authApi, type LoginPayload, type RegisterPayload } from '../api/auth';
 import { clearTokens, getAccessToken } from '../api/client';
 import { STORAGE_KEYS } from '../api/config';
-import type { User } from '../api/types';
+import type { ProfileUpdatePayload, User } from '../api/types';
 
 interface AuthContextValue {
   user: User | null;
@@ -22,6 +22,8 @@ interface AuthContextValue {
   loginWithTicket: (ticket: string) => Promise<User>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  /** Cập nhật hồ sơ (email / SĐT) — cập nhật lại user trong state + localStorage */
+  updateProfile: (payload: ProfileUpdatePayload) => Promise<User>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -146,6 +148,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  /**
+   * Cập nhật hồ sơ (email / SĐT).
+   *
+   * ⚠️ Ghi cả `user` vào localStorage — nếu không, reload trang sẽ hiện lại
+   * thông tin cũ (email tạm, SĐT null) dù backend đã cập nhật xong.
+   */
+  const updateProfile = useCallback(async (payload: ProfileUpdatePayload) => {
+    const updated = await authApi.updateProfile(payload);
+    localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(updated));
+    setUser(updated);
+    return updated;
+  }, []);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
@@ -156,8 +171,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loginWithTicket,
       logout,
       refreshUser,
+      updateProfile,
     }),
-    [user, isLoading, login, register, loginWithTicket, logout, refreshUser],
+    [user, isLoading, login, register, loginWithTicket, logout, refreshUser, updateProfile],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

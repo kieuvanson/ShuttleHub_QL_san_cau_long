@@ -63,6 +63,15 @@ export function Header() {
                       <strong>{user.fullName || user.username}</strong>
                       <span>{user.email}</span>
                     </div>
+                    <Link
+                      to="/tai-khoan"
+                      className="hdr__user-item"
+                      role="menuitem"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      <UserIcon size={15} aria-hidden="true" />
+                      <span>Trang cá nhân</span>
+                    </Link>
                     <button
                       type="button"
                       className="hdr__user-item"

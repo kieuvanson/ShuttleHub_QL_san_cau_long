@@ -1,9 +1,10 @@
 /* ============================================================
-   FacebookCompletePage — hoàn thiện hồ sơ sau khi đăng nhập Facebook.
+   FacebookPhoneVerifyPage — xác minh SĐT bằng OTP khi Facebook
+   không chia sẻ email.
    ============================================================ */
 
 @layer app {
-.fb-complete {
+.fb-phone {
   min-height: calc(100vh - 76px);
   display: flex;
   align-items: center;
@@ -16,13 +17,13 @@
 }
 
 @media (max-width: 720px) {
-  .fb-complete {
+  .fb-phone {
     min-height: calc(100vh - 64px);
     padding: var(--s-4) var(--s-3);
   }
 }
 
-.fb-complete__card {
+.fb-phone__card {
   width: 100%;
   max-width: 480px;
   box-shadow: 0 12px 32px rgba(15, 23, 42, 0.1);
@@ -30,22 +31,22 @@
 
 /* Padding nằm ở wrapper vì `Card` của Astryx áp padding bằng StyleX,
    thắng mọi rule trong `@layer app`. */
-.fb-complete__body {
+.fb-phone__body {
   padding: var(--s-10) var(--s-8);
 }
 
 @media (max-width: 520px) {
-  .fb-complete__body {
+  .fb-phone__body {
     padding: var(--s-6) var(--s-4);
   }
 }
 
-.fb-complete__head {
+.fb-phone__head {
   text-align: center;
   margin-bottom: var(--s-6);
 }
 
-.fb-complete__logo {
+.fb-phone__logo {
   width: 48px;
   height: 48px;
   margin: 0 auto var(--s-4);
@@ -56,33 +57,33 @@
   background: rgba(24, 119, 242, 0.1);
 }
 
-.fb-complete__title {
+.fb-phone__title {
   margin: 0 0 var(--s-2);
 }
 
-.fb-complete__sub {
+.fb-phone__sub {
   margin: 0;
 }
 
-.fb-complete__form {
+.fb-phone__form {
   display: flex;
   flex-direction: column;
   gap: var(--s-4);
 }
 
-.fb-complete__field {
+.fb-phone__field {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.fb-complete__label {
+.fb-phone__label {
   font-size: 13px;
   font-weight: 600;
   color: var(--ink-1);
 }
 
-.fb-complete__input {
+.fb-phone__input {
   width: 100%;
   padding: 12px 14px;
   font-family: var(--font-body);
@@ -97,41 +98,41 @@
     box-shadow var(--dur-fast) var(--ease-out);
 }
 
-.fb-complete__input::placeholder {
+.fb-phone__input::placeholder {
   color: var(--ink-3);
 }
 
-.fb-complete__input:focus {
+.fb-phone__input:focus {
   border-color: var(--brand-2);
   box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
 }
 
-.fb-complete__input--error {
+.fb-phone__input--error {
   border-color: #dc2626;
 }
 
-.fb-complete__input--error:focus {
+.fb-phone__input--error:focus {
   box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
 }
 
-.fb-complete__err {
+.fb-phone__err {
   font-size: 12px;
   color: #dc2626;
   font-weight: 500;
 }
 
 /* === SĐT + nút gửi OTP === */
-.fb-complete__phone-wrap {
+.fb-phone__phone-wrap {
   display: flex;
   gap: var(--s-2);
 }
 
-.fb-complete__phone-wrap .fb-complete__input {
+.fb-phone__phone-wrap .fb-phone__input {
   flex: 1 1 0;
   min-width: 0;
 }
 
-.fb-complete__send-otp {
+.fb-phone__send-otp {
   flex: 0 0 auto;
   padding: 0 14px;
   font-family: var(--font-body);
@@ -148,12 +149,12 @@
     color var(--dur-fast) var(--ease-out);
 }
 
-.fb-complete__send-otp:hover:not(:disabled) {
+.fb-phone__send-otp:hover:not(:disabled) {
   background: var(--brand-2);
   color: #fff;
 }
 
-.fb-complete__send-otp:disabled {
+.fb-phone__send-otp:disabled {
   color: var(--ink-3);
   background: var(--surface-3);
   border-color: var(--surface-3);
@@ -161,7 +162,7 @@
 }
 
 /* === Mã OTP dev (mock mode) === */
-.fb-complete__dev {
+.fb-phone__dev {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -173,13 +174,13 @@
   border: 1px dashed rgba(245, 158, 11, 0.5);
 }
 
-.fb-complete__dev-label {
+.fb-phone__dev-label {
   font-size: 12px;
   font-weight: 500;
   color: #92400e;
 }
 
-.fb-complete__dev-code {
+.fb-phone__dev-code {
   font-family: var(--font-mono, ui-monospace, monospace);
   font-size: 18px;
   font-weight: 700;
@@ -192,12 +193,12 @@
   cursor: pointer;
 }
 
-.fb-complete__dev-code:hover {
+.fb-phone__dev-code:hover {
   background: rgba(180, 83, 9, 0.12);
 }
 
 /* === Lỗi chung === */
-.fb-complete__alert {
+.fb-phone__alert {
   padding: 10px 12px;
   border-radius: 10px;
   background: rgba(220, 38, 38, 0.08);
@@ -209,21 +210,21 @@
 }
 
 /* === Submit — dùng Button của Astryx === */
-.fb-complete__submit {
+.fb-phone__submit {
   margin-top: var(--s-2);
 }
 
 /* Vùng chạm tối thiểu 44px (WCAG 2.2). */
-.fb-complete__submit,
-.fb-complete__send-otp {
+.fb-phone__submit,
+.fb-phone__send-otp {
   min-height: 44px;
 }
 
-.fb-complete__spinner {
-  animation: fb-complete-spin 0.9s linear infinite;
+.fb-phone__spinner {
+  animation: fb-phone-spin 0.9s linear infinite;
 }
 
-@keyframes fb-complete-spin {
+@keyframes fb-phone-spin {
   to {
     transform: rotate(360deg);
   }

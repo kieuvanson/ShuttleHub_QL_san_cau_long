@@ -1,5 +1,11 @@
 import { api } from './client';
-import type { AuthResponse, OAuthProviders, OAuthTicketStatus, User } from './types';
+import type {
+  AuthResponse,
+  OAuthProviders,
+  OAuthTicketStatus,
+  ProfileUpdatePayload,
+  User,
+} from './types';
 
 /**
  * Các API liên quan tới xác thực.
@@ -25,10 +31,14 @@ export interface LoginPayload {
   password: string;
 }
 
-/** Payload hoàn thiện hồ sơ cho user đăng nhập bằng Facebook */
-export interface FacebookCompletePayload {
+/**
+ * Payload xác minh SĐT cho nhánh Facebook không trả email.
+ *
+ * ⚠️ Không có `email` — Facebook không chia sẻ email nên user không thể
+ * tự khai (tránh chiếm email người khác). SĐT + OTP là bằng chứng sở hữu.
+ */
+export interface OAuthPhoneVerifyPayload {
   ticket: string;
-  email: string;
   phone: string;
   otp: string;
 }
@@ -65,7 +75,7 @@ export const authApi = {
   oauthProviders: () =>
     api.get<OAuthProviders>('/api/auth/oauth/providers', { anonymous: true }),
 
-  /** Hỏi ticket cần làm gì: READY (đổi token) hay NEEDS_PROFILE (hoàn thiện hồ sơ) */
+  /** Hỏi ticket cần làm gì: READY (đổi token) hay NEEDS_PHONE (verify SĐT) */
   oauthTicket: (ticket: string) =>
     api.get<OAuthTicketStatus>(
       `/api/auth/oauth/ticket/${encodeURIComponent(ticket)}`,
@@ -76,11 +86,15 @@ export const authApi = {
   oauthExchange: (ticket: string) =>
     api.post<AuthResponse>('/api/auth/oauth/exchange', { ticket }, { anonymous: true }),
 
-  /** Hoàn thiện hồ sơ Facebook (email + SĐT + OTP) */
-  oauthFacebookComplete: (payload: FacebookCompletePayload) =>
+  /** Xác minh SĐT bằng OTP (Facebook không chia sẻ email) */
+  oauthPhoneVerify: (payload: OAuthPhoneVerifyPayload) =>
     api.post<{ userId: string }>(
-      '/api/auth/oauth/facebook/complete',
+      '/api/auth/oauth/phone/verify',
       payload,
       { anonymous: true },
     ),
+
+  /** Cập nhật hồ sơ (email / SĐT) — cần JWT */
+  updateProfile: (payload: ProfileUpdatePayload) =>
+    api.put<User>('/api/auth/profile', payload),
 };
