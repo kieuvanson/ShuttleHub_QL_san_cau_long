@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vn.ShuttleHub.backend.auth.dto.ApiResponse;
 import vn.ShuttleHub.backend.auth.dto.AuthResponse;
-import vn.ShuttleHub.backend.auth.dto.FacebookCompleteRequest;
+import vn.ShuttleHub.backend.auth.dto.OAuthPhoneVerifyRequest;
 import vn.ShuttleHub.backend.auth.dto.OAuthExchangeRequest;
 import vn.ShuttleHub.backend.auth.dto.OAuthTicketStatus;
 import vn.ShuttleHub.backend.auth.exception.OAuthTicketException;
@@ -101,16 +101,17 @@ public class OAuthController {
     }
 
     /**
-     * Hoàn thiện hồ sơ cho user Facebook (email + SĐT có OTP).
+     * Xác minh SĐT bằng OTP rồi tạo tài khoản — dùng khi Facebook không
+     * chia sẻ email.
      */
-    @PostMapping("/facebook/complete")
-    public ResponseEntity<ApiResponse<Map<String, String>>> facebookComplete(
-            @Valid @RequestBody FacebookCompleteRequest req
+    @PostMapping("/phone/verify")
+    public ResponseEntity<ApiResponse<Map<String, String>>> phoneVerify(
+            @Valid @RequestBody OAuthPhoneVerifyRequest req
     ) {
-        String userId = oauthAuthService.completeFacebookProfile(
-                req.ticket(), req.email(), req.phone(), req.otp());
+        String userId = oauthAuthService.verifyPhoneAndCreateUser(
+                req.ticket(), req.phone(), req.otp());
         return ResponseEntity.ok(
-                ApiResponse.success("Hoàn thiện hồ sơ thành công.", Map.of("userId", userId)));
+                ApiResponse.success("Xác minh thành công.", Map.of("userId", userId)));
     }
 
     private static boolean clientIdNotBlank(ClientRegistration r) {

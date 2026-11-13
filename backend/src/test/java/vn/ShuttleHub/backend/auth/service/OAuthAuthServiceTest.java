@@ -23,6 +23,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -266,17 +267,18 @@ class OAuthAuthServiceTest {
         verify(userRepo).findByEmail("mixed@x.com");
     }
 
-    // ---- completeFacebookProfile ----
+    // ---- verifyPhoneAndCreateUser (nhánh Facebook KHÔNG trả email) ----
+
+    // ---- verifyPhoneAndCreateUser (nhánh Facebook KHÔNG trả email) ----
 
     @Test
-    @DisplayName("Hoàn thiện hồ sơ FB: verify OTP → tạo user → gắn oauth_account → nâng ticket")
-    void completeFacebookProfile_happyPath() {
+    @DisplayName("Verify SĐT (FB không email): OTP hợp lệ → tạo user + email tạm + link + gắn user vào ticket")
+    void verifyPhoneAndCreateUser_happyPath() {
         OAuthTicket pending = OAuthTicket.builder().ticket("pending-1").userId(null)
                 .provider("facebook").providerUserId("fb-1").fullName("Nam")
                 .expiresAt(LocalDateTime.now().plusSeconds(60)).used(false)
                 .createdAt(LocalDateTime.now()).build();
         when(ticketService.peek("pending-1")).thenReturn(pending);
-        when(userRepo.existsByEmail("new@x.com")).thenReturn(false);
         when(userRepo.existsByPhoneNumber("84912345678")).thenReturn(false);
         when(userRepo.existsByUsername(anyString())).thenReturn(false);
         when(passwordEncoder.encode(anyString())).thenReturn("hashed");
@@ -286,7 +288,7 @@ class OAuthAuthServiceTest {
             return u;
         });
 
-        String userId = service.completeFacebookProfile("pending-1", "new@x.com", "84912345678", "123456");
+        String userId = service.verifyPhoneAndCreateUser("pending-1", "84912345678", "123456");
 
         assertEquals("u-fb", userId);
         verify(otpService).verifyOtp("84912345678", "123456");
@@ -294,6 +296,12 @@ class OAuthAuthServiceTest {
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepo).save(captor.capture());
         assertEquals("84912345678", captor.getValue().getPhoneNumber());
+        // Email tạm — user tự đổi ở trang cá nhân.
+        // ⚠️ Có hash 8 hex char để đảm bảo UNIQUE (2 id khác nhau không
+        //   sanitize ra cùng một chuỗi).
+        assertTrue(captor.getValue().getEmail().endsWith("@facebook.local"));
+        assertTrue(captor.getValue().getEmail().startsWith("fb_fb_1_"));
+        assertEquals("Nam", captor.getValue().getFullName());
 
         ArgumentCaptor<OAuthAccount> linkCaptor = ArgumentCaptor.forClass(OAuthAccount.class);
         verify(oauthAccountRepo).save(linkCaptor.capture());
@@ -304,8 +312,25 @@ class OAuthAuthServiceTest {
     }
 
     @Test
-    @DisplayName("Hoàn thiện hồ sơ FB: OTP sai → ném lỗi, KHÔNG tạo user")
-    void completeFacebookProfile_wrongOtp_throws() {
+    @DisplayName("Verify SĐT: SĐT đã đăng ký → ném lỗi 409, KHÔNG tạo user")
+    void verifyPhoneAndCreateUser_existingPhone_throws() {
+        OAuthTicket pending = OAuthTicket.builder().ticket("pending-1").userId(null)
+                .provider("facebook").providerUserId("fb-1")
+                .expiresAt(LocalDateTime.now().plusSeconds(60)).used(false)
+                .createdAt(LocalDateTime.now()).build();
+        when(ticketService.peek("pending-1")).thenReturn(pending);
+        when(userRepo.existsByPhoneNumber("84912345678")).thenReturn(true);
+
+        assertThrows(EmailAlreadyExistsException.class,
+                () -> service.verifyPhoneAndCreateUser("pending-1", "84912345678", "123456"));
+
+        verify(userRepo, never()).save(any());
+        verify(ticketService, never()).attachUser(anyString(), anyString());
+    }
+
+    @Test
+    @DisplayName("Verify SĐT: OTP sai → ném lỗi, KHÔNG tạo user")
+    void verifyPhoneAndCreateUser_wrongOtp_throws() {
         OAuthTicket pending = OAuthTicket.builder().ticket("pending-1").userId(null)
                 .provider("facebook").providerUserId("fb-1")
                 .expiresAt(LocalDateTime.now().plusSeconds(60)).used(false)
@@ -315,42 +340,24 @@ class OAuthAuthServiceTest {
                 .when(otpService).verifyOtp(anyString(), anyString());
 
         assertThrows(vn.ShuttleHub.backend.auth.exception.OtpInvalidException.class,
-                () -> service.completeFacebookProfile("pending-1", "new@x.com", "84912345678", "000000"));
+                () -> service.verifyPhoneAndCreateUser("pending-1", "84912345678", "000000"));
 
         verify(userRepo, never()).save(any());
         verify(ticketService, never()).attachUser(anyString(), anyString());
     }
 
     @Test
-    @DisplayName("Hoàn thiện hồ sơ FB: email đã có → ném lỗi 409, không tạo user")
-    void completeFacebookProfile_existingEmail_throws() {
-        OAuthTicket pending = OAuthTicket.builder().ticket("pending-1").userId(null)
-                .provider("facebook").providerUserId("fb-1")
-                .expiresAt(LocalDateTime.now().plusSeconds(60)).used(false)
-                .createdAt(LocalDateTime.now()).build();
-        when(ticketService.peek("pending-1")).thenReturn(pending);
-        when(userRepo.existsByEmail("victim@x.com")).thenReturn(true);
-
-        assertThrows(EmailAlreadyExistsException.class,
-                () -> service.completeFacebookProfile("pending-1", "victim@x.com", "84912345678", "123456"));
-
-        verify(userRepo, never()).save(any());
-    }
-
-    @Test
-    @DisplayName("Hoàn thiện hồ sơ FB: SĐT đã có → ném lỗi 409")
-    void completeFacebookProfile_existingPhone_throws() {
-        OAuthTicket pending = OAuthTicket.builder().ticket("pending-1").userId(null)
-                .provider("facebook").providerUserId("fb-1")
-                .expiresAt(LocalDateTime.now().plusSeconds(60)).used(false)
-                .createdAt(LocalDateTime.now()).build();
-        when(ticketService.peek("pending-1")).thenReturn(pending);
-        when(userRepo.existsByEmail("new@x.com")).thenReturn(false);
-        when(userRepo.existsByPhoneNumber("84912345678")).thenReturn(true);
-
-        assertThrows(EmailAlreadyExistsException.class,
-                () -> service.completeFacebookProfile("pending-1", "new@x.com", "84912345678", "123456"));
-
-        verify(userRepo, never()).save(any());
+    @DisplayName("Email tạm phải UNIQUE — 2 providerUserId khác nhau (kể cả khi sanitize giống nhau)")
+    void buildTempEmail_isUniquePerProviderUserId() {
+        // Ràng buộc UNIQUE của users.email phải được bảo đảm.
+        assertNotEquals(
+                service.buildTempEmail("fb-1"),
+                service.buildTempEmail("fb1"));
+        assertNotEquals(
+                service.buildTempEmail("fb-1"),
+                service.buildTempEmail("fb-2"));
+        assertTrue(service.buildTempEmail("fb-1").endsWith("@facebook.local"));
+        // Độ dài phải ≤ 100 (cột users.email)
+        assertTrue(service.buildTempEmail("fb-1").length() <= 100);
     }
 }

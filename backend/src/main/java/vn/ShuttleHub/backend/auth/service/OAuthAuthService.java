@@ -9,6 +9,7 @@ import vn.ShuttleHub.backend.auth.exception.InvalidCredentialsException;
 import vn.ShuttleHub.backend.auth.oauth.OAuthTicketService;
 import vn.ShuttleHub.backend.auth.oauth.OAuthUserInfo;
 import vn.ShuttleHub.backend.entity.OAuthAccount;
+import vn.ShuttleHub.backend.entity.OAuthTicket;
 import vn.ShuttleHub.backend.entity.Role;
 import vn.ShuttleHub.backend.entity.User;
 import vn.ShuttleHub.backend.repository.OAuthAccountRepository;
@@ -126,51 +127,70 @@ public class OAuthAuthService {
     /**
      * Sinh email tạm cho user Facebook chưa chia sẻ email.
      *
-     * ⚠️ Dùng providerUserId (duy nhất theo provider) → không trùng với user khác.
+     * ⚠️ Vì sao cần hash? `users.email` là UNIQUE. Nếu chỉ lọc ký tự đặc biệt
+     * thì hai providerUserId khác nhau có thể ra cùng một email
+     * (ví dụ "fb-1" và "fb1" → "fb1") → vi phạm UNIQUE khi tạo user.
+     * → Ta giữ phần đọc được + thêm 8 ký tự hash SHA-256 của id gốc.
+     *   Hai id khác nhau gần như không thể trùng 8 hex char (va chạm ~1/4 tỷ).
      */
-    private String buildTempEmail(String providerUserId) {
-        String local = "fb_" + (providerUserId == null ? "unknown" : providerUserId)
-                .replaceAll("[^a-zA-Z0-9_]", "");
-        return local + "@" + TEMP_EMAIL_DOMAIN;
+    String buildTempEmail(String providerUserId) {
+        String raw = providerUserId == null ? "unknown" : providerUserId;
+        String readable = raw.replaceAll("[^a-zA-Z0-9_]", "_");
+        // Cắt bớt để tổng độ dài email ≤ 100 (cột users.email).
+        if (readable.length() > 40) {
+            readable = readable.substring(0, 40);
+        }
+        String hash = hashPrefix(raw);
+        return "fb_" + readable + "_" + hash + "@" + TEMP_EMAIL_DOMAIN;
+    }
+
+    /** 8 ký tự hex đầu tiên của SHA-256 — dùng để tránh trùng email tạm. */
+    private String hashPrefix(String raw) {
+        try {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] digest = md.digest(raw.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(digest, 0, 4);
+        } catch (java.security.NoSuchAlgorithmException ex) {
+            // SHA-256 luôn có trong mọi JRE → không bao giờ xảy ra.
+            throw new IllegalStateException("Không hỗ trợ SHA-256", ex);
+        }
     }
 
     /**
-     * Hoàn thiện hồ sơ cho user Facebook.
+     * Xác minh SĐT bằng OTP rồi tạo tài khoản — dùng cho nhánh Facebook
+     * không trả email.
+     *
+     * ⚠️ providerUserId lấy từ ticket (server-side), KHÔNG lấy từ client —
+     * nếu lấy từ client thì attacker có thể gắn tài khoản Facebook của
+     * mình vào bất kỳ providerUserId nào.
      *
      * @param ticket ticket đang chờ (userId = null)
      * @return userId vừa tạo
      */
     @Transactional
-    public String completeFacebookProfile(String ticket, String email, String phone, String otp) {
-        // ⚠️ providerUserId lấy từ ticket (server-side), KHÔNG lấy từ client —
-        // nếu lấy từ client thì attacker có thể gắn tài khoản Facebook của
-        // mình vào bất kỳ providerUserId nào.
-        String providerUserId = ticketService.peek(ticket).getProviderUserId();
+    public String verifyPhoneAndCreateUser(String ticket, String phone, String otp) {
+        OAuthTicket pending = ticketService.peek(ticket);
 
         // Verify SĐT — tái dùng luồng OTP sẵn có nên FB cũng chịu rate-limit
         // SMS (10 lần/giờ/IP + 3 lần đăng ký/SĐT/24h) → chống đốt tiền SMS.
         otpService.verifyOtp(phone, otp);
 
-        String normalizedEmail = normalizeEmail(email);
-        if (normalizedEmail == null) {
-            throw new EmailAlreadyExistsException("Email không hợp lệ.");
-        }
-        if (userRepo.existsByEmail(normalizedEmail)) {
-            throw new EmailAlreadyExistsException("Email này đã được sử dụng.");
-        }
+        // SĐT UNIQUE → nếu đã có user thì chặn, không cho chiếm chỗ.
         if (userRepo.existsByPhoneNumber(phone)) {
             throw new EmailAlreadyExistsException("Số điện thoại này đã được đăng ký.");
         }
 
-        User user = createUser(normalizedEmail, null);
+        String tempEmail = buildTempEmail(pending.getProviderUserId());
+
+        User user = createUser(tempEmail, pending.getFullName());
         user.setPhoneNumber(phone);
         user = userRepo.save(user);
 
         oauthAccountRepo.save(OAuthAccount.builder()
                 .userId(user.getId())
-                .provider(OAuthUserInfo.FACEBOOK)
-                .providerUserId(providerUserId)
-                .emailAtRegistration(normalizedEmail)
+                .provider(pending.getProvider())
+                .providerUserId(pending.getProviderUserId())
+                .emailAtRegistration(tempEmail)
                 .createdAt(LocalDateTime.now())
                 .build());
 

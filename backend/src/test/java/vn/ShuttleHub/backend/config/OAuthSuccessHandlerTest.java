@@ -77,12 +77,12 @@ class OAuthSuccessHandlerTest {
     }
 
     @Test
-    @DisplayName("Facebook cần hoàn thiện hồ sơ → redirect về /oauth/facebook")
-    void success_needsProfile_redirectsToFacebookPage() throws Exception {
-        OAuthUserInfo info = new OAuthUserInfo("facebook", "fb-1", "a@b.com", false, "A");
+    @DisplayName("Facebook chưa có email → redirect về /oauth/facebook để verify SĐT")
+    void success_needsPhone_redirectsToFacebookPage() throws Exception {
+        OAuthUserInfo info = new OAuthUserInfo("facebook", "fb-1", null, false, "A");
         when(extractor.extract(any(), anyString())).thenReturn(info);
         when(oauthAuthService.handleCallback(info))
-                .thenReturn(OAuthLoginOutcome.needsProfile(info, "pending-abc"));
+                .thenReturn(OAuthLoginOutcome.needsPhone(info, "pending-abc"));
 
         handler().onAuthenticationSuccess(request, response, authWithRegistrationId("facebook"));
 

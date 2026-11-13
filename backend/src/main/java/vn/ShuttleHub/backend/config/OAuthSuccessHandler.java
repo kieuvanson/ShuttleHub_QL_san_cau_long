@@ -60,7 +60,9 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
         String target = switch (outcome.status()) {
             case OAuthLoginOutcome.LOGGED_IN ->
                     frontendRedirectUri + "/oauth/callback?ticket=" + outcome.ticket();
-            case OAuthLoginOutcome.NEEDS_PROFILE ->
+            case OAuthLoginOutcome.NEEDS_PHONE ->
+                    // Facebook không chia sẻ email → user phải xác minh SĐT
+                    // bằng OTP trước khi ta tạo tài khoản.
                     frontendRedirectUri + "/oauth/facebook?ticket=" + outcome.ticket();
             default -> frontendRedirectUri + "/dang-nhap?error=oauth_failed";
         };
