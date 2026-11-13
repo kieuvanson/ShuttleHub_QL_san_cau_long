@@ -24,6 +24,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -166,32 +167,46 @@ class OAuthAuthServiceTest {
     }
 
     @Test
-    @DisplayName("Facebook lần đầu (chưa có oauth_account) → NEEDS_PROFILE, sinh ticket chờ")
-    void facebook_firstTime_needsProfile() {
+    @DisplayName("Facebook lần đầu + có email → tạo user ngay, sinh ticket đăng nhập")
+    void facebook_withEmail_createsUserImmediately() {
         when(oauthAccountRepo.findByProviderAndProviderUserId("facebook", "fb-1"))
                 .thenReturn(Optional.empty());
         when(userRepo.findByEmail("newfb@x.com")).thenReturn(Optional.empty());
-        when(ticketService.issuePending(anyString(), anyString(), any())).thenReturn("pending-1");
+        when(userRepo.existsByUsername(anyString())).thenReturn(false);
+        when(passwordEncoder.encode(anyString())).thenReturn("hashed");
+        when(userRepo.save(any())).thenAnswer(inv -> {
+            User u = inv.getArgument(0);
+            u.setId("u-fb");
+            return u;
+        });
+        when(ticketService.issueForUser(anyString(), anyString(), anyString())).thenReturn("t-fb");
 
         var outcome = service.handleCallback(facebook("newfb@x.com"));
 
-        assertEquals("NEEDS_PROFILE", outcome.status());
-        assertEquals("pending-1", outcome.ticket());
-        assertEquals("Nguyen Van A", outcome.userInfo().fullName());
-        verify(userRepo, never()).save(any());
+        assertEquals("LOGGED_IN", outcome.status());
+        assertEquals("t-fb", outcome.ticket());
+        assertEquals("u-fb", outcome.userId());
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepo).save(captor.capture());
+        assertEquals("newfb@x.com", captor.getValue().getEmail());
+        // Chưa có SĐT → user tự điền ở trang cá nhân
+        assertNull(captor.getValue().getPhoneNumber());
+        assertEquals(Role.CUSTOMER, captor.getValue().getRole());
     }
 
     @Test
-    @DisplayName("Facebook không có email → NEEDS_PROFILE, không lỗi")
-    void facebook_noEmail_needsProfile() {
+    @DisplayName("Facebook không có email → NEEDS_PHONE, sinh ticket chờ, KHÔNG tạo user")
+    void facebook_noEmail_needsPhone() {
         when(oauthAccountRepo.findByProviderAndProviderUserId("facebook", "fb-1"))
                 .thenReturn(Optional.empty());
         when(ticketService.issuePending(anyString(), anyString(), any())).thenReturn("pending-2");
 
         var outcome = service.handleCallback(new OAuthUserInfo("facebook", "fb-1", null, false, "Nam"));
 
-        assertEquals("NEEDS_PROFILE", outcome.status());
+        assertEquals("NEEDS_PHONE", outcome.status());
         assertEquals("pending-2", outcome.ticket());
+        verify(userRepo, never()).save(any());
     }
 
     @Test

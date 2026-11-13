@@ -28,6 +28,10 @@ import java.util.Optional;
  * mới được gộp tự động vào tài khoản đã tồn tại. Facebook không bao giờ
  * đạt điều này (Graph API không có cờ email_verified) → nếu email trùng,
  * ta ném lỗi thay vì gộp, để không ai có thể chiếm đoạt tài khoản.
+ *
+ * ⚠️ Tuy nhiên TẠO tài khoản MỚI bằng email Facebook trả về thì AN TOÀN
+ * (không xung đột với tài khoản nào) → Facebook đăng nhập vào app được
+ * ngay, không bắt hoàn thiện hồ sơ.
  */
 @Slf4j
 @Service
@@ -40,6 +44,15 @@ public class OAuthAuthService {
     private final OtpService otpService;
 
     private final SecureRandom random = new SecureRandom();
+
+    /**
+     * Domain của email tạm cho user Facebook chưa cấp quyền email.
+     *
+     * ⚠️ Vì sao cần email tạm? `users.email` NOT NULL → không có email thì không
+     * tạo được user. Email tạm gắn với providerUserId (duy nhất) nên không bao
+     * giờ trùng. User tự đổi ở trang cá nhân.
+     */
+    static final String TEMP_EMAIL_DOMAIN = "facebook.local";
 
     public OAuthAuthService(
             UserRepository userRepo,
@@ -75,10 +88,12 @@ public class OAuthAuthService {
         String email = normalizeEmail(info.email());
 
         if (email == null) {
-            // Provider không trả email (Facebook user chưa cấp quyền).
-            // → Buộc user hoàn thiện hồ sơ.
+            // Facebook không trả email (user chưa cấp quyền email).
+            // → Chưa tạo user: bắt user xác minh SĐT bằng OTP trước.
+            //   SĐT là bằng chứng sở hữu thật + UNIQUE trong DB → không ai
+            //   khai SĐT của người khác để chiếm chỗ được.
             String ticket = ticketService.issuePending(info.provider(), info.providerUserId(), info.fullName());
-            return OAuthLoginOutcome.needsProfile(info, ticket);
+            return OAuthLoginOutcome.needsPhone(info, ticket);
         }
 
         Optional<User> existing = userRepo.findByEmail(email);
@@ -96,17 +111,27 @@ public class OAuthAuthService {
             return OAuthLoginOutcome.loggedIn(info, user.getId(), ticket);
         }
 
-        // 3. Email mới + provider đã xác minh → tạo user luôn (Google).
-        if (info.emailVerified()) {
-            User user = userRepo.save(createUser(email, info.fullName()));
-            linkAccount(user.getId(), info, email);
-            String ticket = ticketService.issueForUser(user.getId(), info.provider(), info.providerUserId());
-            return OAuthLoginOutcome.loggedIn(info, user.getId(), ticket);
-        }
+        // 3. Email mới.
+        //    - Provider xác minh được email (Google) → tạo user luôn.
+        //    - Facebook không có cờ email_verified, nhưng TẠO USER MỚI bằng
+        //      email đó vẫn AN TOÀN (không xung đột với ai) → cũng tạo luôn.
+        //      Sự khác biệt: Facebook KHÔNG BAO GIỜ gộp vào tài khoản có sẵn
+        //      (đã xử lý ở nhánh `existing.isPresent()` phía trên).
+        User user = userRepo.save(createUser(email, info.fullName()));
+        linkAccount(user.getId(), info, email);
+        String ticket = ticketService.issueForUser(user.getId(), info.provider(), info.providerUserId());
+        return OAuthLoginOutcome.loggedIn(info, user.getId(), ticket);
+    }
 
-        // 4. Provider KHÔNG xác minh được email (Facebook) → yêu cầu hoàn thiện hồ sơ.
-        String ticket = ticketService.issuePending(info.provider(), info.providerUserId(), info.fullName());
-        return OAuthLoginOutcome.needsProfile(info, ticket);
+    /**
+     * Sinh email tạm cho user Facebook chưa chia sẻ email.
+     *
+     * ⚠️ Dùng providerUserId (duy nhất theo provider) → không trùng với user khác.
+     */
+    private String buildTempEmail(String providerUserId) {
+        String local = "fb_" + (providerUserId == null ? "unknown" : providerUserId)
+                .replaceAll("[^a-zA-Z0-9_]", "");
+        return local + "@" + TEMP_EMAIL_DOMAIN;
     }
 
     /**
