@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import vn.ShuttleHub.backend.auth.dto.*;
 import vn.ShuttleHub.backend.auth.service.AuthService;
 import vn.ShuttleHub.backend.auth.service.OtpService;
+import vn.ShuttleHub.backend.auth.service.ProfileService;
 
 import java.util.Map;
 
@@ -19,6 +20,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final OtpService otpService;
+    private final ProfileService profileService;
 
     /**
      * Gửi mã OTP về SĐT.
@@ -114,5 +116,18 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Void>> logout(@AuthenticationPrincipal String userId) {
         authService.logout(userId);
         return ResponseEntity.ok(ApiResponse.success("Đăng xuất thành công.", null));
+    }
+
+    /**
+     * Cập nhật hồ sơ (email / SĐT) cho user hiện tại.
+     * PUT /api/auth/profile
+     * Body: { "email"?, "phone"?, "otp"? }
+     */
+    @PutMapping("/profile")
+    public ResponseEntity<ApiResponse<UserDto>> updateProfile(
+            @AuthenticationPrincipal String userId,
+            @Valid @RequestBody ProfileUpdateRequest req) {
+        UserDto res = profileService.updateProfile(userId, req);
+        return ResponseEntity.ok(ApiResponse.success("Cập nhật thành công.", res));
     }
 }

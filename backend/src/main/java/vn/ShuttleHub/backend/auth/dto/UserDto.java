@@ -7,7 +7,7 @@ public record UserDto(
     String username,
     String email,
     String fullName,
-    String phone,
+    String phoneNumber,
     String role,
     LocalDateTime createdAt
 ) {}

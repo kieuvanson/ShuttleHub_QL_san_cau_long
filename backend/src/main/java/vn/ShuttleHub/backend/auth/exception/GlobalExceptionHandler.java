@@ -37,6 +37,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(ApiResponse.error(400, ex.getMessage()));
     }
 
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ApiResponse<Object>> handleBadRequest(BadRequestException ex) {
+        return ResponseEntity.badRequest().body(ApiResponse.error(400, ex.getMessage()));
+    }
+
     @ExceptionHandler(OtpInvalidException.class)
     public ResponseEntity<ApiResponse<Object>> handleOtp(OtpInvalidException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(401, ex.getMessage()));
