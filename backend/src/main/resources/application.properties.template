@@ -77,6 +77,13 @@ app.cors.allowed-origins=http://localhost:5173,http://localhost:3000
 #   Meta:   https://developers.facebook.com/apps
 # Để trống → provider bị tắt, frontend ẨN nút tương ứng.
 #
+# ⚠️ Credential thật nằm ở `application-local.properties` (KHÔNG commit).
+#    File đó được import ở đây nên luôn được nạp, KHÔNG cần nhớ thêm
+#    `-Dspring-boot.run.profiles=local`. Nếu quên, /api/auth/oauth/providers
+#    trả về mảng rỗng → nút Google/Facebook biến mất khỏi trang đăng nhập.
+#    `optional:` → app vẫn start được khi chưa có file local.
+spring.config.import=optional:classpath:application-local.properties
+#
 # ⚠️ KHÔNG dùng spring.security.oauth2.client.registration.* — Spring Boot 4.1
 # ném "Client id of registration 'google' must not be empty" lúc start khi
 # client-id rỗng. Ta tự build ClientRegistration trong OAuth2ClientConfig.

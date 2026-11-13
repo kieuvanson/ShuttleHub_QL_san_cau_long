@@ -4,7 +4,13 @@
 #
 # Cách dùng:
 #   1. Copy file này thành application-local.properties
-#   2. Chạy: .\mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=local
+#   2. Điền credential bên dưới
+#   3. Chạy: .\mvnw.cmd spring-boot:run
+#
+# ⚠️ KHÔNG cần thêm -Dspring-boot.run.profiles=local — file này được
+#    `spring.config.import` trong application.properties nạp tự động.
+#    Nếu thiếu file hoặc quên import, /api/auth/oauth/providers trả về
+#    mảng rỗng → nút Google/Facebook biến mất khỏi trang đăng nhập.
 #
 # Profile này CHỈ ghi đè những key cần khác. Mọi key còn lại vẫn lấy
 # từ application.properties (DB, JWT, CORS...).
