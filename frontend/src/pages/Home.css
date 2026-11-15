@@ -11,6 +11,13 @@
   background: var(--ground-0);
 }
 
+/* Vùng chứa feed cộng đồng ở đầu trang chủ. */
+.home-feed {
+  width: 100%;
+  background: var(--fb-bg);
+  padding-top: var(--s-6);
+}
+
 .home__main {
   flex: 1;
   width: 100%;

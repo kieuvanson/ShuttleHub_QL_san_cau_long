@@ -20,6 +20,7 @@ import './themes/caulongdee/caulongdee.css';   // @layer astryx-theme (sinh máy
 
 import { Theme } from '@astryxdesign/core/theme';
 import { LinkProvider } from '@astryxdesign/core/Link';
+import { LayerProvider } from '@astryxdesign/core/Layer';
 import { caulongdeeTheme } from './themes/caulongdee/caulongdee';
 
 import { Layout } from './components/Layout';
@@ -39,23 +40,26 @@ createRoot(document.getElementById('root')!).render(
         {/* Astryx dùng link component này cho mọi `href` → điều hướng SPA
             thay vì reload trang. */}
         <LinkProvider component={AppLink}>
-          <AuthProvider>
-            <Routes>
-              <Route element={<Layout />}>
-                <Route path="/" element={<Home />} />
-                <Route path="/tim-san" element={<CourtDiscovery />} />
-                <Route path="/dang-nhap" element={<AuthPage />} />
-                <Route path="/dang-ky" element={<AuthPage />} />
-                {/* OAuth: backend redirect về kèm ticket (không có JWT trong URL) */}
-                <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
-                {/* Facebook không chia sẻ email → verify SĐT bằng OTP */}
-                <Route path="/oauth/facebook" element={<FacebookPhoneVerifyPage />} />
-                {/* Trang cá nhân — cập nhật email / SĐT */}
-                <Route path="/tai-khoan" element={<AccountPage />} />
-                <Route path="*" element={<Home />} />
-              </Route>
-            </Routes>
-          </AuthProvider>
+          {/* LayerProvider cấp viewport chuẩn cho hệ thống toast của Astryx. */}
+          <LayerProvider>
+            <AuthProvider>
+              <Routes>
+                <Route element={<Layout />}>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/tim-san" element={<CourtDiscovery />} />
+                  <Route path="/dang-nhap" element={<AuthPage />} />
+                  <Route path="/dang-ky" element={<AuthPage />} />
+                  {/* OAuth: backend redirect về kèm ticket (không có JWT trong URL) */}
+                  <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
+                  {/* Facebook không chia sẻ email → verify SĐT bằng OTP */}
+                  <Route path="/oauth/facebook" element={<FacebookPhoneVerifyPage />} />
+                  {/* Trang cá nhân — cập nhật email / SĐT */}
+                  <Route path="/tai-khoan" element={<AccountPage />} />
+                  <Route path="*" element={<Home />} />
+                </Route>
+              </Routes>
+            </AuthProvider>
+          </LayerProvider>
         </LinkProvider>
       </BrowserRouter>
     </Theme>
