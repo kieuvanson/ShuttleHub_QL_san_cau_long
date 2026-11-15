@@ -36,6 +36,28 @@ export const caulongdeeTheme = defineTheme({
   localTokens: {
     '--cl-teal': '#0f766e',
     '--cl-teal-hover': '#115e59',
+
+    // Bảng màu Facebook cho feed cộng đồng ở trang chủ.
+    // Dùng CỤC BỘ cho feed — không đụng hệ màu chung của app
+    // (theme vẫn là accent cam + teal như hiện tại).
+    '--fb-blue': '#1877F2',
+    '--fb-blue-hover': '#166FE5',
+    '--fb-blue-soft': '#E8F0FE',
+    '--fb-green': '#1A7F37',
+    '--fb-green-soft': '#E7F6EC',
+    '--fb-orange': '#C2410C',
+    '--fb-orange-soft': '#FFF1E6',
+    '--fb-slate': '#475467',
+    '--fb-slate-soft': '#EEF1F6',
+    '--fb-bg': '#F0F2F5',
+    '--fb-line': '#E4E6EB',
+    '--fb-ink-0': '#050505',
+    '--fb-ink-1': '#65676B',
+    '--fb-ink-2': '#8A8D91',
+    // Bo góc riêng: `--radius-container` của theme là 29px — quá tròn so với
+    // Facebook (card 8–12px, control 8px).
+    '--fb-radius-card': '12px',
+    '--fb-radius-ctl': '8px',
   },
 
   tokens: {
