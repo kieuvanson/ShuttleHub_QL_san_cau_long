@@ -1,0 +1,135 @@
+/* ============================================================
+   FeedSidebar — 4 khối: tìm sân nhanh · đang tuyển · gợi ý · footer.
+   ============================================================ */
+
+@layer app {
+.feed-side__card {
+  overflow: hidden;
+}
+
+.feed-side__head {
+  padding: var(--s-4) var(--s-4) var(--s-2);
+}
+
+.feed-side__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--fb-ink-0);
+}
+
+.feed-side__search {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin: 0 var(--s-4) var(--s-3);
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--fb-radius-ctl);
+  background: var(--fb-bg);
+  color: var(--fb-ink-1);
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.feed-side__search:hover {
+  color: var(--fb-blue);
+}
+
+.feed-side__list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 var(--s-2);
+}
+
+.feed-side__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px var(--s-4);
+  color: var(--fb-ink-0);
+  font-size: 14px;
+  text-decoration: none;
+  transition: background-color 120ms ease;
+}
+
+.feed-side__row:hover {
+  background: var(--fb-bg);
+}
+
+.feed-side__row--button {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.feed-side__row--button:focus-visible {
+  outline: 2px solid var(--fb-blue);
+  outline-offset: -2px;
+}
+
+.feed-side__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  border-radius: 9px;
+background: var(--fb-bg);
+  color: var(--fb-blue);
+}
+
+.feed-side__who {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.feed-side__name {
+  font-weight: 600;
+  color: var(--fb-ink-0);
+}
+
+.feed-side__meta {
+  font-size: 12px;
+  color: var(--fb-ink-2);
+}
+
+.feed-side__card--foot {
+  padding: var(--s-4);
+}
+
+.feed-side__foot {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-3);
+}
+
+.feed-side__foot-link {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--fb-ink-2);
+  cursor: pointer;
+}
+
+.feed-side__foot-link:hover {
+  color: var(--fb-blue);
+  text-decoration: underline;
+}
+
+.feed-side__copy {
+  display: block;
+  margin-top: var(--s-3);
+  font-size: 12px;
+  color: var(--fb-ink-2);
+}
+}

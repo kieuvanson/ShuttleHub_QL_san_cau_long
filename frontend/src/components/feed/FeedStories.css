@@ -1,0 +1,87 @@
+/* ============================================================
+   FeedStories — dải khoảnh khắc ngang, cuộn được.
+   ============================================================ */
+
+@layer app {
+.feed-stories {
+  overflow: hidden;
+}
+
+.feed-stories__row {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.feed-story {
+  flex: 0 0 auto;
+  width: 108px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.feed-story__frame {
+  position: relative;
+  display: block;
+  width: 108px;
+  height: 108px;
+  padding: 3px;
+  border-radius: 12px;
+  background: var(--fb-blue);
+}
+
+.feed-story__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 9px;
+  border: 2px solid var(--fb-bg);
+}
+
+.feed-story__add {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--fb-blue);
+  color: #fff;
+  border: 2px solid #fff;
+}
+
+.feed-story__name {
+  width: 100%;
+  font-size: 12px;
+  color: var(--fb-ink-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.feed-story:focus-visible {
+  outline: 2px solid var(--fb-blue);
+  outline-offset: 4px;
+  border-radius: 12px;
+}
+
+.feed-story__full {
+  display: block;
+  width: 100%;
+  max-height: 70dvh;
+  object-fit: contain;
+}
+}
