@@ -78,7 +78,7 @@
 }
 
 @media (max-width: 600px) {
-  .feed-shell { padding: var(--s-3) 0; }
+  .feed-shell { padding: var(--s-3); }
   .feed-col,
   .feed-side { max-width: 100%; }
 }
