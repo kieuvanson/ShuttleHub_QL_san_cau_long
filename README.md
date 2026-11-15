@@ -15,6 +15,7 @@
 **Frontend**
 - **Vite** · **React 19** · **TypeScript**
 - React Router · framer-motion · lucide-react
+- **Vitest** + `@testing-library/react` / `@testing-library/jest-dom` (test cho feed + hàm thuần)
 - **Astryx design system** — `@astryxdesign/core` (174 component, React 19) · `@astryxdesign/theme-neutral` (theme nền tảng) · `@astryxdesign/cli` (docs / component / theme build)
 - Theme riêng `caulongdee` extends từ Neutral tại `src/themes/caulongdee/`
 - CSS tokens (`src/styles/tokens.css`) + CSS cascade layers (`src/styles/layers.css`)
@@ -155,6 +156,10 @@ Tất cả response có shape `{ code, message, data }`.
 > ticket lấy token qua POST → token nằm trong body JSON, không nằm trong
 > browser history / log server / header `Referer`.
 >
+> Ticket **chờ** (nhánh Facebook không trả email) có TTL riêng = 300s
+> (`app.oauth.ticket-pending-ttl-seconds`) — vì user phải nhận SMS + gõ OTP,
+> nếu chỉ 60s thì dễ hết hạn giữa chừng và phải đăng nhập Facebook lại.
+>
 > **Quy tắc gộp tài khoản:** chỉ provider có `email_verified=true` (Google) mới
 > được tự động gộp vào tài khoản đã tồn tại. Facebook không có cờ này → nếu
 > email trùng sẽ trả `409`, nếu email **mới** thì tạo tài khoản ngay và vào
@@ -168,6 +173,10 @@ Tất cả response có shape `{ code, message, data }`.
 > trang `/tai-khoan` (đổi email cũng cần SĐT + OTP nếu chưa có SĐT).
 
 > Endpoint mới ngoài `/api/auth/**` đều phải có JWT — không dùng `permitAll`.
+>
+> **Feed cộng đồng (giai đoạn 1):** chưa có endpoint — toàn bộ dữ liệu bài viết
+> nằm trong state của frontend (`src/data/demoPosts.ts`) và mọi tương tác chạy
+> client-side. Xem hạng mục 3.11 trong mục Tiến trình.
 >
 > **Mã lỗi auth:** `400` sai định dạng · `401` sai thông tin / token hết hạn / user bị khoá · `409` email/tên/SĐT trùng · `429` vượt rate-limit · `503` lỗi dịch vụ SMS.
 
@@ -213,6 +222,7 @@ Tất cả response có shape `{ code, message, data }`.
 | 1.20 | Bảng `oauth_accounts` + `oauth_tickets` (migration V7, V8) | ✅ |
 | 1.21 | Nút social tự ẩn khi chưa cấu hình credential | ✅ |
 | 1.22 | Trang cá nhân `/tai-khoan` — cập nhật email + SĐT (OTP) | ✅ |
+| 1.23 | Ticket chờ (verify SĐT) TTL riêng 300s — không hết hạn giữa lúc chờ SMS | ✅ |
 
 ### Giai đoạn 2 — Quản lý sân (Chủ sân)
 
@@ -235,6 +245,9 @@ Tất cả response có shape `{ code, message, data }`.
 | 3.6 | Trang "Sân của tôi" (lịch đặt sân) | ⬜ |
 | 3.7 | Thanh toán (chờ chốt cổng: VNPay / MoMo / tiền mặt) | ⬜ |
 | 3.8 | Redesign giao diện theo **Astryx design system** (theme Cầu Lông dee) | ✅ |
+| 3.9 | **Feed cộng đồng ở trang chủ** — 2 cột (feed 700px + sidebar 320px), dải khoảnh khắc, 4 tab lọc (Tất cả / Tuyển người đánh / Xét kèo / Cảm nghĩ), 4 loại bài (xét kèo · tuyển người đánh · cảm nghĩ · sân cầu lông) | ✅ |
+| 3.10 | Tương tác feed client-side (giai đoạn 1, dữ liệu demo): thích/bỏ thích, lọc theo loại, đăng bài mới (modal + radio loại + giới hạn 500 ký tự), chia sẻ deep-link `/?post=<id>` (copy clipboard + tự cuộn), toast báo tính năng chưa làm / yêu cầu đăng nhập | ✅ |
+| 3.11 | Backend cho feed (bài viết, bình luận, theo dõi, ảnh khoảnh khắc) | ⬜ |
 
 ### Giai đoạn 4 — Vận hành (Nhân viên)
 
