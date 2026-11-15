@@ -1,0 +1,85 @@
+/* ============================================================
+   Feed cộng đồng — bảng màu Facebook, dùng token từ theme
+   caulongdee (--fb-*). KHÔNG hardcode hex ở đây.
+   ============================================================ */
+
+@layer app {
+.feed-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: var(--s-6);
+  align-items: start;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--s-6);
+}
+
+.feed-col {
+  max-width: 700px;
+  width: 100%;
+  margin: 0 auto;
+  display: grid;
+  gap: var(--s-4);
+}
+
+.feed-side {
+  position: sticky;
+  top: 84px;
+  display: grid;
+  gap: var(--s-4);
+}
+
+/* Nhãn loại bài — 4 màu riêng (điểm khác biệt so với Facebook) */
+.feed-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.feed-tag--challenge { background: var(--fb-orange-soft); color: var(--fb-orange); }
+.feed-tag--recruit   { background: var(--fb-green-soft);  color: var(--fb-green); }
+.feed-tag--thought   { background: var(--fb-slate-soft);  color: var(--fb-slate); }
+.feed-tag--court     { background: var(--fb-blue-soft);   color: var(--fb-blue); }
+
+/* Mọi card của feed dùng bo góc 12px — token --radius-container của theme
+   là 29px, quá tròn so với Facebook. */
+.feed-col > *,
+.feed-side > * {
+  border-radius: var(--fb-radius-card);
+}
+
+/* Nút "Đăng nhập" phụ trong toast */
+.feed-toast__link {
+  color: var(--fb-blue);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.feed-toast__link:hover {
+  color: var(--fb-blue-hover);
+  text-decoration: underline;
+}
+
+@media (max-width: 1100px) {
+  .feed-shell { grid-template-columns: minmax(0, 1fr); }
+  .feed-col { max-width: 680px; }
+  .feed-side {
+    position: static;
+    max-width: 680px;
+    margin: 0 auto;
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .feed-shell { padding: var(--s-3) 0; }
+  .feed-col,
+  .feed-side { max-width: 100%; }
+}
+}

@@ -1,0 +1,109 @@
+/* ============================================================
+   FeedPostCard — card bài viết: header, nhãn loại, nội dung,
+   ảnh, thanh thống kê, 3 nút tương tác.
+   ============================================================ */
+
+@layer app {
+.feed-post {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.feed-post__head {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-4) var(--s-2);
+}
+
+.feed-post__who {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.feed-post__body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-3);
+  padding: var(--s-2) var(--s-4) var(--s-3);
+}
+
+.feed-post__content {
+  margin: 0;
+  width: 100%;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--fb-ink-0);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.feed-post__media {
+  width: 100%;
+  margin-top: var(--s-1);
+}
+
+.feed-post__media img {
+  display: block;
+  width: 100%;
+  max-height: 520px;
+  object-fit: cover;
+}
+
+.feed-post__stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: var(--s-2) var(--s-4);
+  border-top: 1px solid var(--fb-line);
+  font-size: 13px;
+  color: var(--fb-ink-2);
+}
+
+.feed-post__actions {
+  display: flex;
+  border-top: 1px solid var(--fb-line);
+  padding: var(--s-1) var(--s-2);
+}
+
+.feed-post__action {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  min-height: 40px;
+  padding: var(--s-2) var(--s-3);
+  border: 0;
+  border-radius: var(--fb-radius-ctl);
+  background: transparent;
+  color: var(--fb-slate);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.feed-post__action:hover {
+  background: var(--fb-bg);
+}
+
+.feed-post__action[aria-pressed='true'] {
+  color: var(--fb-blue);
+}
+
+.feed-post__action:focus-visible {
+  outline: 2px solid var(--fb-blue);
+  outline-offset: -2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feed-post__action {
+    transition: none;
+  }
+}
+}
