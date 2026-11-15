@@ -1,0 +1,27 @@
+/* ============================================================
+   FeedTabs — 4 tab lọc bài theo loại.
+   ============================================================ */
+
+@layer app {
+.feed-tabs {
+  overflow: hidden;
+  border-bottom: 1px solid var(--fb-line);
+}
+
+.feed-tabs [role='tablist'] {
+  gap: var(--s-1);
+}
+
+.feed-tabs [role='tab'] {
+  font-size: 15px;
+  font-weight: 600;
+  padding: var(--s-3) var(--s-1);
+}
+
+@media (max-width: 600px) {
+  .feed-tabs [role='tab'] {
+    font-size: 13px;
+    padding: var(--s-3) 4px;
+  }
+}
+}
