@@ -1,0 +1,23 @@
+/* ============================================================
+   FeedComposerModal — bộ chọn loại bài + nội dung + nút hành động.
+   ============================================================ */
+
+@layer app {
+.feed-composer-modal {
+  display: grid;
+  gap: var(--s-4);
+  padding: var(--s-4);
+}
+
+.feed-composer-modal__error {
+  margin: 0;
+  font-size: 13px;
+  color: var(--fb-orange);
+}
+
+.feed-composer-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--s-2);
+}
+}
