@@ -7,6 +7,11 @@ import { FilterPanel, FilterState, DEFAULT_FILTER } from '../components/FilterPa
 import { MapPanel } from '../components/MapPanel';
 import { CourtCard } from '../components/CourtCard';
 import { Pagination } from '../components/Pagination';
+import { Hero } from '../components/Hero';
+import { FeaturedCourts } from '../components/FeaturedCourts';
+import { PricingSection } from '../components/PricingSection';
+import { CitiesSection } from '../components/CitiesSection';
+import { FaqSection } from '../components/FaqSection';
 import { DEMO_COURTS, Court } from '../data/demoCourts';
 import './CourtDiscovery.css';
 
@@ -102,7 +107,7 @@ export function CourtDiscovery() {
           <nav className="cd__crumbs" aria-label="Đường dẫn">
             <a href="/">Trang chủ</a>
             <span className="cd__crumbs-sep" aria-hidden="true">/</span>
-            <span aria-current="page">Tìm sân cầu lông</span>
+            <h1 className="cd__crumbs-current" aria-current="page">Tìm sân cầu lông</h1>
           </nav>
 
           {/* Bộ lọc nằm NGANG phía trên */}
@@ -113,7 +118,7 @@ export function CourtDiscovery() {
           />
 
           {/* List sân — full width */}
-          <section className="cd__results">
+          <section className="cd__results" id="ket-qua">
             <div className="cd__results-head">
               <Heading level={2} className="cd__results-title">
                 Sân cầu lông phù hợp trên Cầu Lông dee
@@ -171,6 +176,15 @@ export function CourtDiscovery() {
           </section>
         </div>
       </div>
+
+      {/* Landing marketing nằm DƯỚI phần tìm sân, ngoài khối `.cd` — vì `.cd`
+          có nền riêng và `margin-top: -60px` để thanh tìm nhanh nổi đè
+          banner; đặt section vào trong `.cd` sẽ làm lệch nền. */}
+      <Hero />
+      <FeaturedCourts />
+      <PricingSection />
+      <CitiesSection />
+      <FaqSection />
 
       {selectedCourt && (
         <div className="toast" role="status" aria-live="polite">

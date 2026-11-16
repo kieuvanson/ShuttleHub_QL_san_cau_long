@@ -60,6 +60,15 @@
   font-weight: 600;
 }
 
+/* h1 trong breadcrumb — giữ đúng nhịp chữ của breadcrumb nhưng là tiêu đề
+   chính của trang (h1 duy nhất của `/tim-san`). */
+.cd__crumbs-current {
+  margin: 0;
+  font-size: inherit;
+  font-weight: 600;
+  color: var(--ink-0);
+}
+
 /* === Results (list sân, full width) === */
 .cd__results {
   background: var(--surface-2);
@@ -67,6 +76,8 @@
   border-radius: var(--r-md);
   padding: var(--s-5);
   min-width: 0;
+  /* Đích của anchor `#ket-qua` → neo khỏi header sticky. */
+  scroll-margin-top: 80px;
 }
 
 .cd__results-head {
