@@ -129,6 +129,7 @@ QL_san_cau_long/
         │                        # OAuthCallbackPage · FacebookPhoneVerifyPage · AccountPage
         ├── styles/              # tokens.css
         └── utils/               # phone.ts — chuẩn hoá SĐT (khớp backend)
+                                 # displayName.ts — rút gọn họ tên ("Kieu Van Son" → "Son")
 ```
 
 ---
@@ -143,7 +144,7 @@ Tất cả response có shape `{ code, message, data }`.
 | POST | `/api/auth/register` | Public | Đăng ký tài khoản (cần OTP) · 429 khi vượt giới hạn đăng ký/SĐT/ngày |
 | POST | `/api/auth/login` | Public | Đăng nhập email + mật khẩu · 429 khi vượt rate-limit brute force |
 | POST | `/api/auth/refresh` | Public | Cấp access token mới (rotation) |
-| GET | `/api/auth/me` | Bearer | Thông tin user hiện tại |
+| GET | `/api/auth/me` | Bearer | Thông tin user hiện tại (kèm `avatarUrl` — null nếu không đăng nhập qua OAuth) |
 | POST | `/api/auth/logout` | Bearer | Vô hiệu hoá toàn bộ refresh token |
 | PUT | `/api/auth/profile` | Bearer | Cập nhật email / SĐT · đổi SĐT cần OTP · 409 khi trùng |
 
@@ -154,7 +155,7 @@ Tất cả response có shape `{ code, message, data }`.
 | GET | `/oauth2/authorization/{provider}` | Public | Bắt đầu luồng OAuth (redirect tới Google/Facebook) |
 | GET | `/login/oauth2/code/{provider}` | Public | Callback từ provider (Spring Security xử lý) |
 | GET | `/api/auth/oauth/providers` | Public | Danh sách provider đang bật (có client-id hợp lệ) |
-| GET | `/api/auth/oauth/ticket/{ticket}` | Public | Trạng thái ticket: `READY` hoặc `NEEDS_PHONE` |
+| GET | `/api/auth/oauth/ticket/{ticket}` | Public | Trạng thái ticket: `READY` hoặc `NEEDS_PHONE` (kèm `avatarUrl`) |
 | POST | `/api/auth/oauth/exchange` | Public | Đổi ticket (1 lần, TTL 60s) lấy access + refresh token |
 | POST | `/api/auth/oauth/phone/verify` | Public | Xác minh SĐT bằng OTP (Facebook không trả email) · 409 khi SĐT đã đăng ký |
 
@@ -231,6 +232,14 @@ Tất cả response có shape `{ code, message, data }`.
 | 1.21 | Nút social tự ẩn khi chưa cấu hình credential | ✅ |
 | 1.22 | Trang cá nhân `/tai-khoan` — cập nhật email + SĐT (OTP) | ✅ |
 | 1.23 | Ticket chờ (verify SĐT) TTL riêng 300s — không hết hạn giữa lúc chờ SMS | ✅ |
+| 1.24 | Avatar + tên rút gọn từ Facebook (header, ô viết bài) — lưu `users.avatar_url`, hiển thị "Son" cho "Kieu Van Son" | 🚧 |
+
+> ⚠️ **Hạng mục 1.24 còn `🚧`:** đã verify đầy đủ phần *hiển thị* (API `/api/auth/me`
+> trả `avatarUrl` từ DB, header + ô viết bài render ảnh thật và tên rút gọn,
+> ảnh hỏng → fallback chữ cái đầu) và phần *lấy ảnh từ Graph API* (unit test
+> `OAuthUserInfoExtractor` + `OAuth2ClientConfig` — `picture.type(large)`).
+> Chưa verify được: vòng OAuth Facebook thật (máy dev chưa có Facebook
+> client-id/secret) → cần đăng nhập Facebook thật một lần để chốt `✅`.
 
 ### Giai đoạn 2 — Quản lý sân (Chủ sân)
 
