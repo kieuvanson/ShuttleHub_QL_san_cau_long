@@ -62,7 +62,7 @@ class OAuthTicketServiceTest {
         ArgumentCaptor<OAuthTicket> captor = ArgumentCaptor.forClass(OAuthTicket.class);
         when(repo.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        String ticket = service.issuePending("facebook", "pid-1", "Nguyen Van A");
+        String ticket = service.issuePending("facebook", "pid-1", "Nguyen Van A", null);
 
         assertNotNull(ticket);
         assertTrue(ticket.length() >= 40, "ticket phải đủ dài để không đoán được");
@@ -82,7 +82,7 @@ class OAuthTicketServiceTest {
         ArgumentCaptor<OAuthTicket> captor = ArgumentCaptor.forClass(OAuthTicket.class);
         when(repo.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        service.issuePending("facebook", "pid-1", "Nguyen Van A");
+        service.issuePending("facebook", "pid-1", "Nguyen Van A", null);
 
         verify(repo).save(captor.capture());
         // Ticket chờ phải sống ≥ 5 phút (OTP TTL) → user kịp nhận SMS và gõ mã.
@@ -91,8 +91,19 @@ class OAuthTicketServiceTest {
     }
 
     @Test
-    @DisplayName("Sinh ticket đăng nhập (Google) → TTL ngắn (đổi JWT ngay)")
-    void issueForUser_usesShortTtl() {
+    @DisplayName("Ticket chờ mang theo avatar — để user tạo tài khoản sau khi xác minh SĐT vẫn có ảnh")
+    void issuePending_carriesAvatarUrl() {
+        ArgumentCaptor<OAuthTicket> captor = ArgumentCaptor.forClass(OAuthTicket.class);
+        when(repo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        service.issuePending("facebook", "pid-1", "Kieu Van Son", "https://cdn.fb/son.jpg");
+
+        verify(repo).save(captor.capture());
+        assertEquals("https://cdn.fb/son.jpg", captor.getValue().getAvatarUrl());
+    }
+
+    @Test
+    @DisplayName("Sinh ticket đăng nhập (Google) → TTL ngắn (đổi JWT ngay)")    void issueForUser_usesShortTtl() {
         ArgumentCaptor<OAuthTicket> captor = ArgumentCaptor.forClass(OAuthTicket.class);
         when(repo.save(any())).thenAnswer(inv -> inv.getArgument(0));
 

@@ -67,8 +67,8 @@ public class OAuthTicketService {
      * tới khi user xác minh SĐT và {@link #attachUser} được gọi.
      */
     @Transactional
-    public String issuePending(String provider, String providerUserId, String fullName) {
-        return save(provider, providerUserId, fullName, null, pendingTtlSeconds);
+    public String issuePending(String provider, String providerUserId, String fullName, String avatarUrl) {
+        return save(provider, providerUserId, fullName, avatarUrl, null, pendingTtlSeconds);
     }
 
     /**
@@ -76,10 +76,11 @@ public class OAuthTicketService {
      */
     @Transactional
     public String issueForUser(String userId, String provider, String providerUserId) {
-        return save(provider, providerUserId, null, userId, ttlSeconds);
+        return save(provider, providerUserId, null, null, userId, ttlSeconds);
     }
 
-    private String save(String provider, String providerUserId, String fullName, String userId, int ttl) {
+    private String save(String provider, String providerUserId, String fullName, String avatarUrl,
+                        String userId, int ttl) {
         String ticket = generateTicket();
         repo.save(OAuthTicket.builder()
                 .ticket(ticket)
@@ -87,6 +88,7 @@ public class OAuthTicketService {
                 .provider(provider)
                 .providerUserId(providerUserId)
                 .fullName(fullName)
+                .avatarUrl(avatarUrl)
                 .expiresAt(LocalDateTime.now().plusSeconds(ttl))
                 .used(false)
                 .createdAt(LocalDateTime.now())

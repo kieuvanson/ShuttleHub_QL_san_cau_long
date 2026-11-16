@@ -201,7 +201,7 @@ class OAuthAuthServiceTest {
     void facebook_noEmail_needsPhone() {
         when(oauthAccountRepo.findByProviderAndProviderUserId("facebook", "fb-1"))
                 .thenReturn(Optional.empty());
-        when(ticketService.issuePending(anyString(), anyString(), any())).thenReturn("pending-2");
+        when(ticketService.issuePending(anyString(), anyString(), any(), any())).thenReturn("pending-2");
 
         var outcome = service.handleCallback(new OAuthUserInfo("facebook", "fb-1", null, false, "Nam"));
 
@@ -359,5 +359,95 @@ class OAuthAuthServiceTest {
         assertTrue(service.buildTempEmail("fb-1").endsWith("@facebook.local"));
         // Độ dài phải ≤ 100 (cột users.email)
         assertTrue(service.buildTempEmail("fb-1").length() <= 100);
+    }
+
+    // ---- avatar ----
+
+    @Test
+    @DisplayName("Facebook + email mới → user mới lưu avatar_url")
+    void facebook_withEmail_savesAvatar() {
+        when(oauthAccountRepo.findByProviderAndProviderUserId("facebook", "fb-1"))
+                .thenReturn(Optional.empty());
+        when(userRepo.findByEmail("newfb@x.com")).thenReturn(Optional.empty());
+        when(userRepo.existsByUsername(anyString())).thenReturn(false);
+        when(passwordEncoder.encode(anyString())).thenReturn("hashed");
+        when(userRepo.save(any())).thenAnswer(inv -> {
+            User u = inv.getArgument(0);
+            u.setId("u-fb");
+            return u;
+        });
+        when(ticketService.issueForUser(anyString(), anyString(), anyString())).thenReturn("t-fb");
+
+        service.handleCallback(new OAuthUserInfo(
+                "facebook", "fb-1", "newfb@x.com", false, "Kieu Van Son", "https://cdn.fb/son.jpg"));
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepo).save(captor.capture());
+        assertEquals("https://cdn.fb/son.jpg", captor.getValue().getAvatarUrl());
+    }
+
+    @Test
+    @DisplayName("Facebook đăng nhập lại → avatar_url được cập nhật nếu URL mới")
+    void facebook_relogin_updatesAvatar() {
+        OAuthAccount link = OAuthAccount.builder().id("oa-1").userId("u-1")
+                .provider("facebook").providerUserId("fb-1")
+                .emailAtRegistration("a@x.com").createdAt(LocalDateTime.now()).build();
+        when(oauthAccountRepo.findByProviderAndProviderUserId("facebook", "fb-1"))
+                .thenReturn(Optional.of(link));
+        User u = User.builder().id("u-1").email("a@x.com").username("u1")
+                .password("h").role(Role.CUSTOMER).isActive(true)
+                .avatarUrl("https://cdn.fb/old.jpg").build();
+        when(userRepo.findById("u-1")).thenReturn(Optional.of(u));
+        when(ticketService.issueForUser(anyString(), anyString(), anyString())).thenReturn("t4");
+
+        service.handleCallback(new OAuthUserInfo(
+                "facebook", "fb-1", "a@x.com", false, "Kieu Van Son", "https://cdn.fb/new.jpg"));
+
+        assertEquals("https://cdn.fb/new.jpg", u.getAvatarUrl());
+    }
+
+    @Test
+    @DisplayName("Facebook đăng nhập lại nhưng provider KHÔNG trả avatar → giữ ảnh cũ")
+    void facebook_relogin_keepsOldAvatarWhenProviderOmitsIt() {
+        OAuthAccount link = OAuthAccount.builder().id("oa-1").userId("u-1")
+                .provider("facebook").providerUserId("fb-1")
+                .emailAtRegistration("a@x.com").createdAt(LocalDateTime.now()).build();
+        when(oauthAccountRepo.findByProviderAndProviderUserId("facebook", "fb-1"))
+                .thenReturn(Optional.of(link));
+        User u = User.builder().id("u-1").email("a@x.com").username("u1")
+                .password("h").role(Role.CUSTOMER).isActive(true)
+                .avatarUrl("https://cdn.fb/old.jpg").build();
+        when(userRepo.findById("u-1")).thenReturn(Optional.of(u));
+        when(ticketService.issueForUser(anyString(), anyString(), anyString())).thenReturn("t5");
+
+        service.handleCallback(new OAuthUserInfo(
+                "facebook", "fb-1", "a@x.com", false, "Kieu Van Son", null));
+
+        assertEquals("https://cdn.fb/old.jpg", u.getAvatarUrl());
+    }
+
+    @Test
+    @DisplayName("Verify SĐT: user mới lưu avatar lấy từ ticket chờ")
+    void verifyPhoneAndCreateUser_savesAvatarFromTicket() {
+        OAuthTicket pending = OAuthTicket.builder().ticket("pending-1").userId(null)
+                .provider("facebook").providerUserId("fb-1").fullName("Kieu Van Son")
+                .avatarUrl("https://cdn.fb/son.jpg")
+                .expiresAt(LocalDateTime.now().plusSeconds(60)).used(false)
+                .createdAt(LocalDateTime.now()).build();
+        when(ticketService.peek("pending-1")).thenReturn(pending);
+        when(userRepo.existsByPhoneNumber("84912345678")).thenReturn(false);
+        when(userRepo.existsByUsername(anyString())).thenReturn(false);
+        when(passwordEncoder.encode(anyString())).thenReturn("hashed");
+        when(userRepo.save(any())).thenAnswer(inv -> {
+            User u = inv.getArgument(0);
+            u.setId("u-fb");
+            return u;
+        });
+
+        service.verifyPhoneAndCreateUser("pending-1", "84912345678", "123456");
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepo).save(captor.capture());
+        assertEquals("https://cdn.fb/son.jpg", captor.getValue().getAvatarUrl());
     }
 }

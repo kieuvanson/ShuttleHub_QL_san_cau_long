@@ -81,6 +81,9 @@ public class OAuthAuthService {
             User user = userRepo.findById(link.get().getUserId())
                     .orElseThrow(() -> new InvalidCredentialsException("Tài khoản không tồn tại."));
             assertActive(user);
+            // ⚠️ Cập nhật avatar mỗi lần đăng nhập lại — user có thể đã
+            //   đổi ảnh trên Facebook. URL cũ có thời hạn nên phải làm mới.
+            refreshAvatar(user, info.avatarUrl());
             String ticket = ticketService.issueForUser(user.getId(), info.provider(), info.providerUserId());
             return OAuthLoginOutcome.loggedIn(info, user.getId(), ticket);
         }
@@ -93,7 +96,8 @@ public class OAuthAuthService {
             // → Chưa tạo user: bắt user xác minh SĐT bằng OTP trước.
             //   SĐT là bằng chứng sở hữu thật + UNIQUE trong DB → không ai
             //   khai SĐT của người khác để chiếm chỗ được.
-            String ticket = ticketService.issuePending(info.provider(), info.providerUserId(), info.fullName());
+            String ticket = ticketService.issuePending(
+                    info.provider(), info.providerUserId(), info.fullName(), info.avatarUrl());
             return OAuthLoginOutcome.needsPhone(info, ticket);
         }
 
@@ -107,6 +111,7 @@ public class OAuthAuthService {
             }
             User user = existing.get();
             assertActive(user);
+            refreshAvatar(user, info.avatarUrl());
             linkAccount(user.getId(), info, email);
             String ticket = ticketService.issueForUser(user.getId(), info.provider(), info.providerUserId());
             return OAuthLoginOutcome.loggedIn(info, user.getId(), ticket);
@@ -118,7 +123,7 @@ public class OAuthAuthService {
         //      email đó vẫn AN TOÀN (không xung đột với ai) → cũng tạo luôn.
         //      Sự khác biệt: Facebook KHÔNG BAO GIỜ gộp vào tài khoản có sẵn
         //      (đã xử lý ở nhánh `existing.isPresent()` phía trên).
-        User user = userRepo.save(createUser(email, info.fullName()));
+        User user = userRepo.save(createUser(email, info.fullName(), info.avatarUrl()));
         linkAccount(user.getId(), info, email);
         String ticket = ticketService.issueForUser(user.getId(), info.provider(), info.providerUserId());
         return OAuthLoginOutcome.loggedIn(info, user.getId(), ticket);
@@ -182,7 +187,7 @@ public class OAuthAuthService {
 
         String tempEmail = buildTempEmail(pending.getProviderUserId());
 
-        User user = createUser(tempEmail, pending.getFullName());
+        User user = createUser(tempEmail, pending.getFullName(), pending.getAvatarUrl());
         user.setPhoneNumber(phone);
         user = userRepo.save(user);
 
@@ -204,7 +209,7 @@ public class OAuthAuthService {
      * ⚠️ Gọi `userRepo.save` ở nơi gọi hàm này — vì flow Facebook còn cần
      * set `phoneNumber` sau khi dựng user.
      */
-    private User createUser(String email, String fullName) {
+    private User createUser(String email, String fullName, String avatarUrl) {
         // ⚠️ Mật khẩu = hash BCrypt của chuỗi random 32 byte.
         // → Không ai (kể cả chủ sân) đăng nhập được bằng mật khẩu cho
         //   tài khoản OAuth. Cột `password` NOT NULL nên phải có giá trị.
@@ -217,11 +222,34 @@ public class OAuthAuthService {
                 .email(email)
                 .password(passwordEncoder.encode(unusablePassword))
                 .fullName(fullName)
+                .avatarUrl(avatarUrl)
                 .role(Role.CUSTOMER)
                 .isActive(true)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
+    }
+
+    /**
+     * Làm mới avatar của user nếu provider trả về URL mới.
+     *
+     * ⚠️ Vì sao cần? URL ảnh Facebook có thời hạn → ảnh cũ sẽ hỏng. Lần
+     *   đăng nhập tiếp theo là cơ hội lấy URL mới.
+     *
+     * ⚠️ Vì sao không ghi khi URL null? Provider có thể không trả `picture`
+     *   (user chưa đặt ảnh, hoặc quyền bị thu hồi) → giữ ảnh cũ còn hơn
+     *   làm mất ảnh đang hiển thị tốt.
+     */
+    private void refreshAvatar(User user, String avatarUrl) {
+        if (avatarUrl == null || avatarUrl.isBlank()) {
+            return;
+        }
+        if (avatarUrl.equals(user.getAvatarUrl())) {
+            return;
+        }
+        user.setAvatarUrl(avatarUrl);
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepo.save(user);
     }
 
     private void linkAccount(String userId, OAuthUserInfo info, String email) {
