@@ -39,6 +39,13 @@ cp application.properties.template application.properties
 # spring.datasource.password=YOUR_PASSWORD
 # app.jwt.secret=RANDOM_256_BIT_STRING
 ```
+> ⚠️ Bắt buộc có file `application.properties` thật. Nếu thiếu, backend fail lúc start với
+> `Could not resolve placeholder 'app.jwt.secret'`.
+>
+> ⚠️ **KHÔNG viết comment inline sau giá trị** trong file `.properties`:
+> `app.jwt.access-token-expiration=900000  # 15 phút` → Spring đọc cả `# 15 phút` là
+> part của giá trị → không parse được thành số → app fail lúc start. Comment phải
+> nằm ở dòng riêng.
 
 3. Chạy backend (:8080):
 ```bash
@@ -63,9 +70,10 @@ npm run dev
 ```bash
 cd backend/src/main/resources
 cp application-local.properties.template application-local.properties
-# rồi chạy: .\mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=local
+# rồi chạy: .\mvnw.cmd spring-boot:run
 ```
-> Profile `local` đặt `app.sms.provider=mock` → mã OTP in ra log server
+> File `application-local.properties` được import tự động (không cần `-Dspring-boot.run.profiles=local`).
+> Nó đặt `app.sms.provider=mock` → mã OTP in ra log server
 > (và hiện trên màn hình). **Production phải dùng `app.sms.provider=speedsms`**
 > + biến môi trường `SPEEDSMS_ACCESS_TOKEN`.
 

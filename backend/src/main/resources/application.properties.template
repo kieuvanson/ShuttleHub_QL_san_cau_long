@@ -1,12 +1,19 @@
 # =====================================================================
-# application-dev.properties
-# Cấu hình cho môi trường DEVELOPMENT — KHÔNG commit file này lên git
-# (đã có trong .gitignore)
+# application.properties.template
+#
+# ⛔ File này KHÔNG phải file cấu hình thật — Spring KHÔNG đọc file .template.
+#    Copy thành `application.properties` (KHÔNG phải application-local.properties)
+#    rồi sửa giá trị. Nếu thiếu file thật → app fail lúc start với lỗi
+#    "Could not resolve placeholder 'app.jwt.secret'".
 #
 # Cách dùng:
-#   1. Copy file này thành application-local.properties
-#   2. Sửa giá trị theo môi trường của bạn
-#   3. Chạy: mvn spring-boot:run -Dspring-boot.run.profiles=local
+#   1. Copy file này thành application.properties (cùng thư mục)
+#   2. Sửa `spring.datasource.password` + `app.jwt.secret` cho môi trường của bạn
+#   3. Chạy: mvn spring-boot:run
+#
+# ➕ Credential riêng (Facebook/Google client id, secret) đặt ở
+#    `application-local.properties` — file đó được import tự động ở cuối
+#    template này (spring.config.import).
 # =====================================================================
 
 spring.application.name=backend
@@ -32,8 +39,11 @@ spring.flyway.locations=classpath:db/migration
 # JWT
 # ⚠️ Production PHẢI đổi secret này (>= 32 bytes random)
 app.jwt.secret=dev-secret-please-change-this-in-production-it-must-be-at-least-256-bits-long
-app.jwt.access-token-expiration=900000           # 15 phút
-app.jwt.refresh-token-expiration=604800000       # 7 ngày
+# ⛔ KHÔNG viết comment inline sau giá trị ở đây: Spring đọc "# 15 phút" là
+#    part của giá trị → "900000# 15 phút" không parse được thành long →
+#    app fail lúc start. Comment phải nằm ở dòng riêng.
+app.jwt.access-token-expiration=900000
+app.jwt.refresh-token-expiration=604800000
 app.jwt.issuer=CauLongDee
 
 # OTP
