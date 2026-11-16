@@ -20,6 +20,13 @@ beforeAll(() => {
       this.removeAttribute('open');
     };
   }
+
+  // jsdom chưa implement `Element.scrollIntoView` — `AppLink` và deep-link của
+  // feed gọi nó để cuộn tới anchor → `TypeError` làm hỏng test. Polyfill tối
+  // thiểu: hàm rỗng (test chỉ cần biết có gọi được).
+  if (!Element.prototype.scrollIntoView) {
+    Element.prototype.scrollIntoView = function scrollIntoView() {};
+  }
 });
 
 afterEach(() => {

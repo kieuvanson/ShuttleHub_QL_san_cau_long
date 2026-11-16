@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { LogOut, User as UserIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { AppLink } from './AppLink';
 import './Header.css';
 
 export function Header() {
@@ -18,21 +19,22 @@ export function Header() {
   return (
     <header className="hdr">
       <div className="hdr__inner">
-        <Link to="/" className="hdr__brand" aria-label="Cầu Lông dee">
+        <AppLink to="/" className="hdr__brand" aria-label="Cầu Lông dee">
           <img
             src="/logo_page.svg"
             alt=""
             className="hdr__logo"
           />
           <span className="hdr__wordmark">Cầu Lông dee</span>
-        </Link>
+        </AppLink>
 
         <nav className="hdr__nav" aria-label="Chính">
-          <Link to="/tim-san" className="hdr__navlink">Tìm sân cầu lông</Link>
-          {/* Điều hướng về trang chủ rồi cuộn tới anchor — section đích
-              được dựng ở các task sau (PricingSection / FaqSection). */}
-          <Link to="/#bang-gia" className="hdr__navlink">Bảng giá</Link>
-          <Link to="/#faq" className="hdr__navlink hdr__navlink--secondary">Hỗ trợ</Link>
+          <AppLink to="/tim-san" className="hdr__navlink">Tìm sân cầu lông</AppLink>
+          {/* Các section bảng giá / FAQ nay nằm ở trang tìm sân (landing đã
+              rời trang chủ) → anchor trỏ theo đường dẫn đó. `AppLink` tự
+              cuộn tới element có `id` sau khi route đổi. */}
+          <AppLink to="/tim-san#bang-gia" className="hdr__navlink">Bảng giá</AppLink>
+          <AppLink to="/tim-san#faq" className="hdr__navlink hdr__navlink--secondary">Hỗ trợ</AppLink>
         </nav>
 
         <div className="hdr__actions">
@@ -63,7 +65,7 @@ export function Header() {
                       <strong>{user.fullName || user.username}</strong>
                       <span>{user.email}</span>
                     </div>
-                    <Link
+                    <AppLink
                       to="/tai-khoan"
                       className="hdr__user-item"
                       role="menuitem"
@@ -71,7 +73,7 @@ export function Header() {
                     >
                       <UserIcon size={15} aria-hidden="true" />
                       <span>Trang cá nhân</span>
-                    </Link>
+                    </AppLink>
                     <button
                       type="button"
                       className="hdr__user-item"
@@ -88,8 +90,8 @@ export function Header() {
           ) : (
             /* Chưa đăng nhập */
             <>
-              <Link to="/dang-nhap" className="hdr__login">Đăng nhập</Link>
-              <Link to="/dang-ky" className="hdr__signup">Đăng ký</Link>
+              <AppLink to="/dang-nhap" className="hdr__login">Đăng nhập</AppLink>
+              <AppLink to="/dang-ky" className="hdr__signup">Đăng ký</AppLink>
             </>
           )}
         </div>

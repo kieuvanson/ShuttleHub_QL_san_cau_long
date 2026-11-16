@@ -8,7 +8,7 @@ import { Link, useLocation, type LinkProps } from 'react-router-dom';
  * (`to ?? href`). Ta dùng `to` cho React Router và bỏ `href` để không sinh
  * thuộc tính trùng trên thẻ `<a>`.
  *
- * Ngoài ra, khi điều hướng SPA tới một anchor (`/#bang-gia`), trình duyệt
+ * Ngoài ra, khi điều hướng SPA tới một anchor (`/tim-san#bang-gia`), trình duyệt
  * KHÔNG tự cuộn tới element có `id` — hash scroll chỉ xảy ra khi tải trang
  * mới. Vì vậy ta cuộn thủ công sau khi pathname/hash đổi.
  */
@@ -45,7 +45,9 @@ export function AppLink({
       if (el) el.scrollIntoView({behavior: 'smooth', block: 'start'});
     }, 60);
     return () => window.clearTimeout(timer);
-  }, [location.pathname, location.hash]);
+    // `location.key` đổi mỗi lần điều hướng → bấm lại CÙNG một anchor khi
+    // đang đứng ở `/tim-san` (pathname + hash không đổi) vẫn cuộn được.
+  }, [location.pathname, location.hash, location.key]);
 
   return (
     <Link to={target} onClick={handleClick} {...rest}>

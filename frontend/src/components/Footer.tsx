@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { AppLink } from './AppLink';
 import './Footer.css';
 
 /**
@@ -13,14 +13,14 @@ type FooterLink = {
 
 const PRODUCT_LINKS: FooterLink[] = [
   {label: 'Tìm sân cầu lông', to: '/tim-san'},
-  {label: 'Hướng dẫn đặt sân', to: '/#faq'},
-  {label: 'Cổng thanh toán', to: '/#faq'},
+  {label: 'Hướng dẫn đặt sân', to: '/tim-san#faq'},
+  {label: 'Cổng thanh toán', to: '/tim-san#faq'},
 ];
 
 const SUPPORT_LINKS: FooterLink[] = [
   {label: 'Liên hệ', href: 'mailto:hotro@caulongdee.example'},
-  {label: 'Điều khoản', to: '/#dieu-khoan'},
-  {label: 'Chính sách', to: '/#chinh-sach'},
+  {label: 'Điều khoản', to: '/tim-san#dieu-khoan'},
+  {label: 'Chính sách', to: '/tim-san#chinh-sach'},
 ];
 
 /** Nguồn ảnh minh hoạ lấy từ assets/img/credits.json. */
@@ -35,9 +35,9 @@ function FooterLinkItem({link}: {link: FooterLink}) {
   if (link.to) {
     return (
       <li>
-        <Link to={link.to} className={className}>
+        <AppLink to={link.to} className={className}>
           {link.label}
-        </Link>
+        </AppLink>
       </li>
     );
   }
