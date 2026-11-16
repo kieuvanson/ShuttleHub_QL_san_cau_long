@@ -1,12 +1,13 @@
 /**
- * Kiểm tra hero mới: không slider, có CTA, form nằm trong hero, không tràn ngang.
+ * Kiểm tra hero mới: không slider, có CTA, KHÔNG có form tìm kiếm trong hero,
+ * không cao 1 màn hình, không tràn ngang.
  *
  * Dùng: node scripts/check-hero.mjs [url] [width]
  */
 import puppeteer from 'puppeteer-core';
 
 const CHROME = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
-const url = process.argv[2] ?? 'http://localhost:5173/';
+const url = process.argv[2] ?? 'http://localhost:5173/tim-san';
 const width = Number(process.argv[3] ?? 1440);
 const height = Number(process.argv[4] ?? 900);
 
@@ -38,8 +39,6 @@ try {
 
     const hero = q('.hero');
     const heroRect = hero?.getBoundingClientRect();
-    const form = q('.search__form');
-    const formRect = form?.getBoundingClientRect();
     const media = q('.hero__media');
     const mediaRect = media?.getBoundingClientRect();
 
@@ -80,12 +79,14 @@ try {
       heroExists: !!hero,
       heroLeft: heroRect ? Math.round(heroRect.left) : null,
       heroRight: heroRect ? Math.round(heroRect.right) : null,
-      formInsideHero:
-        !!formRect && !!heroRect
-          ? formRect.top >= heroRect.top - 1 && formRect.bottom <= heroRect.bottom + 1
-          : null,
-      formRight: formRect ? Math.round(formRect.right) : null,
-      formOverflow: formRect ? Math.round(formRect.right - docW) : null,
+      // Hero nay khong con form tim kiem (da xoa SearchBar de trang /tim-san
+      // chi co 1 cong cu tim kiem) — form phai nam o QuickSearchBar tren
+      // /tim-san, khong nam trong hero.
+      heroHasForm: !!hero && !!hero.querySelector('form'),
+      searchFormCount: document.querySelectorAll('.search__form').length,
+      heroH: heroRect ? Math.round(heroRect.height) : null,
+      heroMinHeight: hero ? getComputedStyle(hero).minHeight : null,
+      viewportH: window.innerHeight,
       mediaRight: mediaRect ? Math.round(mediaRect.right) : null,
       cta,
       leftover,
@@ -94,10 +95,12 @@ try {
       scrollW,
       hasHorizontalScroll: scrollW > docW + 1,
       overflowing,
+      // Tieu de Hero da ha cap tu h1 xuong h2 (trang /tim-san da co h1 rieng).
+      headingTag: q('.hero h1, .hero h2')?.tagName ?? null,
       titleAlignedLeft: (() => {
-        const h1 = q('.hero h1');
-        if (!h1) return null;
-        const cs = getComputedStyle(h1);
+        const heading = q('.hero h1, .hero h2');
+        if (!heading) return null;
+        const cs = getComputedStyle(heading);
         return {textAlign: cs.textAlign, fontFamily: cs.fontFamily.slice(0, 40)};
       })(),
     };

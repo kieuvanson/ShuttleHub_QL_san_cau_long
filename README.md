@@ -248,7 +248,7 @@ Tất cả response có shape `{ code, message, data }`.
 | 3.9 | **Feed cộng đồng ở trang chủ** — 2 cột (feed 700px + sidebar 320px), dải khoảnh khắc, 4 tab lọc (Tất cả / Tuyển người đánh / Xét kèo / Cảm nghĩ), 4 loại bài (xét kèo · tuyển người đánh · cảm nghĩ · sân cầu lông) | ✅ |
 | 3.10 | Tương tác feed client-side (giai đoạn 1, dữ liệu demo): thích/bỏ thích, lọc theo loại, đăng bài mới (modal + radio loại + giới hạn 500 ký tự), chia sẻ deep-link `/?post=<id>` (copy clipboard + tự cuộn), toast báo tính năng chưa làm / yêu cầu đăng nhập | ✅ |
 | 3.11 | Backend cho feed (bài viết, bình luận, theo dõi, ảnh khoảnh khắc) | ⬜ |
-| 3.12 | **Tách trang chủ / trang tìm sân** — trang chủ `/` chỉ còn bảng tin cộng đồng; landing marketing (hero, sân nổi bật, bảng giá, thành phố, FAQ) chuyển sang `/tim-san`; link anchor trong header/footer cuộn đúng tới section | ✅ |
+| 3.12 | **Tách trang chủ / trang tìm sân** — trang chủ `/` chỉ còn bảng tin cộng đồng; landing marketing (hero, sân nổi bật, bảng giá, thành phố, FAQ) chuyển sang `/tim-san`; link anchor trong header/footer cuộn đúng tới section; hero rút gọn (không cao 1 màn hình, không trùng ô tìm kiếm) | ✅ |
 
 ### Giai đoạn 4 — Vận hành (Nhân viên)
 

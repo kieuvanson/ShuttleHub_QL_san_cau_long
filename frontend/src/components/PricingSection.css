@@ -6,7 +6,7 @@
 .pricing {
   width: 100%;
   background: var(--surface-1);
-  scroll-margin-top: 80px; /* neo không bị header che khi bấm "Bảng giá" */
+  scroll-margin-top: 96px; /* neo không bị header che khi bấm "Bảng giá" */
 }
 
 .pricing__inner {

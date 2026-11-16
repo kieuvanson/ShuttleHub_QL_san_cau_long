@@ -5,6 +5,7 @@
  *   node scripts/verify-split.mjs
  */
 import puppeteer from 'puppeteer-core';
+import { waitScrollSettled } from './lib/wait-scroll-settled.mjs';
 
 const CHROME = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
 const BASE = 'http://localhost:5173';
@@ -69,6 +70,10 @@ try {
       searchCount: document.querySelectorAll('[role="search"]').length,
       hero: !!q('.hero'),
       heroH: q('.hero') ? Math.round(q('.hero').getBoundingClientRect().height) : 0,
+      // Chiều cao tối thiểu theo CSS — nếu còn `100svh` thì Hero lại cao
+      // nguyên 1 màn hình (điều rút gọn cần tránh).
+      heroMinHeight: q('.hero') ? getComputedStyle(q('.hero')).minHeight : null,
+      viewportH: window.innerHeight,
       heroTop: y(q('.hero')),
       featuredTop: y(q('.featured')),
       pricingTop: y(q('.pricing')),
@@ -118,7 +123,17 @@ try {
       pricing: disc.pricingTop, cities: disc.citiesTop, faq: disc.faqTop,
     }),
   );
-  check('/tim-san Hero không cao 1 màn hình', disc.heroH < 900, `heroH=${disc.heroH}`);
+  check(
+    '/tim-san Hero không cao 1 màn hình',
+    disc.heroH < disc.viewportH * 0.75,
+    `heroH=${disc.heroH} viewportH=${disc.viewportH}`,
+  );
+  check(
+    '/tim-san Hero không có min-height 100svh',
+    !String(disc.heroMinHeight).includes('100svh') &&
+      !String(disc.heroMinHeight).includes('100vh'),
+    `minHeight=${disc.heroMinHeight}`,
+  );
 
   /* ---------- 3. Anchor scroll từ trang chủ ---------- */
   await page.goto(`${BASE}/`, { waitUntil: 'networkidle2', timeout: 60000 });
@@ -126,6 +141,10 @@ try {
     timeout: 20000,
   });
 
+  /**
+   * Bấm một link rồi chờ CUỘN ỔN ĐỊNH — smooth-scroll trên trang dài mất
+   * vài giây, timeout cố định tạo false negative.
+   */
   const clickLink = async (label) => {
     await page.evaluate((text) => {
       const link = [...document.querySelectorAll('a')].find(
@@ -134,7 +153,7 @@ try {
       if (!link) throw new Error(`không tìm thấy link "${text}"`);
       link.click();
     }, label);
-    await new Promise((r) => setTimeout(r, 1400));
+    await waitScrollSettled(page);
     return page.evaluate(() => ({
       url: location.pathname + location.hash,
       scrollY: Math.round(window.scrollY),
@@ -166,6 +185,16 @@ try {
   check('Footer "Điều khoản" → /tim-san#dieu-khoan', afterDieuKhoan.url === '/tim-san#dieu-khoan', afterDieuKhoan.url);
   check('Footer "Điều khoản" → cuộn tới #dieu-khoan', dkPos !== null && dkPos >= 0 && dkPos < 200, `top=${dkPos}`);
 
+  // Anchor nằm gần ĐÁY trang → dễ bị lệch vì trình duyệt không cuộn được
+  // tới vị trí `scroll-margin-top` nếu đó vượt quá maxScroll.
+  const afterChinhSach = await clickLink('Chính sách');
+  const csPos = await page.evaluate(() => {
+    const el = document.getElementById('chinh-sach');
+    return el ? Math.round(el.getBoundingClientRect().top) : null;
+  });
+  check('Footer "Chính sách" → /tim-san#chinh-sach', afterChinhSach.url === '/tim-san#chinh-sach', afterChinhSach.url);
+  check('Footer "Chính sách" → cuộn tới #chinh-sach', csPos !== null && csPos >= 0 && csPos < 200, `top=${csPos}`);
+
   /* ---------- 5. Link trong landing section → #ket-qua ---------- */
   await page.goto(`${BASE}/tim-san`, { waitUntil: 'networkidle2', timeout: 60000 });
   await page.waitForFunction(() => document.getElementById('ket-qua') !== null, {
@@ -192,7 +221,7 @@ try {
     );
     link.click();
   });
-  await new Promise((r) => setTimeout(r, 1200));
+  await waitScrollSettled(page);
   const after2 = await page.evaluate(() => Math.round(window.scrollY));
   const kqPos2 = await page.evaluate(() => {
     const el = document.getElementById('ket-qua');

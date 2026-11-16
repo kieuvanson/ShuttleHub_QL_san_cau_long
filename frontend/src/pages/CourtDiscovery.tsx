@@ -92,6 +92,10 @@ export function CourtDiscovery() {
 
       <div className="cd">
         <div className="cd__inner">
+          {/* <h1> ở cấp trang, ẩn thị giác — breadcrumb chỉ là <span>
+              để không có 2 heading cùng cấp trong cùng một nội dung. */}
+          <h1 className="cd__sr-only">Tìm sân cầu lông</h1>
+
           {/* Quick search bar nổi lên — nằm ngay dưới banner, đè vào mép banner một chút */}
           <div className="cd__search-wrap">
             <QuickSearchBar
@@ -103,11 +107,12 @@ export function CourtDiscovery() {
             />
           </div>
 
-          {/* Breadcrumb */}
+          {/* Breadcrumb — trang hiện tại là <span>, không phải <h1>,
+              vì <h1> đã nằm ở cấp trang (xem .cd__sr-only bên dưới) */}
           <nav className="cd__crumbs" aria-label="Đường dẫn">
             <a href="/">Trang chủ</a>
             <span className="cd__crumbs-sep" aria-hidden="true">/</span>
-            <h1 className="cd__crumbs-current" aria-current="page">Tìm sân cầu lông</h1>
+            <span className="cd__crumbs-current" aria-current="page">Tìm sân cầu lông</span>
           </nav>
 
           {/* Bộ lọc nằm NGANG phía trên */}

@@ -69,6 +69,20 @@
   color: var(--ink-0);
 }
 
+/* <h1> cấp trang — ẩn thị giác nhưng vẫn được screen reader đọc,
+   giúp định hướng và SEO. */
+.cd__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* === Results (list sân, full width) === */
 .cd__results {
   background: var(--surface-2);

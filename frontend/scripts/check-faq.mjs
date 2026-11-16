@@ -5,9 +5,10 @@
  * Dùng: node scripts/check-faq.mjs [url] [width]
  */
 import puppeteer from 'puppeteer-core';
+import { waitScrollSettled } from './lib/wait-scroll-settled.mjs';
 
 const CHROME = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
-const url = process.argv[2] ?? 'http://localhost:5173/';
+const url = process.argv[2] ?? 'http://localhost:5173/tim-san';
 const width = Number(process.argv[3] ?? 1440);
 const height = Number(process.argv[4] ?? 900);
 
@@ -78,13 +79,15 @@ try {
   );
 
   // Anchor #chinh-sach: click link footer rồi đo vị trí
+  // (FAQ nay nằm ở trang /tim-san, link footer trỏ tới /tim-san#chinh-sach)
   await page.evaluate(() => {
     const link = [...document.querySelectorAll('a')].find(
-      (a) => a.getAttribute('href') === '/#chinh-sach',
+      (a) => a.getAttribute('href') === '/tim-san#chinh-sach',
     );
     link?.click();
   });
-  await new Promise((r) => setTimeout(r, 1200));
+  // Chờ cuộn ổn định — smooth-scroll trên trang dài mất vài giây.
+  await waitScrollSettled(page);
   const anchor = await page.evaluate(() => {
     const el = document.getElementById('chinh-sach');
     if (!el) return {exists: false};

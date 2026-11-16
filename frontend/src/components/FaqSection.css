@@ -9,6 +9,10 @@
   /* Đích của anchor `#faq` → neo khỏi header sticky (76px desktop / 64px mobile).
      Dùng 96px cho khớp với `.faq__terms` và `.faq__media` trong cùng file. */
   scroll-margin-top: 96px;
+  /* Đệm cuối section: anchor `#chinh-sach` nằm gần đáy trang, nếu không có
+     khoảng đệm thì trình duyệt cuộn hết cỡ vẫn không tới được vị trí
+     `scroll-margin-top` (offset > maxScroll) → bị lệch xuống dưới header. */
+  padding-bottom: calc(var(--s-20) + 96px);
 }
 
 .faq__inner {
