@@ -91,3 +91,10 @@ frontend/dist/
 
 # Temp runtime (taste-skill audit cache + chrome profile)
 .taste-skill/
+
+# Superpowers: ledger/brief của plan đang chạy (git-ignored scratch)
+.superpowers/
+
+# Log chạy backend tay (spring-boot:run redirect)
+backend/run*.out
+backend/run*.err

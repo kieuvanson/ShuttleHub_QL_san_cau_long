@@ -80,6 +80,11 @@ public class User {
     @Column(name = "full_name", length = 100)
     private String fullName;
 
+    @Column(name = "avatar_url", length = 500)
+    // ⚠️ NULL = user không đăng nhập qua OAuth → frontend hiện chữ cái đầu.
+    // length 500: URL ảnh Facebook (có chữ ký query) có thể dài vài trăm ký tự.
+    private String avatarUrl;
+
     @Size(min = 10, max = 15)
     // ✅ @Size: Validation giới hạn độ dài chuỗi
     // min = 10: Tối thiểu 10 ký tự
