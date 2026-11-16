@@ -92,7 +92,8 @@ public class ProfileService {
                 user.getFullName(),
                 user.getPhoneNumber(),
                 user.getRole().name(),
-                user.getCreatedAt()
+                user.getCreatedAt(),
+                user.getAvatarUrl()
         );
     }
 }

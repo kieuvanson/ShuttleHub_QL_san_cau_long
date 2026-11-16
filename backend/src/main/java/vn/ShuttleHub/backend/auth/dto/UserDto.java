@@ -9,5 +9,6 @@ public record UserDto(
     String fullName,
     String phoneNumber,
     String role,
-    LocalDateTime createdAt
+    LocalDateTime createdAt,
+    String avatarUrl
 ) {}

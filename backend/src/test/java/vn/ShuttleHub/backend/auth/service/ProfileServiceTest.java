@@ -15,6 +15,7 @@ import vn.ShuttleHub.backend.repository.UserRepository;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -157,5 +158,34 @@ class ProfileServiceTest {
         assertEquals("newmail@x.com", dto.email());
         // SĐT cũ giữ nguyên
         assertEquals("84900000000", dto.phoneNumber());
+    }
+
+    @Test
+    @DisplayName("UserDto trả avatarUrl — frontend hiện ảnh đại diện từ đây")
+    void updateProfile_dtoIncludesAvatarUrl() {
+        User u = userWithPhone();
+        u.setAvatarUrl("https://cdn.fb/son.jpg");
+        when(userRepo.findById("u-2")).thenReturn(Optional.of(u));
+        when(userRepo.existsByEmail("newmail@x.com")).thenReturn(false);
+        when(userRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        var dto = service.updateProfile("u-2",
+                new ProfileUpdateRequest("newmail@x.com", null, null));
+
+        assertEquals("https://cdn.fb/son.jpg", dto.avatarUrl());
+    }
+
+    @Test
+    @DisplayName("User không có avatar (đăng ký bằng email) → avatarUrl = null, không lỗi")
+    void updateProfile_dtoAvatarUrlNullWhenAbsent() {
+        User u = userWithPhone();
+        when(userRepo.findById("u-2")).thenReturn(Optional.of(u));
+        when(userRepo.existsByEmail("newmail@x.com")).thenReturn(false);
+        when(userRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        var dto = service.updateProfile("u-2",
+                new ProfileUpdateRequest("newmail@x.com", null, null));
+
+        assertNull(dto.avatarUrl());
     }
 }

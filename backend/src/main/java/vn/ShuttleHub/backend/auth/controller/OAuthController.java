@@ -80,7 +80,7 @@ public class OAuthController {
                 ? OAuthTicketStatus.READY
                 : OAuthTicketStatus.NEEDS_PHONE;
         return ResponseEntity.ok(ApiResponse.success("OK",
-                new OAuthTicketStatus(status, t.getProvider(), t.getFullName())));
+                new OAuthTicketStatus(status, t.getProvider(), t.getFullName(), t.getAvatarUrl())));
     }
 
     /**

@@ -303,7 +303,8 @@ public class AuthService {
             user.getFullName(),
             user.getPhoneNumber(),
             user.getRole().name(),
-            user.getCreatedAt()
+            user.getCreatedAt(),
+            user.getAvatarUrl()
         );
     }
 

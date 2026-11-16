@@ -6,7 +6,8 @@ package vn.ShuttleHub.backend.auth.dto;
 public record OAuthTicketStatus(
         String status,      // "READY" | "NEEDS_PHONE"
         String provider,
-        String fullName
+        String fullName,
+        String avatarUrl
 ) {
     public static final String READY = "READY";
     public static final String NEEDS_PHONE = "NEEDS_PHONE";
