@@ -10,45 +10,16 @@
   overflow: hidden;
 }
 
-/* Hero phải chiếm TRỌN màn hình đầu tiên — không section nào được lộ ra
-   bên dưới khi tải trang (check `hero-fill` của skill taste-skill).
-   `100svh` = chiều cao viewport nhỏ nhất (không bị co lại khi thanh điều
-   hướng mobile thu vào), trừ chiều cao header sticky 76px (64px ở mobile).
-
-   `.hero__inner` cao đúng bằng `.hero` và `justify-content: space-between`
-   → lưới nội dung bám đỉnh, thanh tìm kiếm bám đáy. Nhờ vậy khoảng hở
-   giữa hero và section kế tiếp LUÔN bằng tổng padding hai bên (96px),
-   không phụ thuộc chiều cao viewport. Nếu canh giữa (`center`), trên
-   màn hình cao (tablet 820x1180) sẽ dồn ~350px trống xuống giữa và
-   khoảng hở lệch hẳn so với các section còn lại (check `section-gaps`). */
-.hero {
-  min-height: calc(100svh - 76px);
-  display: flex;
-  flex-direction: column;
-}
-
-/* `Section` của Astryx render ra 1 `<div>` bọc ngoài (nhận class `hero`)
-   chứa `<section>` bên trong. Mặc định `<section>` là `flex: 0 1 auto` nên
-   chỉ cao đúng bằng nội dung, còn wrapper cao `100svh` → dư hàng trăm px
-   trống phía dưới → khoảng hở giữa hero và section sau lệch hẳn so với
-   các section còn lại (check `section-gaps`, `empty-area`).
-   Buộc `<section>` trở thành flex item co giãn và `.hero__inner` bám đáy. */
-.hero > :first-child {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
+/* Hero nằm GIỮA trang `/tim-san` (dưới khối tìm sân) nên không còn lấp trọn
+   màn hình đầu tiên như trước — bỏ `min-height: 100svh` để trang không bị
+   thêm một màn hình trắng vô nghĩa giữa bản đồ và danh sách sân. */
 .hero__inner {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   padding: var(--s-12) var(--s-6);
-  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   gap: var(--s-8);
 }
 
@@ -63,12 +34,6 @@
    và các dòng lệch trái khác nhau vài px → check `stagger` báo lỗi. */
 .hero__copy {
   max-width: 620px;
-}
-
-/* Thanh tìm kiếm chạy trọn chiều rộng dưới cả hai cột → hero được lấp
-   đầy, không còn khoảng trống lớn ở giữa (check `empty-area`). */
-.hero__search {
-  flex: 0 0 auto;
 }
 
 .hero__actions {
@@ -138,12 +103,6 @@
   /* Ảnh lên trên trên mobile để nội dung chính nằm ngay dưới header */
   .hero__media {
     order: -1;
-  }
-}
-
-@media (max-width: 720px) {
-  .hero {
-    min-height: calc(100svh - 64px);
   }
 }
 

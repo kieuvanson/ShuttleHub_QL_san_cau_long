@@ -6,7 +6,6 @@ import { Heading, Text } from '@astryxdesign/core/Text';
 import { Button } from '@astryxdesign/core/Button';
 import { Badge } from '@astryxdesign/core/Badge';
 import { Section } from '@astryxdesign/core/Section';
-import { SearchBar } from './SearchBar';
 import './Hero.css';
 
 const HERO_STATS = [
@@ -30,6 +29,16 @@ const fadeUp: Variants = {
   }),
 };
 
+/**
+ * Hero — khối mở đầu của trang tìm sân `/tim-san`.
+ *
+ * Trước đây hero nằm ở đầu trang chủ và chiếm trọn màn hình đầu tiên
+ * (`min-height: 100svh`). Nay nó nằm GIỮA trang `/tim-san` (dưới khối tìm
+ * sân) nên không còn chỗ để lấp trọn viewport → bỏ chiều cao cố định.
+ *
+ * Hero cũng **không** còn ô tìm kiếm: trang tìm sân đã có `QuickSearchBar`
+ * ngay phía trên, giữ lại sẽ thành 2 form tìm sân trên cùng một trang.
+ */
 export function Hero() {
   return (
     <Section variant="transparent" padding={0} className="hero">
@@ -41,7 +50,7 @@ export function Hero() {
             </motion.div>
 
             <motion.div variants={fadeUp} initial="hidden" animate="show" custom={1} className="hero__title">
-              <Heading level={1} type="display-2" textWrap="balance">
+              <Heading level={2} type="display-2" textWrap="balance">
                 Đặt sân cầu lông trong 30 giây
               </Heading>
             </motion.div>
@@ -54,8 +63,10 @@ export function Hero() {
 
             <motion.div variants={fadeUp} initial="hidden" animate="show" custom={3} className="hero__cta">
               <HStack gap={3} className="hero__actions">
-                <Button label="Tìm sân trống" variant="primary" href="/tim-san" />
-                <Button label="Xem bảng giá" variant="secondary" href="/#bang-gia" />
+                {/* `#ket-qua` = khối danh sách sân. Link có hash để trình duyệt
+                    cuộn tới đúng chỗ; gọn `/tim-san` thì không cuộn gì cả. */}
+                <Button label="Tìm sân trống" variant="primary" href="/tim-san#ket-qua" />
+                <Button label="Xem bảng giá" variant="secondary" href="/tim-san#bang-gia" />
               </HStack>
             </motion.div>
 
@@ -80,8 +91,8 @@ export function Hero() {
           >
             {/* Khung ảnh dùng `aspect-ratio` thuần thay cho `AspectRatio` của
                 Astryx: cần đổi tỉ lệ theo viewport (vuông ở desktop, 16:9 ở
-                tablet) để hero lấp đầy màn hình, không để lại khoảng trống
-                lớn ở giữa (check `empty-area`, `section-gaps`). */}
+                tablet) để ảnh lấp đầy cột, không để lại khoảng trống lớn ở
+                giữa (check `empty-area`, `section-gaps`). */}
             <div className="hero__frame">
               <img
                 src="/banner_hero2.jpg"
@@ -92,20 +103,6 @@ export function Hero() {
             </div>
           </motion.div>
         </Grid>
-
-        {/* Thanh tìm kiếm nằm DƯỚI cả hai cột, chạy trọn chiều rộng.
-            Nếu để trong cột chữ thì cột ảnh bị trống bên dưới, hero rỗng
-            hơn 200px ở giữa và khoảng hở giữa các section lệch so với
-            các section khác (check `section-gaps` và `empty-area`). */}
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          animate="show"
-          custom={5}
-          className="hero__search"
-        >
-          <SearchBar />
-        </motion.div>
       </div>
     </Section>
   );
