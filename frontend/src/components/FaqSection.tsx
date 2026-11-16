@@ -82,7 +82,7 @@ export function FaqSection() {
               </Text>
             </div>
 
-            <Button label="Tìm sân trống" variant="primary" href="/tim-san" />
+            <Button label="Tìm sân trống" variant="primary" href="/tim-san#ket-qua" />
           </VStack>
 
           <div className="faq__media">

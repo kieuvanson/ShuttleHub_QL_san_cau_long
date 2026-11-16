@@ -76,8 +76,8 @@
   border-radius: var(--r-md);
   padding: var(--s-5);
   min-width: 0;
-  /* Đích của anchor `#ket-qua` → neo khỏi header sticky. */
-  scroll-margin-top: 80px;
+  /* Đích của anchor `#ket-qua` → neo khỏi header sticky (76px desktop / 64px mobile). */
+  scroll-margin-top: 96px;
 }
 
 .cd__results-head {

@@ -34,4 +34,24 @@ describe('CourtDiscovery — trang tìm sân', () => {
     // `QuickSearchBar` dùng role="search"; form cũ của Hero đã bị bỏ.
     expect(screen.getAllByRole('search')).toHaveLength(1);
   });
+
+  it('không còn link nào tới /tim-san mà thiếu hash', () => {
+    const {container} = renderPage();
+    // Link `to="/tim-san"` khi đang đứng ở `/tim-san` là no-op của React
+    // Router: URL không đổi, trang không cuộn → người dùng bấm mà không có
+    // gì xảy ra. Mọi link nội bộ tới trang tìm sân phải kèm hash.
+    const anchors = Array.from(container.querySelectorAll('a[href*="/tim-san"]'));
+    expect(anchors.length).toBeGreaterThan(0);
+    for (const a of anchors) {
+      expect(a.getAttribute('href')).toMatch(/#/);
+    }
+  });
+
+  it('có link đi tới kết quả tìm sân', () => {
+    const {container} = renderPage();
+    const toResults = Array.from(
+      container.querySelectorAll('a[href*="/tim-san#ket-qua"]'),
+    );
+    expect(toResults.length).toBeGreaterThan(0);
+  });
 });

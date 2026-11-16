@@ -79,7 +79,7 @@ export function PricingSection() {
                   ))}
                 </ul>
 
-                <Button label="Xem sân theo ca này" variant="secondary" href="/tim-san" />
+                <Button label="Xem sân theo ca này" variant="secondary" href="/tim-san#ket-qua" />
               </VStack>
             </Card>
           ))}

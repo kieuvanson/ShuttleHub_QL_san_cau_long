@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { AppLink } from './AppLink';
 import { Grid } from '@astryxdesign/core/Grid';
 import { VStack } from '@astryxdesign/core/VStack';
 import { HStack } from '@astryxdesign/core/HStack';
@@ -38,9 +38,9 @@ export function FeaturedCourts() {
               Cụm sân có lượt đặt nhiều nhất trong ngày.
             </Text>
           </div>
-          <Link to="/tim-san" className="featured__more">
+          <AppLink to="/tim-san#ket-qua" className="featured__more">
             Xem tất cả <span aria-hidden="true">→</span>
-          </Link>
+          </AppLink>
         </div>
 
         <Grid columns={{minWidth: 220, max: 6}} gap={4} className="featured__grid">
@@ -51,7 +51,7 @@ export function FeaturedCourts() {
                 <ClickableCard
                   key={court.id}
                   label={`Đặt sân ${court.name}`}
-                  href="/tim-san"
+                  href="/tim-san#ket-qua"
                   padding={0}
                   className="featured__card featured__card--lead"
                 >
@@ -115,7 +115,7 @@ export function FeaturedCourts() {
               <ClickableCard
                 key={court.id}
                 label={`Đặt sân ${court.name}`}
-                href="/tim-san"
+                href="/tim-san#ket-qua"
                 padding={0}
                 className={`featured__card featured__card--r${index}`}
               >

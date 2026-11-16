@@ -54,7 +54,7 @@ export function CitiesSection() {
               <ClickableCard
                 key={city.id}
                 label={`Tìm sân ở ${city.label}`}
-                href="/tim-san"
+                href="/tim-san#ket-qua"
                 padding={0}
                 className={`cities__card cities__card--s${index}`}
               >

@@ -6,6 +6,9 @@
 .faq {
   width: 100%;
   background: var(--surface-1);
+  /* Đích của anchor `#faq` → neo khỏi header sticky (76px desktop / 64px mobile).
+     Dùng 96px cho khớp với `.faq__terms` và `.faq__media` trong cùng file. */
+  scroll-margin-top: 96px;
 }
 
 .faq__inner {
