@@ -17,6 +17,8 @@ export interface User {
   phoneNumber: string | null;
   role: 'CUSTOMER' | 'ADMIN' | string;
   createdAt: string;
+  /** URL ảnh đại diện (Facebook) — null nếu user không đăng nhập qua OAuth */
+  avatarUrl: string | null;
 }
 
 export interface AuthResponse {
@@ -37,6 +39,7 @@ export interface OAuthTicketStatus {
   status: 'READY' | 'NEEDS_PHONE';
   provider: string;
   fullName: string | null;
+  avatarUrl: string | null;
 }
 
 /**
