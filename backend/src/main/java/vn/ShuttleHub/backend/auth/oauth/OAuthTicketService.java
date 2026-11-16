@@ -17,7 +17,8 @@ import java.util.Base64;
  * ⚠️ Vì sao cần ticket thay vì đưa JWT vào URL?
  *   URL nằm trong browser history, log access của nginx/APM, và header
  *   Referer khi user bấm link ra ngoài. Ticket chỉ dùng được 1 lần,
- *   hết hạn sau 60 giây và không chứa PII → vô hại khi lọt.
+ *   hết hạn sau 60 giây (ticket đăng nhập) / 300 giây (ticket chờ xác minh
+ *   SĐT) và không chứa PII → vô hại khi lọt.
  */
 @Service
 public class OAuthTicketService {
@@ -27,33 +28,47 @@ public class OAuthTicketService {
 
     private final OAuthTicketRepository repo;
 
-    /** TTL của ticket (giây). */
+    /** TTL của ticket đăng nhập (giây) — đổi lấy JWT ngay lập tức. */
     private final int ttlSeconds;
+
+    /**
+     * TTL của ticket CHỜ (giây).
+     *
+     * ⚠️ Vì sao phải dài hơn TTL của ticket đăng nhập?
+     * Nhánh Facebook KHÔNG chia sẻ email: user phải nhập SĐT → chờ SMS →
+     * gõ 6 ký tự OTP. Nếu chỉ sống 60 giây thì rất dễ hết hạn giữa chừng
+     * (đặc biệt khi phải bấm "Gửi lại mã" sau cooldown 60s) → user mất
+     * phiên đăng nhập và phải đăng nhập Facebook lại từ đầu.
+     * → Cho ticket chờ sống ≥ TTL của OTP (300s).
+     */
+    private final int pendingTtlSeconds;
 
     private final SecureRandom random = new SecureRandom();
 
     /**
-     * ⚠️ Dùng constructor injection cho `ttlSeconds` (không phải `@Value`
-     * trên field) — vì unit test instantiate class này trực tiếp, mà
+     * ⚠️ Dùng constructor injection cho các giá trị `@Value` (không phải
+     * `@Value` trên field) — vì unit test instantiate class này trực tiếp, mà
      * `@Value` trên field sẽ không được set → TTL = 0 → ticket hết hạn
      * ngay lập tức.
      */
     public OAuthTicketService(
             OAuthTicketRepository repo,
-            @Value("${app.oauth.ticket-ttl-seconds:60}") int ttlSeconds
+            @Value("${app.oauth.ticket-ttl-seconds:60}") int ttlSeconds,
+            @Value("${app.oauth.ticket-pending-ttl-seconds:300}") int pendingTtlSeconds
     ) {
         this.repo = repo;
         this.ttlSeconds = ttlSeconds;
+        this.pendingTtlSeconds = pendingTtlSeconds;
     }
 
     /**
-     * Sinh ticket CHỜ — dùng khi user chưa có tài khoản (Facebook cần hoàn
-     * thiện hồ sơ). Ticket này KHÔNG đổi được JWT cho tới khi user hoàn
-     * thiện hồ sơ và {@link #attachUser} được gọi.
+     * Sinh ticket CHỜ — dùng khi user chưa có tài khoản (Facebook không
+     * chia sẻ email → cần xác minh SĐT). Ticket này KHÔNG đổi được JWT cho
+     * tới khi user xác minh SĐT và {@link #attachUser} được gọi.
      */
     @Transactional
     public String issuePending(String provider, String providerUserId, String fullName) {
-        return save(provider, providerUserId, fullName, null);
+        return save(provider, providerUserId, fullName, null, pendingTtlSeconds);
     }
 
     /**
@@ -61,10 +76,10 @@ public class OAuthTicketService {
      */
     @Transactional
     public String issueForUser(String userId, String provider, String providerUserId) {
-        return save(provider, providerUserId, null, userId);
+        return save(provider, providerUserId, null, userId, ttlSeconds);
     }
 
-    private String save(String provider, String providerUserId, String fullName, String userId) {
+    private String save(String provider, String providerUserId, String fullName, String userId, int ttl) {
         String ticket = generateTicket();
         repo.save(OAuthTicket.builder()
                 .ticket(ticket)
@@ -72,7 +87,7 @@ public class OAuthTicketService {
                 .provider(provider)
                 .providerUserId(providerUserId)
                 .fullName(fullName)
-                .expiresAt(LocalDateTime.now().plusSeconds(ttlSeconds))
+                .expiresAt(LocalDateTime.now().plusSeconds(ttl))
                 .used(false)
                 .createdAt(LocalDateTime.now())
                 .build());

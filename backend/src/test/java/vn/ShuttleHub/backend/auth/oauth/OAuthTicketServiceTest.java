@@ -46,7 +46,7 @@ class OAuthTicketServiceTest {
      */
     @org.junit.jupiter.api.BeforeEach
     void setUp() {
-        service = new OAuthTicketService(repo, 60);
+        service = new OAuthTicketService(repo, 60, 300);
     }
 
     private OAuthTicket ticket(String userId, boolean used, LocalDateTime expiresAt) {
@@ -57,7 +57,7 @@ class OAuthTicketServiceTest {
     }
 
     @Test
-    @DisplayName("Sinh ticket chờ (Facebook) → userId null, hết hạn sau 60 giây")
+    @DisplayName("Sinh ticket chờ (Facebook) → userId null, hết hạn sau TTL dài")
     void issuePending_setsNullUserAndExpiry() {
         ArgumentCaptor<OAuthTicket> captor = ArgumentCaptor.forClass(OAuthTicket.class);
         when(repo.save(any())).thenAnswer(inv -> inv.getArgument(0));
@@ -74,6 +74,33 @@ class OAuthTicketServiceTest {
         assertEquals("Nguyen Van A", saved.getFullName());
         assertFalse(saved.getUsed());
         assertTrue(saved.getExpiresAt().isAfter(LocalDateTime.now().plusSeconds(50)));
+    }
+
+    @Test
+    @DisplayName("Sinh ticket chờ (Facebook) → TTL dài hơn để user kịp nhận SMS + gõ OTP")
+    void issuePending_usesLongerTtl() {
+        ArgumentCaptor<OAuthTicket> captor = ArgumentCaptor.forClass(OAuthTicket.class);
+        when(repo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        service.issuePending("facebook", "pid-1", "Nguyen Van A");
+
+        verify(repo).save(captor.capture());
+        // Ticket chờ phải sống ≥ 5 phút (OTP TTL) → user kịp nhận SMS và gõ mã.
+        assertTrue(captor.getValue().getExpiresAt().isAfter(LocalDateTime.now().plusSeconds(240)),
+                "ticket chờ phải sống đủ lâu để user nhận SMS + gõ OTP");
+    }
+
+    @Test
+    @DisplayName("Sinh ticket đăng nhập (Google) → TTL ngắn (đổi JWT ngay)")
+    void issueForUser_usesShortTtl() {
+        ArgumentCaptor<OAuthTicket> captor = ArgumentCaptor.forClass(OAuthTicket.class);
+        when(repo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        service.issueForUser("user-1", "google", "sub-1");
+
+        verify(repo).save(captor.capture());
+        assertTrue(captor.getValue().getExpiresAt().isBefore(LocalDateTime.now().plusSeconds(120)),
+                "ticket đăng nhập chỉ cần sống ngắn");
     }
 
     @Test

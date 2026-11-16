@@ -8,7 +8,7 @@ import { OtpInput } from '../components/OtpInput';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../api/auth';
 import { ApiError } from '../api/types';
-import { isValidPhone } from '../utils/phone';
+import { isValidPhone, normalizePhone } from '../utils/phone';
 import './AccountPage.css';
 
 const OTP_LENGTH = 6;
@@ -83,10 +83,19 @@ export function AccountPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const next: Errors = {};
-    const emailChanged = email.trim().toLowerCase() !== (user?.email ?? '').toLowerCase();
-    const phoneChanged = phone.trim() !== (user?.phoneNumber ?? '');
 
-    if (emailChanged && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    // ⚠️ Ô trống = "không đổi", KHÔNG phải "đổi thành rỗng".
+    //   Nếu so sánh thẳng chuỗi rỗng với giá trị hiện tại thì user chỉ muốn
+    //   đổi SĐT sẽ bị coi là "đổi email" (email rỗng → sai định dạng) và
+    //   user đã có SĐT sẽ bị bắt nhập OTP oan.
+    const emailInput = email.trim().toLowerCase();
+    const emailChanged = emailInput !== '' && emailInput !== (user?.email ?? '').toLowerCase();
+
+    // So sánh ở dạng E.164 để khớp với chuẩn hoá của backend.
+    const phoneInput = normalizePhone(phone);
+    const phoneChanged = phoneInput !== null && phoneInput !== (user?.phoneNumber ?? '');
+
+    if (emailChanged && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput)) {
       next.email = 'Email chưa đúng định dạng.';
     }
     if (phoneChanged && !isValidPhone(phone)) {
@@ -102,9 +111,9 @@ export function AccountPage() {
     setSaved(false);
     try {
       const payload: { email?: string; phone?: string; otp?: string } = {};
-      if (emailChanged) payload.email = email.trim().toLowerCase();
+      if (emailChanged) payload.email = emailInput;
       if (phoneChanged) {
-        payload.phone = phone;
+        payload.phone = phoneInput ?? undefined;
         payload.otp = otp;
       }
       await updateProfile(payload);

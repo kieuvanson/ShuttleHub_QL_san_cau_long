@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mockup — Trang chủ Cầu Lông dee (feed cộng đồng)</title>
+<style>
+  /* ============================================================
+     BẢN MẪU — duyệt bố cục/màu, chưa phải code production.
+     • Logo: dùng đúng logo của app (logo_page.svg) như Header.tsx
+     • Icon: lucide-react (đã cài sẵn trong dự án) — nhúng dạng SVG sprite
+     • Màu feed bám Facebook (quen tay), nhưng bố cục KHÁC: 2 cột lệch,
+       không có rail điều hướng trái, bo góc mềm hơn.
+     ============================================================ */
+  :root {
+    --fb-blue: #1877f2;
+    --fb-blue-hover: #166fe5;
+    --bg: #f0f2f5;
+    --card: #ffffff;
+    --ink-0: #050505;
+    --ink-1: #65676b;
+    --ink-2: #8a8d91;
+    --line: #e4e6eb;
+    --hover: #f2f2f2;
+    --r-card: 12px;
+    --r-ctl: 8px;
+    --r-pill: 999px;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink-0);
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--fb-blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  button { font-family: inherit; cursor: pointer; }
+
+  /* Icon lucide: màu + stroke theo currentColor */
+  .ico {
+    width: 20px; height: 20px; flex: 0 0 auto;
+    fill: none; stroke: currentColor;
+    stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  }
+  .ico--sm { width: 16px; height: 16px; }
+  .ico--lg { width: 22px; height: 22px; }
+
+  /* ---------- Header (giống app thật) ---------- */
+  .hd {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255,255,255,.92);
+    backdrop-filter: saturate(140%) blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .hd__in {
+    max-width: 1280px; height: 76px; margin: 0 auto;
+    display: flex; align-items: center; gap: 12px; padding: 0 16px;
+  }
+  /* Logo: dùng đúng file logo của app */
+  .brand { display: flex; align-items: center; gap: 12px; flex: 0 0 auto; text-decoration: none; }
+  .brand__logo { height: 52px; width: auto; display: block; }
+  .brand__word {
+    font-weight: 800; font-size: 24px; letter-spacing: -0.015em; white-space: nowrap;
+    background: linear-gradient(135deg, #c2410c 0%, #ea580c 50%, #f97316 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: transparent;
+  }
+  .search {
+    flex: 1; max-width: 320px; display: flex; align-items: center;
+    background: var(--bg); border-radius: var(--r-pill); padding: 9px 14px; gap: 10px;
+  }
+  .search input { border: 0; background: transparent; outline: none; font-size: 14px; width: 100%; }
+  .hd__spacer { flex: 1; }
+  .hd__icons { display: flex; align-items: center; gap: 6px; }
+  .icon-btn {
+    width: 40px; height: 40px; border: 0; border-radius: 50%;
+    background: var(--bg); display: grid; place-items: center; color: var(--ink-1);
+  }
+  .icon-btn:hover { background: #e4e6eb; }
+  /* Avatar tròn dùng logo app (bản crop tròn của logo_page.svg) */
+  .avatar {
+    width: 40px; height: 40px; border-radius: 50%; overflow: hidden;
+    flex: 0 0 auto; display: grid; place-items: center;
+    background: linear-gradient(135deg, #31a24c, #1877f2);
+    color: #fff; font-weight: 700; font-size: 14px;
+  }
+  .avatar--sm { width: 34px; height: 34px; font-size: 12px; }
+  .avatar--lg { width: 44px; height: 44px; font-size: 15px; }
+
+  /* ---------- Khung 2 cột lệch (KHÁC Facebook 3 cột) ---------- */
+  .shell {
+    max-width: 1280px; margin: 0 auto; padding: 20px 16px 60px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 24px;
+    align-items: start;
+  }
+  .col-feed { max-width: 700px; width: 100%; margin: 0 auto; }
+  .col-side { position: sticky; top: 84px; display: grid; gap: 16px; }
+
+  /* ---------- Card ---------- */
+  .card {
+    background: var(--card);
+    border-radius: var(--r-card);
+    box-shadow: 0 1px 2px rgba(0,0,0,.09);
+    margin-bottom: 16px;
+  }
+  .card__pad { padding: 12px 16px; }
+
+  /* ---------- Stories ---------- */
+  .stories { display: flex; gap: 12px; overflow-x: auto; padding: 14px 16px; }
+  .story { width: 108px; flex: 0 0 auto; text-align: center; }
+  .story__ring {
+    width: 108px; height: 108px; border-radius: 12px; overflow: hidden;
+    border: 3px solid var(--fb-blue); position: relative; background: #ddd;
+  }
+  .story__ring img { width: 100%; height: 100%; object-fit: cover; }
+  .story__plus {
+    position: absolute; right: 6px; bottom: 6px;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--fb-blue); color: #fff;
+    display: grid; place-items: center; border: 2px solid #fff;
+  }
+  .story__name { font-size: 12px; margin-top: 6px; color: var(--ink-1); }
+
+  /* ---------- Composer ---------- */
+  .composer__top { display: flex; gap: 10px; align-items: center; }
+  .composer__fake {
+    flex: 1; background: var(--bg); border-radius: var(--r-pill);
+    padding: 11px 14px; font-size: 15px; color: var(--ink-1);
+  }
+  .composer__fake:hover { background: #ebedf0; }
+  .composer__acts {
+    display: flex; border-top: 1px solid var(--line); margin-top: 12px; padding-top: 8px;
+  }
+  .act {
+    flex: 1; border: 0; background: transparent;
+    padding: 8px; border-radius: var(--r-ctl);
+    font-size: 14px; font-weight: 600; color: var(--ink-1);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .act:hover { background: var(--hover); }
+
+  /* ---------- Tabs feed ---------- */
+  .tabs { display: flex; border-bottom: 1px solid var(--line); }
+  .tab {
+    flex: 1; border: 0; background: transparent; padding: 14px 8px;
+    font-size: 15px; font-weight: 600; color: var(--ink-1);
+    border-bottom: 3px solid transparent; margin-bottom: -1px;
+  }
+  .tab:hover { background: var(--hover); }
+  .tab--on { color: var(--fb-blue); border-bottom-color: var(--fb-blue); }
+
+  /* ---------- Post ---------- */
+  .post__head { display: flex; gap: 10px; align-items: center; padding: 12px 16px 0; }
+  .post__name { font-weight: 600; font-size: 15px; }
+  .post__meta { font-size: 13px; color: var(--ink-2); }
+  .post__body { padding: 8px 16px 0; font-size: 15px; }
+  .post__body strong { font-weight: 600; }
+  .post__img { margin-top: 10px; }
+  .post__img img { width: 100%; display: block; max-height: 520px; object-fit: cover; }
+  .post__stats {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 16px 0; font-size: 13px; color: var(--ink-2);
+  }
+  .likes { display: flex; align-items: center; gap: 6px; }
+  .likes__ico {
+    width: 18px; height: 18px; border-radius: 50%; background: var(--fb-blue);
+    color: #fff; display: grid; place-items: center;
+  }
+  .likes__ico .ico { width: 11px; height: 11px; fill: currentColor; }
+  .post__sep { height: 1px; background: var(--line); margin: 10px 16px 0; }
+  .post__acts { display: flex; padding: 4px 8px; }
+  .post__act {
+    flex: 1; border: 0; background: transparent; padding: 8px;
+    border-radius: var(--r-ctl); font-size: 14px; font-weight: 600; color: var(--ink-1);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .post__act:hover { background: var(--hover); }
+
+  /* ---------- Nhãn loại bài (KHÁC Facebook: tiếng Việt + màu riêng) ---------- */
+  .tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: var(--r-pill);
+    font-size: 12px; font-weight: 700; letter-spacing: .2px;
+  }
+  .tag .ico { width: 14px; height: 14px; }
+  .tag--recruit   { background: #e7f6ec; color: #1a7f37; }
+  .tag--challenge { background: #fff1e6; color: #c2410c; }
+  .tag--thought   { background: #eef1f6; color: #475467; }
+  .tag--court    { background: #e8f0fe; color: #1550b3; }
+
+  /* ---------- Sidebar ---------- */
+  .side__title {
+    font-size: 17px; font-weight: 700; padding: 14px 16px 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .side__link {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 16px; font-size: 14px; color: var(--ink-1);
+  }
+  .side__link:hover { background: var(--hover); text-decoration: none; }
+  .side__ico {
+    width: 36px; height: 36px; border-radius: 9px; flex: 0 0 auto;
+    display: grid; place-items: center; background: var(--bg); color: var(--ink-1);
+  }
+  .side__link b { color: var(--ink-0); font-weight: 600; display: block; }
+  .side__link small { color: var(--ink-2); }
+  .side__foot { padding: 12px 16px 16px; font-size: 12px; color: var(--ink-2); line-height: 1.7; }
+  .side__foot a { color: var(--ink-2); margin-right: 10px; }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 1100px) {
+    .shell { grid-template-columns: minmax(0, 1fr); }
+    .col-feed { max-width: 680px; }
+    .col-side { position: static; max-width: 680px; margin: 0 auto; width: 100%; }
+  }
+  @media (max-width: 600px) {
+    .hd__in { gap: 8px; }
+    .search { display: none; }
+    .shell { padding: 12px 0 40px; }
+    .col-feed, .col-side { max-width: 100%; }
+    .card { border-radius: 0; margin-bottom: 10px; }
+    .post__body { font-size: 14px; }
+    .post__act { font-size: 13px; }
+    .tab { font-size: 13px; padding: 12px 4px; }
+  }
+
+  .searchbox {
+    margin: 0 16px 12px; display: flex; align-items: center; gap: 8px;
+    background: var(--bg); border-radius: var(--r-ctl); padding: 9px 12px; color: var(--ink-2);
+  }
+  .searchbox input { border: 0; background: transparent; outline: none; width: 100%; font-size: 14px; }
+
+  .note {
+    max-width: 1280px; margin: 0 auto; padding: 0 16px 24px;
+    font-size: 12px; color: #8a8d91; line-height: 1.7;
+  }
+  .note b { color: #65676b; }
+</style>
+</head>
+<body>
+
+<!-- ===== SPRITE ICON LUCIDE (trích từ lucide-react đã cài trong dự án) ===== -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <symbol id="i-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></symbol>
+  <symbol id="i-house" viewBox="0 0 24 24"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/></symbol>
+  <symbol id="i-message-circle" viewBox="0 0 24 24"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></symbol>
+  <symbol id="i-share-2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></symbol>
+  <symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><path d="M8 2v3"/><path d="M16 2v3"/><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+  <symbol id="i-ellipsis" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></symbol>
+  <symbol id="i-user-plus" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+  <symbol id="i-feather" viewBox="0 0 24 24"><path d="M14.086 18.412A2 2 0 0112.67 19H5v-7.672a2 2 0 01.586-1.414L11.75 3.75a6 6 0 118.49 8.49z"/><path d="M16 8 2 22"/><path d="M17.488 15H9"/></symbol>
+  <symbol id="i-goal" viewBox="0 0 24 24"><path d="M12 13V2l8 4-8 4"/><path d="M20.561 10.222a9 9 0 1 1-12.55-5.29"/><path d="M8.002 9.997a5 5 0 1 0 8.9 2.02"/></symbol>
+  <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M10 14.66V17a1 1 0 0 1-1 1 2 2 0 0 0-2 2v2"/><path d="M14 14.66V17a1 1 0 0 0 1 1 2 2 0 0 1 2 2v2"/><path d="M17.916 10H19.5A2.5 2.5 0 0 0 22 7.5V5a2 2 0 0 0-1-1h-3"/><path d="M4 22h16"/><path d="M6 9a6 6 0 0 0 12 0V3a2 2 0 0 0-1-1H7a2 2 0 0 0-1 1z"/><path d="M6.084 10H4.5A2.5 2.5 0 0 1 2 7.5V5a2 2 0 0 1 1-1h3"/></symbol>
+  <symbol id="i-zap" viewBox="0 0 24 24"><path d="M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z"/></symbol>
+  <symbol id="i-badge-check" viewBox="0 0 24 24"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m16 9-5.5 5.5L8 12"/></symbol>
+  <symbol id="i-shield-check" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+</svg>
+
+<header class="hd">
+  <div class="hd__in">
+    <!-- Logo giống hệt Header.tsx của app -->
+    <a class="brand" href="#">
+      <img src="logo_page.svg" alt="" class="brand__logo" />
+      <span class="brand__word">Cầu Lông dee</span>
+    </a>
+
+    <label class="search">
+      <svg class="ico ico--sm" aria-hidden="true"><use href="#i-search" /></svg>
+      <input placeholder="Tìm sân, tìm người chơi…" />
+    </label>
+
+    <div class="hd__spacer"></div>
+    <div class="hd__icons">
+      <button class="icon-btn" title="Trang chủ"><svg class="ico" aria-hidden="true"><use href="#i-house" /></svg></button>
+      <button class="icon-btn" title="Cộng đồng"><svg class="ico" aria-hidden="true"><use href="#i-users" /></svg></button>
+      <button class="icon-btn" title="Thông báo"><svg class="ico" aria-hidden="true"><use href="#i-bell" /></svg></button>
+      <div class="avatar">NA</div>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+
+  <!-- ============ CỘT FEED ============ -->
+  <main class="col-feed">
+
+    <!-- Stories -->
+    <section class="card">
+      <div class="stories">
+        <div class="story">
+          <div class="story__ring">
+            <img src="img/court-01.jpg" alt="" />
+            <span class="story__plus"><svg class="ico ico--sm" aria-hidden="true"><use href="#i-plus" /></svg></span>
+          </div>
+          <div class="story__name">Thêm khoảnh khắc</div>
+        </div>
+        <div class="story">
+          <div class="story__ring"><img src="img/court-02.jpg" alt="" /></div>
+          <div class="story__name">Minh Trí</div>
+        </div>
+        <div class="story">
+          <div class="story__ring"><img src="img/court-03.jpg" alt="" /></div>
+          <div class="story__name">Hải Đăng</div>
+        </div>
+        <div class="story">
+          <div class="story__ring"><img src="img/court-04.jpg" alt="" /></div>
+          <div class="story__name">Thu Hà</div>
+        </div>
+        <div class="story">
+          <div class="story__ring"><img src="img/city-hcm.jpg" alt="" /></div>
+          <div class="story__name">Quốc Bảo</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Composer -->
+    <section class="card">
+      <div class="card__pad">
+        <div class="composer__top">
+          <div class="avatar">NA</div>
+          <div class="composer__fake">Bạn muốn xét kèo hay tuyển người đánh cùng?</div>
+        </div>
+        <div class="composer__acts">
+          <button class="act"><svg class="ico ico--lg" aria-hidden="true"><use href="#i-image" /></svg>Ảnh / Video</button>
+          <button class="act"><svg class="ico ico--lg" aria-hidden="true"><use href="#i-zap" /></svg>Xét kèo</button>
+          <button class="act"><svg class="ico ico--lg" aria-hidden="true"><use href="#i-user-plus" /></svg>Tuyển người đánh</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tabs lọc -->
+    <section class="card">
+      <div class="tabs">
+        <button class="tab tab--on">Tất cả</button>
+        <button class="tab">Tuyển người đánh</button>
+        <button class="tab">Xét kèo</button>
+        <button class="tab">Cảm nghĩ</button>
+      </div>
+    </section>
+
+    <!-- Post 1: Tuyển người đánh -->
+    <article class="card">
+      <div class="post__head">
+        <div class="avatar avatar--lg">TB</div>
+        <div>
+          <div class="post__name"><a href="#">Quốc Bảo</a></div>
+          <div class="post__meta">2 giờ · Cầu Lông dee</div>
+        </div>
+        <div style="margin-left:auto"><button class="icon-btn"><svg class="ico" aria-hidden="true"><use href="#i-ellipsis" /></svg></button></div>
+      </div>
+      <div class="post__body">
+        <span class="tag tag--recruit"><svg class="ico" aria-hidden="true"><use href="#i-user-plus" /></svg>TUYỂN NGƯỜI ĐÁNH</span>
+        <p style="margin:8px 0 0">
+          Tuyển 2 bạn chơi đôi tối nay 19h sân Cầu Lông Quận 1. Nam, trình độ trung bình trở lên,
+          có vợt. Đặt sân mình, đá bóng xong mình mời <strong>ly bia</strong> nhé 🏸
+        </p>
+      </div>
+      <div class="post__stats">
+        <div class="likes"><span class="likes__ico"><svg class="ico" aria-hidden="true"><use href="#i-heart" /></svg></span> 24 người thích · 7 bình luận</div>
+        <div>3 lượt chia sẻ</div>
+      </div>
+      <div class="post__sep"></div>
+      <div class="post__acts">
+        <button class="post__act"><svg class="ico" aria-hidden="true"><use href="#i-heart" /></svg>Thích</button>
+        <button class="post__act"><svg class="ico" aria-hidden="true"><use href="#i-message-circle" /></svg>Bình luận</button>
+        <button class="post__act"><svg class="ico" aria-hidden="true"><use href="#i-share-2" /></svg>Chia sẻ</button>
+      </div>
+    </article>
+
+    <!-- Post 2: Xét kèo có ảnh -->
+    <article class="card">
+      <div class="post__head">
+        <div class="avatar avatar--lg">MT</div>
+        <div>
+          <div class="post__name"><a href="#">Minh Trí</a></div>
+          <div class="post__meta">5 giờ · Cầu Lông dee</div>
+        </div>
+        <div style="margin-left:auto"><button class="icon-btn"><svg class="ico" aria-hidden="true"><use href="#i-ellipsis" /></svg></button></div>
+      </div>
+      <div class="post__body">
+        <span class="tag tag--challenge"><svg class="ico" aria-hidden="true"><use href="#i-zap" /></svg>XÉT KÈO</span>
+        <p style="margin:8px 0 0">
+          Buổi sáng nay vợt bay như cắt 🔥 Chắc do dùng vợt mới quá xịn. Ai rảnh thì đánh đối khăn 1 ván nhé!
+        </p>
+      </div>
+      <div class="post__img"><img src="img/court-02.jpg" alt="Sân cầu lông" /></div>
+      <div class="post__stats">
+        <div class="likes"><span class="likes__ico"><svg class="ico" aria-hidden="true"><use href="#i-heart" /></svg></span> 138 người thích · 21 bình luận</div>
+        <div>5 lượt chia sẻ</div>
+      </div>
+      <div class="post__sep"></div>
+      <div class="post__acts">
+        <button class="post__act"><svg class="ico" aria-hidden="true"><use href="#i-heart" /></svg>Thích</button>
+        <button class="post__act"><svg class="ico" aria-hidden="true"><use href="#i-message-circle" /></svg>Bình luận</button>
+        <button class="post__act"><svg class="ico" aria-hidden="true"><use href="#i-share-2" /></svg>Chia sẻ</button>
+      </div>
+    </article>
+
+    <!-- Post 3: Cảm nghĩ -->
+    <article class="card">
+      <div class="post__head">
+        <div class="avatar avatar--lg">TH</div>
+        <div>
+          <div class="post__name"><a href="#">Thu Hà</a></div>
+          <div class="post__meta">Hôm qua · Cầu Lông dee</div>
+        </div>
+        <div style="margin-left:auto"><button class="icon-btn"><svg class="ico" aria-hidden="true"><use href="#i-ellipsis" /></svg></button></div>
+      </div>
+      <div class="post__body">
+        <span class="tag tag--thought"><svg class="ico" aria-hidden="true"><use href="#i-feather" /></svg>CẢM NGHĨ</span>
+        <p style="margin:8px 0 0">
+          Chơi cầu lông 5 năm rồi mới hiểu: quan trọng không phải thắng mà là có người chơi cùng.
+          Cảm ơn Cầu Lông dee vì đã cho mình tìm được đồng đội mỗi tối cuối tuần ❤️
+        </p>
+      </div>
+      <div class="post__stats">
+        <div class="likes"><span class="likes__ico"><svg class="ico" aria-hidden="true"><use href="#i-heart" /></svg></span> 96 người thích · 12 bình luận</div>
+        <div>2 lượt chia sẻ</div>
+      </div>
+      <div class="post__sep"></div>
+      <div class="post__acts">
+        <button class="post__act"><svg class="ico" aria-hidden="true"><use href="#i-heart" /></svg>Thích</button>
+        <button class="post__act"><svg class="ico" aria-hidden="true"><use href="#i-message-circle" /></svg>Bình luận</button>
+        <button class="post__act"><svg class="ico" aria-hidden="true"><use href="#i-share-2" /></svg>Chia sẻ</button>
+      </div>
+    </article>
+
+    <!-- Post 4: Kèm sân -->
+    <article class="card">
+      <div class="post__head">
+        <div class="avatar avatar--lg">HD</div>
+        <div>
+          <div class="post__name"><a href="#">Hải Đăng</a></div>
+          <div class="post__meta">Hôm qua · Cầu Lông dee</div>
+        </div>
+        <div style="margin-left:auto"><button class="icon-btn"><svg class="ico" aria-hidden="true"><use href="#i-ellipsis" /></svg></button></div>
+      </div>
+      <div class="post__body">
+        <span class="tag tag--court"><svg class="ico" aria-hidden="true"><use href="#i-map-pin" /></svg>SÂN CẦU LÔNG</span>
+        <p style="margin:8px 0 0">
+          Sân mới ở Thủ Đức, sàn gỗ đẹp, máy lạnh mát, giá 80k/giờ. Ai ở gần thì ghé chơi nhé 👇
+        </p>
+      </div>
+      <div class="post__img"><img src="img/court-03.jpg" alt="Sân cầu lông" /></div>
+      <div class="post__stats">
+        <div class="likes"><span class="likes__ico"><svg class="ico" aria-hidden="true"><use href="#i-heart" /></svg></span> 42 người thích · 9 bình luận</div>
+        <div>1 lượt chia sẻ</div>
+      </div>
+      <div class="post__sep"></div>
+      <div class="post__acts">
+        <button class="post__act"><svg class="ico" aria-hidden="true"><use href="#i-heart" /></svg>Thích</button>
+        <button class="post__act"><svg class="ico" aria-hidden="true"><use href="#i-message-circle" /></svg>Bình luận</button>
+        <button class="post__act"><svg class="ico" aria-hidden="true"><use href="#i-share-2" /></svg>Chia sẻ</button>
+      </div>
+    </article>
+  </main>
+
+  <!-- ============ SIDEBAR PHẢI ============ -->
+  <aside class="col-side">
+
+    <section class="card">
+      <div class="side__title"><svg class="ico" aria-hidden="true"><use href="#i-search" /></svg>Tìm sân nhanh</div>
+      <div class="searchbox">
+        <svg class="ico ico--sm" aria-hidden="true"><use href="#i-map-pin" /></svg>
+        <input placeholder="Quận, khu vực…" />
+      </div>
+      <a class="side__link" href="#">
+        <span class="side__ico"><svg class="ico" aria-hidden="true"><use href="#i-calendar" /></svg></span>
+        <span><b>Hôm nay</b><small>18 sân còn trống</small></span>
+      </a>
+      <a class="side__link" href="#">
+        <span class="side__ico"><svg class="ico" aria-hidden="true"><use href="#i-trophy" /></svg></span>
+        <span><b>Đánh đôi tối nay</b><small>Quận 1 · 120k/giờ</small></span>
+      </a>
+      <a class="side__link" href="#">
+        <span class="side__ico"><svg class="ico" aria-hidden="true"><use href="#i-star" /></svg></span>
+        <span><b>Sân được yêu thích</b><small>Top đánh giá tuần này</small></span>
+      </a>
+    </section>
+
+    <section class="card">
+      <div class="side__title"><svg class="ico" aria-hidden="true"><use href="#i-user-plus" /></svg>Đang tuyển người đánh</div>
+      <a class="side__link" href="#">
+        <div class="avatar avatar--sm">TB</div>
+        <span><b>Quốc Bảo</b><small>Nam · 19:00 · Q.1</small></span>
+      </a>
+      <a class="side__link" href="#">
+        <div class="avatar avatar--sm">LN</div>
+        <span><b>Lê Nga</b><small>Nữ · 19:30 · Q.7</small></span>
+      </a>
+      <a class="side__link" href="#">
+        <div class="avatar avatar--sm">TN</div>
+        <span><b>Tuấn Anh</b><small>Nam · 20:00 · Thủ Đức</small></span>
+      </a>
+      <a class="side__link" href="#">
+        <div class="avatar avatar--sm">HP</div>
+        <span><b>Hà Phúc</b><small>Nam · 21:00 · Q.3</small></span>
+      </a>
+    </section>
+
+    <section class="card">
+      <div class="side__title"><svg class="ico" aria-hidden="true"><use href="#i-users" /></svg>Bạn có thể quen</div>
+      <a class="side__link" href="#">
+        <div class="avatar avatar--sm">MS</div>
+        <span><b>Minh Sơn</b><small>12 bạn chung</small></span>
+      </a>
+      <a class="side__link" href="#">
+        <div class="avatar avatar--sm">BT</div>
+        <span><b>Bảo Trí</b><small>8 bạn chung</small></span>
+      </a>
+      <a class="side__link" href="#">
+        <div class="avatar avatar--sm">AN</div>
+        <span><b>Anh Nguyễn</b><small>5 bạn chung</small></span>
+      </a>
+    </section>
+
+    <section class="card">
+      <div class="side__foot">
+        <div><a href="#">Về Cầu Lông dee</a><a href="#">Trợ giúp</a><a href="#">Bảo mật</a></div>
+        <div><a href="#">Điều khoản</a><a href="#">Chính sách</a><a href="#">Cookies</a></div>
+        <div style="margin-top:6px">Cầu Lông dee © 2026 · Đặt sân & kết nối người chơi</div>
+      </div>
+    </section>
+  </aside>
+</div>
+
+<p class="note">
+  <b>Ghi chú bản mẫu:</b> logo lấy đúng từ app (<code>logo_page.svg</code>), icon lấy từ <code>lucide-react</code>
+  (thư viện đã cài sẵn trong dự án) — không dùng emoji.
+  Màu feed bám Facebook (xanh #1877F2, nền #F0F2F5, card trắng) để người dùng không phải học giao diện mới —
+  nhưng bố cục <b>KHÁC</b>: chỉ 2 cột lệch (Facebook là 3 cột có rail trái), card bo góc 12px mềm hơn, nhãn loại bài tiếng Việt có màu riêng.
+</p>
+
+</body>
+</html>

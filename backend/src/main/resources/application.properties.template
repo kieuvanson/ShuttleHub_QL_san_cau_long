@@ -101,8 +101,12 @@ app.oauth.facebook.client-secret=${FACEBOOK_CLIENT_SECRET:}
 # ⚠️ Mặc định của Spring là v2.8 (đã lỗi thời từ lâu) → PHẢI override.
 app.oauth.facebook.graph-version=v27.0
 
-# TTL của ticket (giây) — token hệ thống KHÔNG đi qua URL, chỉ ticket này.
+# TTL của ticket ĐĂNG NHẬP (giây) — token hệ thống KHÔNG đi qua URL, chỉ ticket này.
 app.oauth.ticket-ttl-seconds=60
+# TTL của ticket CHỜ (giây) — nhánh Facebook không chia sẻ email: user phải nhận
+# SMS + gõ OTP → cần sống lâu hơn (≥ TTL của OTP là 300s), nếu không user
+# phải đăng nhập Facebook lại từ đầu.
+app.oauth.ticket-pending-ttl-seconds=300
 # Frontend redirect sau khi OAuth thành công/thất bại.
 app.oauth.frontend-redirect-uri=${OAUTH_FRONTEND_REDIRECT_URI:http://localhost:5173}
 

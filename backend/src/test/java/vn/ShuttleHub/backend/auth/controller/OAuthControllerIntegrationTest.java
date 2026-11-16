@@ -218,7 +218,10 @@ class OAuthControllerIntegrationTest {
                 .expiresAt(LocalDateTime.now().plusSeconds(60)).used(false)
                 .createdAt(LocalDateTime.now()).build());
 
-        String phone = "849" + Math.abs(System.nanoTime() % 100000000L);
+        // ⚠️ Sinh SĐT ĐÚNG 11 chữ số E.164 ("84" + 9 số).
+        //   Dùng nanoTime() % 1e8 có thể ra 7 chữ số → tổng 10 số → không
+        //   phải E.164 hợp lệ → endpoint trả 400 → test fail ngẫu nhiên.
+        String phone = "849" + String.format("%08d", Math.abs(System.nanoTime() % 100000000L));
         mockMvc.perform(post("/api/auth/oauth/phone/verify")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
@@ -241,7 +244,8 @@ class OAuthControllerIntegrationTest {
                 .expiresAt(LocalDateTime.now().plusSeconds(60)).used(false)
                 .createdAt(LocalDateTime.now()).build());
 
-        String phone = "848" + Math.abs(System.nanoTime() % 100000000L);
+        // ⚠️ Sinh SĐT ĐÚNG 11 chữ số E.164 — xem giải thích ở test trên.
+        String phone = "848" + String.format("%08d", Math.abs(System.nanoTime() % 100000000L));
         otpRepo.save(OtpCode.builder()
                 .phone(phone)
                 .codeHash(passwordEncoder.encode("123456"))
