@@ -98,3 +98,8 @@ frontend/dist/
 # Log chạy backend tay (spring-boot:run redirect)
 backend/run*.out
 backend/run*.err
+
+# Log chạy frontend dev server
+frontend/dev.out
+frontend/dev.err
+frontend/target-dev.err
