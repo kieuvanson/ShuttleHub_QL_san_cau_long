@@ -35,8 +35,9 @@ public class OAuthUserInfoExtractor {
         String email = asString(claims.get("email"));
         boolean emailVerified = resolveEmailVerified(provider, claims);
         String fullName = resolveFullName(claims);
+        String avatarUrl = resolveAvatarUrl(claims);
 
-        return new OAuthUserInfo(provider, providerUserId, email, emailVerified, fullName);
+        return new OAuthUserInfo(provider, providerUserId, email, emailVerified, fullName, avatarUrl);
     }
 
     /**
@@ -86,6 +87,27 @@ public class OAuthUserInfoExtractor {
         }
         String s = String.valueOf(name).trim();
         return s.isEmpty() ? null : s;
+    }
+
+    /**
+     * Lấy URL ảnh đại diện từ claim `picture` của provider.
+     *
+     * ⚠️ Facebook trả `picture` dạng object lồng nhau: { data: { url } }.
+     * Google KHÔNG trả claim này → luôn null → frontend hiện chữ cái đầu.
+     *
+     * ⚠️ Đọc bằng `instanceof` (không ép kiểu cứng) vì shape của claim phụ
+     * thuộc provider và có thể đổi theo phiên bản Graph API.
+     */
+    private String resolveAvatarUrl(Map<String, Object> claims) {
+        Object picture = claims.get("picture");
+        if (!(picture instanceof Map<?, ?> pictureMap)) {
+            return null;
+        }
+        Object data = pictureMap.get("data");
+        if (!(data instanceof Map<?, ?> dataMap)) {
+            return null;
+        }
+        return asString(dataMap.get("url"));
     }
 
     private String asString(Object value) {

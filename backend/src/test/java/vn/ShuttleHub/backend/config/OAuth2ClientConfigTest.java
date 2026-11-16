@@ -125,4 +125,16 @@ class OAuth2ClientConfigTest {
         assertEquals(ClientAuthenticationMethod.CLIENT_SECRET_POST,
                 fb.getClientAuthenticationMethod());
     }
+
+    @Test
+    @DisplayName("Facebook: userInfoUri yêu cầu picture.type(large) để lấy ảnh đại diện")
+    void facebook_userInfoUri_requestsPicture() {
+        ClientRegistrationRepository repo =
+                configWith("", "fid", "v27.0").clientRegistrationRepository();
+
+        ClientRegistration fb = repo.findByRegistrationId("facebook");
+
+        assertTrue(userInfoUri(fb).contains("picture.type(large)"),
+                "userInfoUri phải yêu cầu picture: " + userInfoUri(fb));
+    }
 }

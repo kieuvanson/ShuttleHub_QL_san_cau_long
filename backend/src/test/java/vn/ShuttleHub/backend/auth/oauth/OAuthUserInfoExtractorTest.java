@@ -122,4 +122,40 @@ class OAuthUserInfoExtractorTest {
 
         assertEquals("fb-777", extractor.extract(u, "facebook").providerUserId());
     }
+
+    @Test
+    @DisplayName("Facebook: picture.data.url → avatarUrl lấy đúng URL ảnh")
+    void facebook_pictureUrl_extracted() {
+        OAuth2User u = new DefaultOAuth2User(
+                List.of(new OAuth2UserAuthority("ROLE_USER", Map.of("id", "fb-1"), "id")),
+                Map.of(
+                        "id", "fb-1",
+                        "name", "Kieu Van Son",
+                        "picture", Map.of("data", Map.of("url", "https://cdn.fb/son.jpg"))),
+                "id");
+
+        assertEquals("https://cdn.fb/son.jpg", extractor.extract(u, "facebook").avatarUrl());
+    }
+
+    @Test
+    @DisplayName("Facebook: thiếu claim picture → avatarUrl = null (không lỗi)")
+    void facebook_missingPicture_null() {
+        OAuth2User u = new DefaultOAuth2User(
+                List.of(new OAuth2UserAuthority("ROLE_USER", Map.of("id", "fb-1"), "id")),
+                Map.of("id", "fb-1", "name", "Kieu Van Son"),
+                "id");
+
+        assertNull(extractor.extract(u, "facebook").avatarUrl());
+    }
+
+    @Test
+    @DisplayName("Facebook: picture không có data → avatarUrl = null (không lỗi)")
+    void facebook_pictureWithoutData_null() {
+        OAuth2User u = new DefaultOAuth2User(
+                List.of(new OAuth2UserAuthority("ROLE_USER", Map.of("id", "fb-1"), "id")),
+                Map.of("id", "fb-1", "name", "Kieu Van Son", "picture", Map.of()),
+                "id");
+
+        assertNull(extractor.extract(u, "facebook").avatarUrl());
+    }
 }
