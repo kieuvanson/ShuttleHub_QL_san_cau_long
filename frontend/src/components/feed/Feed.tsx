@@ -121,6 +121,7 @@ export function Feed() {
         <div className="feed-col">
           <FeedStories onUnavailableFeature={handleUnavailableFeature} />
           <FeedComposer
+            user={user}
             onOpenComposer={handleOpenComposer}
             onUnavailableFeature={handleUnavailableFeature}
           />

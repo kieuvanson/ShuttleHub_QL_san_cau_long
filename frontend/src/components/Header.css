@@ -182,11 +182,18 @@
 
 .hdr__user-info {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  gap: 10px;
   padding: 10px 12px 12px;
   border-bottom: 1px solid rgba(15, 23, 42, 0.08);
   margin-bottom: 6px;
+}
+
+.hdr__user-info-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
 .hdr__user-info strong {
@@ -194,7 +201,7 @@
   font-weight: 600;
 }
 
-.hdr__user-info span {
+.hdr__user-info-text > span {
   font-size: 12px;
   color: rgba(15, 23, 42, 0.55);
   word-break: break-all;

@@ -1,10 +1,12 @@
 import {Card} from '@astryxdesign/core/Card';
-import {Avatar} from '@astryxdesign/core/Avatar';
 import {Image, UserPlus, Zap} from 'lucide-react';
+import type {User} from '../../api/types';
 import type {PostCategory} from '../../data/demoPosts';
+import {UserAvatar} from '../UserAvatar';
 import './FeedComposer.css';
 
 export type FeedComposerProps = {
+  user: User | null;
   onOpenComposer: (category: PostCategory) => void;
   onUnavailableFeature: (featureName: string) => void;
 };
@@ -19,11 +21,11 @@ const PROMPT = 'Bạn muốn xét kèo hay tuyển người đánh cùng?';
  * Astryx) vì cần nhãn chữ hiển thị kèm icon, mà `IconButton` chỉ nhận
  * icon + `aria-label`.
  */
-export function FeedComposer({onOpenComposer, onUnavailableFeature}: FeedComposerProps) {
+export function FeedComposer({user, onOpenComposer, onUnavailableFeature}: FeedComposerProps) {
   return (
     <Card variant="default" padding={0} className="feed-composer">
       <div className="feed-composer__top">
-        <Avatar name="Khách" size="md" />
+        <UserAvatar user={user} size="md" />
         <button
           type="button"
           className="feed-composer__input"

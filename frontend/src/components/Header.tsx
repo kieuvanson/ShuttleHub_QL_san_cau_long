@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, User as UserIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { shortDisplayName } from '../utils/displayName';
 import { AppLink } from './AppLink';
+import { UserAvatar } from './UserAvatar';
 import './Header.css';
 
 export function Header() {
@@ -48,8 +50,8 @@ export function Header() {
                 aria-expanded={menuOpen}
                 aria-haspopup="menu"
               >
-                <UserIcon size={16} aria-hidden="true" />
-                <span>{user.fullName || user.username}</span>
+                <UserAvatar user={user} size="sm" />
+                <span>{shortDisplayName(user.fullName) ?? user.username}</span>
               </button>
 
               {menuOpen && (
@@ -62,8 +64,11 @@ export function Header() {
                   />
                   <div className="hdr__user-menu" role="menu">
                     <div className="hdr__user-info">
-                      <strong>{user.fullName || user.username}</strong>
-                      <span>{user.email}</span>
+                      <UserAvatar user={user} size="sm" />
+                      <span className="hdr__user-info-text">
+                        <strong>{user.fullName || user.username}</strong>
+                        <span>{user.email}</span>
+                      </span>
                     </div>
                     <AppLink
                       to="/tai-khoan"

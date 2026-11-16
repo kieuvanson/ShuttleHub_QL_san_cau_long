@@ -9,7 +9,11 @@ describe('FeedComposer', () => {
     const user = userEvent.setup();
     const onOpenComposer = vi.fn();
     render(
-      <FeedComposer onOpenComposer={onOpenComposer} onUnavailableFeature={vi.fn()} />,
+      <FeedComposer
+        user={null}
+        onOpenComposer={onOpenComposer}
+        onUnavailableFeature={vi.fn()}
+      />,
     );
     await user.click(
       screen.getByRole('button', {
@@ -23,7 +27,11 @@ describe('FeedComposer', () => {
     const user = userEvent.setup();
     const onOpenComposer = vi.fn();
     render(
-      <FeedComposer onOpenComposer={onOpenComposer} onUnavailableFeature={vi.fn()} />,
+      <FeedComposer
+        user={null}
+        onOpenComposer={onOpenComposer}
+        onUnavailableFeature={vi.fn()}
+      />,
     );
     await user.click(screen.getByRole('button', {name: 'Tuyển người đánh'}));
     expect(onOpenComposer).toHaveBeenCalledWith('recruit');
@@ -33,10 +41,53 @@ describe('FeedComposer', () => {
     const user = userEvent.setup();
     const onUnavailableFeature = vi.fn();
     render(
-      <FeedComposer onOpenComposer={vi.fn()} onUnavailableFeature={onUnavailableFeature} />,
+      <FeedComposer
+        user={null}
+        onOpenComposer={vi.fn()}
+        onUnavailableFeature={onUnavailableFeature}
+      />,
     );
     await user.click(screen.getByRole('button', {name: 'Ảnh / Video'}));
     expect(onUnavailableFeature).toHaveBeenCalledWith('Ảnh / Video');
+  });
+
+  it('có user đăng nhập → hiện avatar của user thay vì "Khách"', () => {
+    const { container } = render(
+      <FeedComposer
+        user={{
+          id: 'u-1',
+          username: 'sonvk',
+          email: 'a@b.com',
+          fullName: 'Kieu Van Son',
+          phoneNumber: null,
+          role: 'CUSTOMER',
+          createdAt: '2026-01-01T00:00:00Z',
+          avatarUrl: 'https://cdn.fb/son.jpg',
+        }}
+        onOpenComposer={vi.fn()}
+        onUnavailableFeature={vi.fn()}
+      />,
+    );
+
+    const img = container.querySelector('img');
+    expect(img).not.toBeNull();
+    expect(img).toHaveAttribute('src', 'https://cdn.fb/son.jpg');
+  });
+
+  it('chưa đăng nhập → vẫn render được (không vỡ)', () => {
+    render(
+      <FeedComposer
+        user={null}
+        onOpenComposer={vi.fn()}
+        onUnavailableFeature={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.getByRole('button', {
+        name: 'Bạn muốn xét kèo hay tuyển người đánh cùng?',
+      }),
+    ).toBeInTheDocument();
   });
 });
 
