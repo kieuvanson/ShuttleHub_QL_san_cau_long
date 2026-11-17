@@ -1,0 +1,79 @@
+/* ============================================================
+   ProfileBookings — lưới kèo đã đặt (đặt sân · xét kèo · tuyển người).
+   ============================================================ */
+
+@layer app {
+.profile-bookings {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-4);
+}
+
+.profile-booking {
+  display: flex;
+}
+
+.profile-booking > * {
+  width: 100%;
+}
+
+.profile-booking__body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: var(--s-4);
+  height: 100%;
+}
+
+.profile-booking__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.profile-booking__title {
+  margin: 0;
+}
+
+.profile-booking__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--fb-ink-1);
+}
+
+.profile-booking__meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.profile-booking__foot {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+  margin-top: auto;
+}
+
+.profile-booking__note {
+  color: var(--fb-ink-2);
+}
+
+/* Kèo đã hoàn thành → mờ đi để mắt dừng ở kèo sắp tới. */
+.profile-booking--done {
+  opacity: 0.68;
+}
+
+.profile-booking__action {
+  align-self: flex-start;
+}
+
+@media (max-width: 720px) {
+  .profile-bookings {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+}
