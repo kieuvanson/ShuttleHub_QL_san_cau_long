@@ -1,0 +1,38 @@
+/* ============================================================
+   ProfilePosts — tab bài viết của user.
+   ============================================================ */
+
+@layer app {
+.profile-posts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+.profile-posts__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+  background: var(--surface-0);
+  border-radius: var(--fb-radius-card);
+  padding: 0 var(--s-3);
+}
+
+.profile-posts__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+@media (max-width: 720px) {
+  .profile-posts__head {
+    padding: var(--s-2) var(--s-3);
+  }
+
+  .profile-posts__add {
+    width: 100%;
+  }
+}
+}
