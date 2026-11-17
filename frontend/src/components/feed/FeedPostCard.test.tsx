@@ -73,4 +73,21 @@ describe('FeedPostCard', () => {
     // Avatar vẫn có role="img" → kiểm tra không có <img> nào trong bài.
     expect(document.querySelector('.feed-post__media')).not.toBeInTheDocument();
   });
+
+  it('truyền authorAvatarSrc thì avatar tác giả dùng ảnh đó', () => {
+    const {container} = renderCard({
+      post,
+      authorAvatarSrc: 'https://cdn.fb/son.jpg',
+    });
+
+    const img = container.querySelector('.feed-post__head img');
+    expect(img).not.toBeNull();
+    expect(img).toHaveAttribute('src', 'https://cdn.fb/son.jpg');
+  });
+
+  it('không truyền authorAvatarSrc thì avatar tác giả không có thẻ img', () => {
+    const {container} = renderCard({post});
+
+    expect(container.querySelector('.feed-post__head img')).not.toBeInTheDocument();
+  });
 });

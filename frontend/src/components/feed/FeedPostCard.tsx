@@ -22,6 +22,16 @@ export type FeedPostCardProps = {
   onToggleLike: (postId: string) => void;
   onShare: (postId: string) => void;
   onUnavailableFeature: (featureName: string) => void;
+  /**
+   * Ảnh đại diện của tác giả.
+   *
+   * ⚠️ Vì sao là tuỳ chọn?
+   *   Feed trang chủ chưa có backend bài viết nên chưa có avatar tác giả →
+   *   để `undefined` thì `Avatar` hiện chữ cái đầu, đúng như hiện tại.
+   *   Trang cá nhân (bài của chính user) truyền avatar thật để khớp với
+   *   avatar ở đầu trang.
+   */
+  authorAvatarSrc?: string | null;
 };
 
 /**
@@ -38,13 +48,18 @@ export function FeedPostCard({
   onToggleLike,
   onShare,
   onUnavailableFeature,
+  authorAvatarSrc,
 }: FeedPostCardProps) {
   const CategoryIcon = CATEGORY_ICON[post.category];
 
   return (
     <Card variant="default" padding={0} className="feed-post">
       <div className="feed-post__head">
-        <Avatar name={post.authorName} size="md" />
+        <Avatar
+          src={authorAvatarSrc ?? undefined}
+          name={post.authorName}
+          size="md"
+        />
         <VStack gap={0} className="feed-post__who">
           <Text type="body" weight="semibold" maxLines={1}>
             {post.authorName}
