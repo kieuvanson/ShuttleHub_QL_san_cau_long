@@ -47,22 +47,27 @@ export function ProfileHeader({
           src={coverPreviewUrl ?? '/img/court-01.jpg'}
           alt="Ảnh bìa trang cá nhân"
         />
-        <Button
-          label="Đổi ảnh bìa"
-          variant="secondary"
-          size="sm"
-          icon={<Camera size={14} aria-hidden="true" />}
-          onClick={onPickCover}
-          className="profile-header__cover-btn"
-        />
+        <div className="profile-header__cover-actions">
+          <Button
+            label="Đổi ảnh bìa"
+            variant="secondary"
+            size="sm"
+            icon={<Camera size={14} aria-hidden="true" />}
+            onClick={onPickCover}
+          />
+        </div>
       </div>
 
       <div className="profile-header__body">
-        <div className="profile-header__avatar">
-          <UserAvatar user={user} size="xl" srcOverride={avatarPreviewUrl} />
+        <div className="profile-header__avatar-wrap">
+          <div className="profile-header__avatar">
+            <UserAvatar user={user} size="xl" srcOverride={avatarPreviewUrl} />
+          </div>
           {/* Nút camera là <button> thuần vì `IconButton` của Astryx cần prop
               `label` riêng → accessible name sẽ không khớp với nhãn tiếng Việt
-              mà test (và screen reader) mong đợi. */}
+              mà test (và screen reader) mong đợi.
+              Nút nằm NGOÀI `.profile-header__avatar` vì div đó có
+              `overflow: hidden` để bo tròn ảnh → nút sẽ bị cắt. */}
           <button
             type="button"
             className="profile-header__avatar-btn"

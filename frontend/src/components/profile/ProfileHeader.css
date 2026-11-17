@@ -24,7 +24,15 @@
   object-fit: cover;
 }
 
-.profile-header__cover-btn {
+/**
+ * ⚠️ Vì sao nút nằm trong wrapper riêng thay vì đặt `position: absolute`
+ *   ngay lên `Button` của Astryx?
+ *   CSS của ta nằm ở `@layer app`, thấp hơn `@layer astryx-base` → rule
+ *   `position` của component Astryx thắng → nút bị đẩy ra ngoài ảnh bìa.
+ *   Wrapper `<div>` của ta không bị Astryc can thiệp nên `position: absolute`
+ *   ở đây có hiệu lực.
+ */
+.profile-header__cover-actions {
   position: absolute;
   right: 16px;
   bottom: 16px;
@@ -32,16 +40,21 @@
 
 .profile-header__body {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: var(--s-4);
   padding: 0 var(--s-6) var(--s-4);
   /* Avatar đè lên mép dưới ảnh bìa — cách Facebook đặt avatar. */
   margin-top: -64px;
 }
 
-.profile-header__avatar {
+.profile-header__avatar-wrap {
   position: relative;
   flex: 0 0 auto;
+  width: 128px;
+  height: 128px;
+}
+
+.profile-header__avatar {
   width: 128px;
   height: 128px;
   border-radius: 50%;
@@ -53,8 +66,8 @@
 
 .profile-header__avatar-btn {
   position: absolute;
-  right: 4px;
-  bottom: 4px;
+  right: 0;
+  bottom: 0;
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -122,6 +135,11 @@
     gap: var(--s-3);
     padding: 0 var(--s-4) var(--s-3);
     flex-wrap: wrap;
+  }
+
+  .profile-header__avatar-wrap {
+    width: 96px;
+    height: 96px;
   }
 
   .profile-header__avatar {
