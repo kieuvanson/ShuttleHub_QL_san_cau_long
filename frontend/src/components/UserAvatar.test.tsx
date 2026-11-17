@@ -7,7 +7,7 @@ import { UserAvatar } from './UserAvatar';
  * content) → KHÔNG nằm trong DOM text. Vì vậy test kiểm tra ảnh qua
  * `container.querySelector('img')` và kiểm tra tên hiển thị qua
  * `aria-label` của root (`role="img"`), không dùng `getByText`.
- */
+    10| */
 describe('UserAvatar', () => {
   it('có avatarUrl → render ảnh với src đó', () => {
     const { container } = render(
@@ -62,5 +62,49 @@ describe('UserAvatar', () => {
     );
 
     expect(screen.getByRole('img', { name: 'sonvk' })).toBeInTheDocument();
+  });
+
+  it("size='xl' dựng avatar 128px", () => {
+    const { container } = render(
+      <UserAvatar user={{ fullName: 'Kieu Van Son' }} size="xl" />,
+    );
+
+    const root = container.firstElementChild as HTMLElement;
+    expect(root).toBeInTheDocument();
+    // `Avatar` của Astryx đánh dấu size bằng `data-size` và đặt kích thước
+    // thật qua custom property `--x-width` (StyleX) — jsdom không tính
+    // layout nên `getComputedStyle` trả "auto".
+    expect(root).toHaveAttribute('data-size', 'xl');
+    expect(root.style.getPropertyValue('--x-width')).toBe('128px');
+  });
+
+  it('srcOverride ghi đè avatarUrl', () => {
+    const { container } = render(
+      <UserAvatar
+        user={{ fullName: 'Kieu Van Son', avatarUrl: 'https://cdn.fb/son.jpg' }}
+        srcOverride="blob:preview"
+      />,
+    );
+
+    const img = container.querySelector('img');
+    expect(img).toHaveAttribute('src', 'blob:preview');
+  });
+
+  it('srcOverride rỗng thì vẫn dùng avatarUrl', () => {
+    const { container } = render(
+      <UserAvatar
+        user={{ fullName: 'Kieu Van Son', avatarUrl: 'https://cdn.fb/son.jpg' }}
+        srcOverride={null}
+      />,
+    );
+
+    const img = container.querySelector('img');
+    expect(img).toHaveAttribute('src', 'https://cdn.fb/son.jpg');
+  });
+
+  it('user không có avatarUrl thì không render thẻ img', () => {
+    const { container } = render(<UserAvatar user={{ fullName: 'Kieu Van Son' }} />);
+
+    expect(container.querySelector('img')).not.toBeInTheDocument();
   });
 });
