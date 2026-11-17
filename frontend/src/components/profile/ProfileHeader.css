@@ -1,0 +1,141 @@
+/* ============================================================
+   ProfileHeader — đầu trang cá nhân: ảnh bìa + avatar + thông tin.
+   ============================================================ */
+
+@layer app {
+.profile-header {
+  position: relative;
+  background: var(--surface-0);
+  border-radius: var(--fb-radius-card);
+  overflow: hidden;
+}
+
+.profile-header__cover {
+  position: relative;
+  height: 240px;
+  overflow: hidden;
+  background: var(--fb-bg);
+}
+
+.profile-header__cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-header__cover-btn {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+}
+
+.profile-header__body {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--s-4);
+  padding: 0 var(--s-6) var(--s-4);
+  /* Avatar đè lên mép dưới ảnh bìa — cách Facebook đặt avatar. */
+  margin-top: -64px;
+}
+
+.profile-header__avatar {
+  position: relative;
+  flex: 0 0 auto;
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  /* Viền trắng tách avatar khỏi ảnh bìa. */
+  border: 4px solid var(--surface-0);
+  overflow: hidden;
+  background: var(--fb-bg);
+}
+
+.profile-header__avatar-btn {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--fb-bg);
+  border: 1px solid var(--fb-line);
+  color: var(--fb-ink-1);
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.profile-header__avatar-btn:hover {
+  background: var(--fb-blue-soft);
+  color: var(--fb-blue);
+}
+
+.profile-header__avatar-btn:focus-visible {
+  outline: 2px solid var(--fb-blue);
+  outline-offset: 2px;
+}
+
+.profile-header__info {
+  flex: 1 1 auto;
+  min-width: 0;
+  /* Đẩy nội dung xuống dưới để không đè lên ảnh bìa. */
+  padding-top: 72px;
+}
+
+.profile-header__name {
+  margin: 0;
+}
+
+.profile-header__username {
+  display: block;
+  margin: 2px 0 6px;
+}
+
+.profile-header__badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.profile-header__stats {
+  display: block;
+}
+
+.profile-header__edit {
+  flex: 0 0 auto;
+  margin-bottom: 4px;
+}
+
+@media (max-width: 720px) {
+  .profile-header__cover {
+    height: 160px;
+  }
+
+  .profile-header__body {
+    margin-top: -48px;
+    gap: var(--s-3);
+    padding: 0 var(--s-4) var(--s-3);
+    flex-wrap: wrap;
+  }
+
+  .profile-header__avatar {
+    width: 96px;
+    height: 96px;
+  }
+
+  .profile-header__info {
+    padding-top: 52px;
+  }
+
+  .profile-header__edit {
+    width: 100%;
+    margin-bottom: 0;
+  }
+}
+}
