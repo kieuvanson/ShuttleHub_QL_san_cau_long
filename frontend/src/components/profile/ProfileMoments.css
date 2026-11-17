@@ -1,0 +1,109 @@
+/* ============================================================
+   ProfileMoments — dải khoảnh khắc dạng vòng tròn (kiểu story Facebook).
+   ============================================================ */
+
+@layer app {
+.profile-moments {
+  display: flex;
+  gap: 14px;
+  padding: var(--s-4);
+  background: var(--surface-0);
+  border-radius: var(--fb-radius-card);
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.profile-moment {
+  flex: 0 0 auto;
+  width: 104px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.profile-moment__ring {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 96px;
+  padding: 3px;
+  border-radius: 50%;
+  /* Viền gradient — dấu hiệu "khoảnh khắc" giống story Facebook. */
+  background: linear-gradient(
+    135deg,
+    var(--fb-blue) 0%,
+    #9b59d0 55%,
+    var(--cta-0) 100%
+  );
+}
+
+.profile-moment__ring--add {
+  background: var(--fb-bg);
+  border: 1px dashed var(--fb-line);
+  color: var(--fb-ink-1);
+}
+
+.profile-moment__img {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--surface-0);
+}
+
+.profile-moment__name {
+  width: 100%;
+  font-size: 12px;
+  color: var(--fb-ink-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-moment:focus-visible {
+  outline: 2px solid var(--fb-blue);
+  outline-offset: 4px;
+  border-radius: 12px;
+}
+
+/* === Dialog xem ảnh lớn === */
+.profile-moment__viewer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding: var(--s-4);
+}
+
+.profile-moment__full {
+  display: block;
+  width: 100%;
+  max-height: 70dvh;
+  object-fit: contain;
+  border-radius: var(--fb-radius-ctl);
+}
+
+.profile-moment__viewer-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+
+.profile-moment__viewer-meta {
+  font-size: 13px;
+  color: var(--fb-ink-1);
+}
+
+.profile-moment__viewer-nav {
+  display: flex;
+  gap: var(--s-2);
+}
+}
