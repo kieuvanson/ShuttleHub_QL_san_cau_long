@@ -57,7 +57,9 @@ export function ProfilePosts({user, posts = DEMO_MY_POSTS}: ProfilePostsProps) {
    */
   const handleShare = useCallback(
     (postId: string) => {
-      const link = `${window.location.origin}/tai-khoan?tab=posts`;
+      // Link trỏ về chính trang này + anchor tới bài được chia sẻ, vì link
+      // dạng `/?post=<id>` sẽ mở feed trang chủ — nơi không có bài của user.
+      const link = `${window.location.origin}/tai-khoan?tab=posts#post-${postId}`;
       try {
         if (!navigator.clipboard) {
           throw new Error('Trình duyệt không hỗ trợ sao chép');

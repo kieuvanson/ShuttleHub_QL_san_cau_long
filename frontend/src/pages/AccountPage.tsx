@@ -1,291 +1,213 @@
-import { FormEvent, useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
-import { Loader2, ShieldCheck } from 'lucide-react';
-import { Card } from '@astryxdesign/core/Card';
-import { Heading, Text } from '@astryxdesign/core/Text';
-import { Button } from '@astryxdesign/core/Button';
-import { OtpInput } from '../components/OtpInput';
-import { useAuth } from '../context/AuthContext';
-import { authApi } from '../api/auth';
-import { ApiError } from '../api/types';
-import { isValidPhone, normalizePhone } from '../utils/phone';
+import {useCallback, useEffect, useRef, useState} from 'react';
+import {useSearchParams} from 'react-router-dom';
+import {Card} from '@astryxdesign/core/Card';
+import {Heading, Text} from '@astryxdesign/core/Text';
+import {useToast} from '@astryxdesign/core/Toast';
+import {AppLink} from '../components/AppLink';
+import {
+  DEMO_MY_BOOKINGS,
+  DEMO_MY_MOMENTS,
+  DEMO_MY_POSTS,
+} from '../data/demoProfile';
+import {useAuth} from '../context/AuthContext';
+import {ProfileBookings} from '../components/profile/ProfileBookings';
+import {ProfileHeader} from '../components/profile/ProfileHeader';
+import {ProfileMoments} from '../components/profile/ProfileMoments';
+import {ProfilePosts} from '../components/profile/ProfilePosts';
+import {ProfileSettings} from '../components/profile/ProfileSettings';
+import {
+  ProfileTabs,
+  type ProfileTabValue,
+} from '../components/profile/ProfileTabs';
 import './AccountPage.css';
 
-const OTP_LENGTH = 6;
-const RESEND_SECONDS = 60;
+const TAB_VALUES: ProfileTabValue[] = [
+  'posts',
+  'bookings',
+  'moments',
+  'settings',
+];
 
-/** Email tạm do backend sinh cho user Facebook chưa chia sẻ email. */
-const TEMP_EMAIL_SUFFIX = '@facebook.local';
-
-type Errors = Partial<{ email: string; phone: string; otp: string; form: string }>;
+const TAB_LABEL: Record<ProfileTabValue, string> = {
+  posts: 'Bài viết',
+  bookings: 'Kèo đã đặt',
+  moments: 'Khoảnh khắc',
+  settings: 'Cài đặt',
+};
 
 /**
- * AccountPage — trang cá nhân: xem thông tin + cập nhật email / SĐT.
+ * AccountPage — trang cá nhân phong cách Facebook.
  *
- * ⚠️ KHÔNG ép hoàn thiện hồ sơ — user có thể bỏ qua và dùng app bình thường.
- *   Chỉ hiện ô trống + nút cập nhật.
+ * ⚠️ Vì sao lưu tab trong URL (`?tab=`)?
+ *   F5 hoặc chia sẻ link sẽ giữ được tab đang xem, đúng như Facebook.
+ *   Giá trị rác trong query → rơi về tab `posts` chứ không render trang trắng.
+ *
+ * ⚠️ Vì sao state ảnh preview nằm ở cấp trang chứ không nằm trong tab?
+ *   Ảnh đã chọn phải sống qua việc chuyển tab (đổi tab rồi quay lại vẫn
+ *   thấy ảnh mới) → state phải ở trên cao hơn các panel.
  */
 export function AccountPage() {
-  const { user, updateProfile } = useAuth();
+  const {user, isLoading} = useAuth();
+  const showToast = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [otp, setOtp] = useState('');
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpSending, setOtpSending] = useState(false);
-  const [devOtp, setDevOtp] = useState('');
-  const [resendIn, setResendIn] = useState(0);
-  const [errors, setErrors] = useState<Errors>({});
-  const [submitting, setSubmitting] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const resendTimer = useRef<number | null>(null);
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
+  const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(null);
 
-  const isTempEmail = !!user?.email.endsWith(TEMP_EMAIL_SUFFIX);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+  /**
+   * Giữ objectURL hiện tại để revoke trước khi thay thế và khi unmount —
+   * nếu không, mỗi lần chọn ảnh sẽ giữ một blob trong bộ nhớ tới hết phiên.
+   */
+  const avatarUrlRef = useRef<string | null>(null);
+  const coverUrlRef = useRef<string | null>(null);
 
-  useEffect(() => {
-    if (resendIn <= 0) {
-      if (resendTimer.current) {
-        window.clearInterval(resendTimer.current);
-        resendTimer.current = null;
-      }
-      return;
-    }
-    resendTimer.current = window.setInterval(() => {
-      setResendIn((s) => (s > 0 ? s - 1 : 0));
-    }, 1000);
-    return () => {
-      if (resendTimer.current) window.clearInterval(resendTimer.current);
-    };
-  }, [resendIn]);
+  useEffect(
+    () => () => {
+      if (avatarUrlRef.current) URL.revokeObjectURL(avatarUrlRef.current);
+      if (coverUrlRef.current) URL.revokeObjectURL(coverUrlRef.current);
+    },
+    [],
+  );
 
-  const handleSendOtp = async () => {
-    if (!isValidPhone(phone)) {
-      setErrors((e) => ({ ...e, phone: 'Số điện thoại chưa hợp lệ (VD: 0912345678).' }));
-      return;
-    }
-    setOtpSending(true);
-    setErrors({});
-    try {
-      const res = await authApi.sendOtp(phone);
-      setOtpSent(true);
-      setResendIn(RESEND_SECONDS);
-      if (res.otp) setDevOtp(res.otp);
-    } catch (e) {
-      setErrors((prev) => ({
-        ...prev,
-        form: e instanceof ApiError ? e.message : 'Không gửi được mã xác nhận.',
-      }));
-    } finally {
-      setOtpSending(false);
-    }
-  };
+  const rawTab = searchParams.get('tab');
+  const activeTab: ProfileTabValue = TAB_VALUES.includes(
+    rawTab as ProfileTabValue,
+  )
+    ? (rawTab as ProfileTabValue)
+    : 'posts';
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    const next: Errors = {};
+  const handleTabChange = useCallback(
+    (next: ProfileTabValue) => {
+      setSearchParams({tab: next});
+    },
+    [setSearchParams],
+  );
 
-    // ⚠️ Ô trống = "không đổi", KHÔNG phải "đổi thành rỗng".
-    //   Nếu so sánh thẳng chuỗi rỗng với giá trị hiện tại thì user chỉ muốn
-    //   đổi SĐT sẽ bị coi là "đổi email" (email rỗng → sai định dạng) và
-    //   user đã có SĐT sẽ bị bắt nhập OTP oan.
-    const emailInput = email.trim().toLowerCase();
-    const emailChanged = emailInput !== '' && emailInput !== (user?.email ?? '').toLowerCase();
+  const applyAvatarPreview = useCallback((file: File | undefined) => {
+    if (!file) return;
+    if (avatarUrlRef.current) URL.revokeObjectURL(avatarUrlRef.current);
+    const url = URL.createObjectURL(file);
+    avatarUrlRef.current = url;
+    setAvatarPreviewUrl(url);
+  }, []);
 
-    // So sánh ở dạng E.164 để khớp với chuẩn hoá của backend.
-    const phoneInput = normalizePhone(phone);
-    const phoneChanged = phoneInput !== null && phoneInput !== (user?.phoneNumber ?? '');
+  const applyCoverPreview = useCallback((file: File | undefined) => {
+    if (!file) return;
+    if (coverUrlRef.current) URL.revokeObjectURL(coverUrlRef.current);
+    const url = URL.createObjectURL(file);
+    coverUrlRef.current = url;
+    setCoverPreviewUrl(url);
+  }, []);
 
-    if (emailChanged && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput)) {
-      next.email = 'Email chưa đúng định dạng.';
-    }
-    if (phoneChanged && !isValidPhone(phone)) {
-      next.phone = 'Số điện thoại chưa hợp lệ (VD: 0912345678).';
-    }
-    if (phoneChanged && otp.length !== OTP_LENGTH) {
-      next.otp = 'Vui lòng nhập đủ mã xác nhận.';
-    }
-    setErrors(next);
-    if (Object.keys(next).length > 0) return;
+  const handleUnavailableFeature = useCallback(
+    (featureName: string) => {
+      showToast({body: `Tính năng "${featureName}" sẽ có ở giai đoạn sau`});
+    },
+    [showToast],
+  );
 
-    setSubmitting(true);
-    setSaved(false);
-    try {
-      const payload: { email?: string; phone?: string; otp?: string } = {};
-      if (emailChanged) payload.email = emailInput;
-      if (phoneChanged) {
-        payload.phone = phoneInput ?? undefined;
-        payload.otp = otp;
-      }
-      await updateProfile(payload);
-      setEmail('');
-      setPhone('');
-      setOtp('');
-      setOtpSent(false);
-      setSaved(true);
-    } catch (err) {
-      setErrors((prev) => ({
-        ...prev,
-        form:
-          err instanceof ApiError
-            ? err.message
-            : 'Không cập nhật được thông tin. Vui lòng thử lại.',
-      }));
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  const handleEditProfile = useCallback(() => {
+    handleTabChange('settings');
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }, [handleTabChange]);
+
+  // Chờ `isLoading` kết thúc trước khi render — nếu không, lúc F5 sẽ thấy
+  // trang "Vui lòng đăng nhập" nháy qua trước khi user được đọc từ storage.
+  if (isLoading) {
+    return (
+      <section className="account">
+        <Text type="supporting">Đang tải hồ sơ…</Text>
+      </section>
+    );
+  }
 
   if (!user) {
     return (
       <section className="account">
-        <Text type="supporting">Vui lòng đăng nhập để xem trang cá nhân.</Text>
+        <Card variant="default" padding={0}>
+          <div className="account__empty">
+            <Heading level={1} className="account__empty-title">
+              Trang cá nhân
+            </Heading>
+            <Text type="supporting" className="account__empty-sub">
+              Vui lòng đăng nhập để xem trang cá nhân của bạn.
+            </Text>
+            <AppLink to="/dang-nhap" className="account__login-link">
+              Đăng nhập
+            </AppLink>
+          </div>
+        </Card>
       </section>
     );
   }
 
   return (
     <section className="account">
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25 }}
+      <ProfileHeader
+        user={user}
+        avatarPreviewUrl={avatarPreviewUrl}
+        coverPreviewUrl={coverPreviewUrl}
+        stats={{
+          posts: DEMO_MY_POSTS.length,
+          bookings: DEMO_MY_BOOKINGS.length,
+          moments: DEMO_MY_MOMENTS.length,
+        }}
+        onEditProfile={handleEditProfile}
+        onPickAvatar={() => avatarInputRef.current?.click()}
+        onPickCover={() => coverInputRef.current?.click()}
+      />
+
+      <div className="account__tabs">
+        <ProfileTabs value={activeTab} onChange={handleTabChange} />
+      </div>
+
+      <div
+        className="account__panel"
+        id={`profile-panel-${activeTab}`}
+        role="tabpanel"
+        aria-label={TAB_LABEL[activeTab]}
       >
-        <Card className="account__card" padding={0}>
-          <div className="account__body">
-            <header className="account__head">
-              <div className="account__icon" aria-hidden="true">
-                <ShieldCheck size={24} />
-              </div>
-              <Heading level={1} className="account__title">
-                Trang cá nhân
-              </Heading>
-              <Text type="supporting" className="account__sub">
-                Cập nhật thông tin liên hệ để được hỗ trợ nhanh hơn khi đặt sân.
-              </Text>
-            </header>
+        {activeTab === 'posts' && <ProfilePosts user={user} />}
+        {activeTab === 'bookings' && (
+          <ProfileBookings onUnavailableFeature={handleUnavailableFeature} />
+        )}
+        {activeTab === 'moments' && <ProfileMoments />}
+        {activeTab === 'settings' && (
+          <ProfileSettings
+            user={user}
+            avatarPreviewUrl={avatarPreviewUrl}
+            onPickAvatar={() => avatarInputRef.current?.click()}
+            onPickCover={() => coverInputRef.current?.click()}
+          />
+        )}
+      </div>
 
-            <div className="account__section">
-              <div className="account__row">
-                <span className="account__row-label">Họ tên</span>
-                <span className="account__row-value">{user.fullName || 'Chưa cập nhật'}</span>
-              </div>
-              <div className="account__row">
-                <span className="account__row-label">Email</span>
-                <span className="account__row-value">
-                  {user.email}
-                  {isTempEmail && (
-                    <span className="account__badge account__badge--warn">Chưa xác minh</span>
-                  )}
-                </span>
-              </div>
-              <div className="account__row">
-                <span className="account__row-label">Số điện thoại</span>
-                <span className="account__row-value">
-                  {user.phoneNumber || 'Chưa cập nhật'}
-                </span>
-              </div>
-            </div>
-
-            <form className="account__form" onSubmit={handleSubmit} noValidate>
-              <Heading level={2} className="account__form-title">
-                Cập nhật thông tin
-              </Heading>
-
-              <div className="account__field">
-                <label className="account__label" htmlFor="acc-email">Email</label>
-                <input
-                  id="acc-email"
-                  type="email"
-                  className={`account__input ${errors.email ? 'account__input--error' : ''}`}
-                  placeholder="ban@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  autoComplete="email"
-                />
-                {errors.email && (
-                  <span className="account__err">{errors.email}</span>
-                )}
-              </div>
-
-              <div className="account__field">
-                <label className="account__label" htmlFor="acc-phone">Số điện thoại</label>
-                <div className="account__phone-wrap">
-                  <input
-                    id="acc-phone"
-                    type="tel"
-                    className={`account__input ${errors.phone ? 'account__input--error' : ''}`}
-                    placeholder="0912345678"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    autoComplete="tel"
-                  />
-                  <button
-                    type="button"
-                    className="account__send-otp"
-                    onClick={handleSendOtp}
-                    disabled={otpSending || (otpSent && resendIn > 0)}
-                  >
-                    {otpSending
-                      ? 'Đang gửi…'
-                      : otpSent
-                        ? (resendIn > 0 ? `Gửi lại (${resendIn}s)` : 'Gửi lại')
-                        : 'Gửi mã'}
-                  </button>
-                </div>
-                {errors.phone && (
-                  <span className="account__err">{errors.phone}</span>
-                )}
-              </div>
-
-              {otpSent && (
-                <div className="account__field">
-                  <label className="account__label">Mã xác nhận</label>
-                  <OtpInput
-                    value={otp}
-                    onChange={setOtp}
-                    length={OTP_LENGTH}
-                    autoFocus
-                    error={errors.otp}
-                  />
-                  {devOtp && (
-                    <div className="account__dev">
-                      <span className="account__dev-label">Mã OTP (dev):</span>
-                      <button
-                        type="button"
-                        className="account__dev-code"
-                        onClick={() => setOtp(devOtp)}
-                      >
-                        {devOtp}
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {errors.form && (
-                <div className="account__alert" role="alert">{errors.form}</div>
-              )}
-
-              {saved && (
-                <div className="account__alert account__alert--ok" role="status">
-                  Đã cập nhật thông tin thành công.
-                </div>
-              )}
-
-              <Button
-                type="submit"
-                label={submitting ? 'Đang lưu…' : 'Lưu thay đổi'}
-                variant="primary"
-                width="100%"
-                isDisabled={submitting || (!email.trim() && !phone.trim())}
-                isLoading={submitting}
-                icon={submitting ? <Loader2 size={16} className="account__spinner" /> : undefined}
-                className="account__submit"
-              />
-            </form>
-          </div>
-        </Card>
-      </motion.div>
+      {/* File picker ẩn — nút trong header và tab Cài đặt đều kích hoạt nó. */}
+      <input
+        ref={avatarInputRef}
+        type="file"
+        accept="image/*"
+        hidden
+        aria-label="Chọn ảnh đại diện"
+        onChange={(e) => {
+          applyAvatarPreview(e.target.files?.[0]);
+          // Cho phép chọn lại cùng một file ngay sau đó.
+          e.target.value = '';
+        }}
+      />
+      <input
+        ref={coverInputRef}
+        type="file"
+        accept="image/*"
+        hidden
+        aria-label="Chọn ảnh bìa"
+        onChange={(e) => {
+          applyCoverPreview(e.target.files?.[0]);
+          e.target.value = '';
+        }}
+      />
     </section>
   );
 }

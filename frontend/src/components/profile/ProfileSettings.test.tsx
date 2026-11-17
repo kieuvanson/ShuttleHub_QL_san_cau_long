@@ -2,7 +2,6 @@ import {render, screen, waitFor} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {MemoryRouter} from 'react-router-dom';
 import {afterEach, describe, expect, it} from 'vitest';
-import {STORAGE_KEYS} from '../../api/config';
 import {AuthProvider} from '../../context/AuthContext';
 import {ProfileSettings} from './ProfileSettings';
 

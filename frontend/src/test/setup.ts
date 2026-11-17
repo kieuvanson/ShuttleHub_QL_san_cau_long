@@ -27,6 +27,11 @@ beforeAll(() => {
   if (!Element.prototype.scrollIntoView) {
     Element.prototype.scrollIntoView = function scrollIntoView() {};
   }
+
+  // jsdom chưa implement `Window.scrollTo` — trang cá nhân gọi nó khi bấm
+  // "Chỉnh sửa hồ sơ" để cuộn lên đầu trang. Không polyfill thì jsdom in
+  // cảnh báo "Not implemented" làm output test lẫn xô.
+  window.scrollTo = function scrollTo() {};
 });
 
 afterEach(() => {
