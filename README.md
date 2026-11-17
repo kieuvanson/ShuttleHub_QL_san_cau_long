@@ -266,6 +266,7 @@ Tất cả response có shape `{ code, message, data }`.
 | 3.10 | Tương tác feed client-side (giai đoạn 1, dữ liệu demo): thích/bỏ thích, lọc theo loại, đăng bài mới (modal + radio loại + giới hạn 500 ký tự), chia sẻ deep-link `/?post=<id>` (copy clipboard + tự cuộn), toast báo tính năng chưa làm / yêu cầu đăng nhập | ✅ |
 | 3.11 | Backend cho feed (bài viết, bình luận, theo dõi, ảnh khoảnh khắc) | ⬜ |
 | 3.12 | **Tách trang chủ / trang tìm sân** — trang chủ `/` chỉ còn bảng tin cộng đồng; landing marketing (hero, sân nổi bật, bảng giá, thành phố, FAQ) chuyển sang `/tim-san`; link anchor trong header/footer cuộn đúng tới section; hero rút gọn (không cao 1 màn hình, không trùng ô tìm kiếm) | ✅ |
+| 3.13 | **Trang cá nhân phong cách Facebook** `/tai-khoan` — ảnh bìa 240px + avatar 128px đè góc, tên/username/badge vai trò + thống kê, 4 tab (`?tab=posts\|bookings\|moments\|settings`): Bài viết (tái dùng `FeedPostCard`, lọc theo loại, đăng bài mới) · Kèo đã đặt (3 loại badge + trạng thái) · Khoảnh khắc (vòng tròn kiểu story, mở ảnh lớn ‹ ›) · Cài đặt (form đổi email/SĐT + OTP, ảnh hồ sơ, bảo mật). Dữ liệu demo, preview ảnh tại chỗ (chưa lưu server) | ✅ |
 
 ### Giai đoạn 4 — Vận hành (Nhân viên)
 
