@@ -61,7 +61,12 @@ export function ProfileHeader({
       <div className="profile-header__body">
         <div className="profile-header__avatar-wrap">
           <div className="profile-header__avatar">
-            <UserAvatar user={user} size="xl" srcOverride={avatarPreviewUrl} />
+            <UserAvatar
+              user={user}
+              size="xl"
+              srcOverride={avatarPreviewUrl}
+              fill
+            />
           </div>
           {/* Nút camera là <button> thuần vì `IconButton` của Astryx cần prop
               `label` riêng → accessible name sẽ không khớp với nhãn tiếng Việt

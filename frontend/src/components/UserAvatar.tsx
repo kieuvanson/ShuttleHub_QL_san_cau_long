@@ -24,6 +24,16 @@ export type UserAvatarProps = {
    *   không gửi đi đâu.
    */
   srcOverride?: string | null;
+  /**
+   * Avatar chiếm 100% khung cha thay vì kích thước cố định.
+   *
+   * ⚠️ Vì sao cần?
+   *   `Avatar` của Astryx đặt kích thước bằng inline `--x-width/--x-height`
+   *   → không thể đổi bằng media query trong CSS của ta (inline style thắng).
+   *   Trang cá nhân cần avatar đổi 128px → 96px ở mobile → phải cho avatar
+   *   co theo khung cha, còn khung cha do CSS quyết định.
+   */
+  fill?: boolean;
   className?: string;
 };
 
@@ -43,6 +53,7 @@ export function UserAvatar({
   user,
   size = 'md',
   srcOverride,
+  fill = false,
   className,
 }: UserAvatarProps) {
   const displayName =
@@ -54,6 +65,11 @@ export function UserAvatar({
       name={displayName}
       size={size}
       className={className}
+      /**
+       * ⚠️ `style` của consumer được `mergeProps` đặt SAU style của StyleX
+       *   → ghi đè được kích thước cố định của `Avatar`.
+       */
+      style={fill ? {width: '100%', height: '100%'} : undefined}
     />
   );
 }

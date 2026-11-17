@@ -82,6 +82,22 @@ describe('AccountPage', () => {
     );
   });
 
+  it('mọi tab đều trỏ aria-controls tới panel có thật trong DOM', async () => {
+    loginAs();
+    renderPage();
+    await waitFor(() =>
+      expect(screen.getByRole('tab', {name: 'Bài viết'})).toBeInTheDocument(),
+    );
+    // ⚠️ `aria-controls` trỏ tới id không tồn tại là giá trị không hợp lệ
+    //   (WCAG / axe `aria-valid-attr-value`) → screen reader không tìm được
+    //   panel mà tab điều khiển.
+    for (const tab of screen.getAllByRole('tab')) {
+      const controls = tab.getAttribute('aria-controls');
+      expect(controls).toBeTruthy();
+      expect(document.getElementById(controls as string)).not.toBeNull();
+    }
+  });
+
   it('bấm tab Cài đặt đổi nội dung hiển thị', async () => {
     loginAs();
     const u = userEvent.setup();
@@ -90,8 +106,15 @@ describe('AccountPage', () => {
       expect(screen.getByRole('tab', {name: 'Cài đặt'})).toBeInTheDocument(),
     );
     await u.click(screen.getByRole('tab', {name: 'Cài đặt'}));
-    await waitFor(() =>
-      expect(screen.getByLabelText('Email')).toBeInTheDocument(),
+    await waitFor(() => {
+      const panel = document.getElementById('profile-panel-settings');
+      expect(panel).not.toBeNull();
+      expect(panel).not.toHaveAttribute('hidden');
+      expect(screen.getByLabelText('Email')).toBeInTheDocument();
+    });
+    // Panel không chọn phải bị ẩn đi khỏi cây truy cập.
+    expect(document.getElementById('profile-panel-posts')).toHaveAttribute(
+      'hidden',
     );
   });
 

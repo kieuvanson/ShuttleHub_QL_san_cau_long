@@ -163,26 +163,42 @@ export function AccountPage() {
         <ProfileTabs value={activeTab} onChange={handleTabChange} />
       </div>
 
-      <div
-        className="account__panel"
-        id={`profile-panel-${activeTab}`}
-        role="tabpanel"
-        aria-label={TAB_LABEL[activeTab]}
-      >
-        {activeTab === 'posts' && <ProfilePosts user={user} />}
-        {activeTab === 'bookings' && (
-          <ProfileBookings onUnavailableFeature={handleUnavailableFeature} />
-        )}
-        {activeTab === 'moments' && <ProfileMoments />}
-        {activeTab === 'settings' && (
-          <ProfileSettings
-            user={user}
-            avatarPreviewUrl={avatarPreviewUrl}
-            onPickAvatar={() => avatarInputRef.current?.click()}
-            onPickCover={() => coverInputRef.current?.click()}
-          />
-        )}
-      </div>
+      {/*
+        ⚠️ Vì sao render CẢ 4 panel thay vì chỉ panel đang chọn?
+          `aria-controls` của mỗi tab trỏ tới id của panel. Nếu chỉ render
+          panel đang chọn thì 3 tab còn lại trỏ tới id KHÔNG tồn tại →
+          `aria-controls` là giá trị không hợp lệ (WCAG / axe
+          `aria-valid-attr-value`) và screen reader không tìm được panel mà
+          tab điều khiển.
+          Render cả 4 rồi ẩn bằng `hidden` → mọi id tồn tại, tab không chọn
+          vẫn bị loại khỏi cây truy cập (đúng pattern tabs của WAI-ARIA).
+          State của từng panel (bài đã thích, khoảnh khắc đã thêm…) sống
+          riêng → đổi tab không mất dữ liệu.
+      */}
+      {TAB_VALUES.map((tab) => (
+        <div
+          key={tab}
+          className="account__panel"
+          id={`profile-panel-${tab}`}
+          role="tabpanel"
+          aria-label={TAB_LABEL[tab]}
+          hidden={tab !== activeTab}
+        >
+          {tab === 'posts' && <ProfilePosts user={user} />}
+          {tab === 'bookings' && (
+            <ProfileBookings onUnavailableFeature={handleUnavailableFeature} />
+          )}
+          {tab === 'moments' && <ProfileMoments />}
+          {tab === 'settings' && (
+            <ProfileSettings
+              user={user}
+              avatarPreviewUrl={avatarPreviewUrl}
+              onPickAvatar={() => avatarInputRef.current?.click()}
+              onPickCover={() => coverInputRef.current?.click()}
+            />
+          )}
+        </div>
+      ))}
 
       {/* File picker ẩn — nút trong header và tab Cài đặt đều kích hoạt nó. */}
       <input

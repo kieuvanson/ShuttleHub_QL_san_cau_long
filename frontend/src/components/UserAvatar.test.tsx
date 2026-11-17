@@ -78,6 +78,18 @@ describe('UserAvatar', () => {
     expect(root.style.getPropertyValue('--x-width')).toBe('128px');
   });
 
+  it('fill → avatar chiếm 100% khung cha (để responsive theo CSS)', () => {
+    const { container } = render(
+      <UserAvatar user={{ fullName: 'Kieu Van Son' }} size="xl" fill />,
+    );
+
+    const root = container.firstElementChild as HTMLElement;
+    // `Avatar` của Astryx đặt kích thước qua inline `--x-width/--x-height`
+    // → ghi đè bằng `width/height: 100%` để avatar co theo khung cha.
+    expect(root.style.width).toBe('100%');
+    expect(root.style.height).toBe('100%');
+  });
+
   it('srcOverride ghi đè avatarUrl', () => {
     const { container } = render(
       <UserAvatar
